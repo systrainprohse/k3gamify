@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kompetensi Saya</title>
+  <link rel="stylesheet" href="stylekompetensi.css" />
+</head>
+<body>
+
+  <!-- Header -->
+ <header class="k3-header">
+    <h1>Kompetensi Saya</h1>
+    <p>Masukkan nama Anda untuk melihat data kompetensi dan rekomendasi pelatihan berdasarkan jabatan.</p>
+  </header>
+
+  <main>
+    <div class="search-container">
+      <input type="text" id="search" placeholder="🔍 Cari nama Anda di sini..." />
+      <button onclick="searchData()">Cari</button>
+      <button class="reset-btn" onclick="reset()">Reset</button>
+    </div>
+    <div id="loading" class="loading-text" style="display:none;">🔄 Memuat data...</div>
+    <div id="results"></div>
+  </main>
+
+  <!-- Footer Navigasi -->
+  <nav class="footer-nav">
+    <ul>
+      <li><a href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" /><span>Home</span></a></li>
+      <li class="active"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/2631/2631384.png" /><span>Kompetensi</span></a></li>
+      <li><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/2099/2099058.png" /><span>Settings</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- Script -->
+<script src="script_kompetensi.js" defer></script>
+
+
+</body>
+</html>

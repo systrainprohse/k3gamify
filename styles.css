@@ -1,0 +1,490 @@
+/* === GLOBAL RESET & BASE === */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* === HEADER === */
+header {
+  background-color: #007bff;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+header p {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* === MAIN CONTENT === */
+main,
+.result-section,
+.category,
+.search-container {
+  padding: 16px;
+}
+
+/* === CARD GRID === */
+.category {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 16px;
+  text-align: center;
+  flex: 1 1 calc(25% - 20px);
+  max-width: calc(25% - 20px);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 10px;
+}
+
+.card h2 {
+  margin: 10px 0 5px;
+  font-size: 16px;
+}
+
+.card p {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* === RESPONSIVE CARDS === */
+@media (max-width: 768px) {
+  .card {
+    flex: 1 1 calc(50% - 20px);
+    max-width: calc(50% - 20px);
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+
+/* === FOOTER NAVIGATION === */
+.footer-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+  z-index: 1000;
+}
+
+.footer-nav ul {
+  display: flex;
+  justify-content: space-around;
+  margin: 0;
+  padding: 8px 0 0;
+  list-style: none;
+}
+
+.footer-nav li {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.footer-nav li a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+  font-size: 12px;
+  padding-bottom: 6px;
+}
+
+.footer-nav li img {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+}
+
+.footer-nav li.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 3px;
+  background-color: #007bff;
+  border-radius: 2px;
+}
+
+/* === K3 HEADER === */
+.k3-header {
+  background: linear-gradient(to bottom right, #b30000, #ff4d4d);
+  color: white;
+  padding: 60px 20px 100px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.k3-header h1 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.k3-header p {
+  font-size: 14px;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.ninja-bg::before {
+  content: "";
+  background-image: url('https://cdn-icons-png.flaticon.com/512/3468/3468379.png');
+  background-size: 100px;
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  opacity: 0.2;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 100px;
+  height: 100px;
+}
+
+.ninja-animated {
+  position: absolute;
+  bottom: 10px;
+  right: -120px;
+  width: 100px;
+  opacity: 0;
+  animation: ninjaSlideIn 2s ease-out forwards;
+}
+
+@keyframes ninjaSlideIn {
+  0% {
+    right: -120px;
+    opacity: 0;
+    transform: scale(0.5) rotate(-10deg);
+  }
+  60% {
+    right: 30px;
+    opacity: 1;
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    right: 10px;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* === PARALLAX TEXTURE === */
+.k3-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 150%;
+  background: url('https://www.transparenttextures.com/patterns/black-linen.png');
+  opacity: 0.05;
+  animation: parallaxScroll 20s linear infinite alternate;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes parallaxScroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50px); }
+}
+
+/* === SEARCH BAR === */
+.search-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 30px auto;
+  max-width: 600px;
+}
+
+.search-container input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 16px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.search-container input[type="text"]:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+
+.search-container button {
+  padding: 12px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.search-container button:hover {
+  opacity: 0.9;
+}
+
+.search-container button:first-of-type {
+  background-color: #007bff;
+  color: white;
+}
+
+.search-container .reset-btn {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+}
+
+.loading-text {
+  text-align: center;
+  font-style: italic;
+  color: #555;
+  margin-top: 10px;
+}
+
+/* === RESULT SECTION === */
+.result-section {
+  margin-top: 40px;
+}
+
+.result-section h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: #007bff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  justify-items: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.grid-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 24px 16px;
+  text-align: center;
+  width: 100%;
+  max-width: 200px;
+  transition: transform 0.2s ease;
+}
+
+.grid-card img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.grid-card p {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* === INTRO OVERLAY === */
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.intro-content {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  color: white;
+  animation: slideUp 1s ease-out;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.intro-content input {
+  padding: 10px;
+  margin-top: 15px;
+  width: 80%;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.intro-content input:focus {
+  outline: none;
+  box-shadow: 0 0 10px #00c9a7, 0 0 20px #00c9a7;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.intro-content button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #00c9a7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.intro-content button:hover {
+  background: #00b38f;
+}
+
+/* === BUTTON RIPPLE EFFECT === */
+.intro-content button::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+.ripple {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+}
+
+@keyframes ripple {
+  to {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+/* === INTRO ANIMATIONS === */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.fade-out {
+  animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* === TYPING EFFECT === */
+.typing {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid white;
+  animation: typing 3s steps(30, end), blink 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink {
+  50% { border-color: transparent }
+}
+
+/* === FLOATING NINJA === */
+.floating-ninja {
+  width: 100px;
+  animation: float 3s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* === PARTICLES BACKGROUND === */
+#particles-js {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  top: 0;
+  left: 0;
+}

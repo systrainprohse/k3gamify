@@ -51,8 +51,8 @@ main,
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   padding: 16px;
   text-align: center;
-  flex: 1 1 calc(25% - 20px);
-  max-width: calc(25% - 20px);
+  flex: 1 1 100%;
+  max-width: 100%;
   transition: transform 0.2s ease;
 }
 
@@ -78,18 +78,18 @@ main,
   line-height: 1.4;
 }
 
-/* === RESPONSIVE CARDS === */
-@media (max-width: 768px) {
+/* === RESPONSIVE BREAKPOINTS === */
+@media (min-width: 481px) {
   .card {
     flex: 1 1 calc(50% - 20px);
     max-width: calc(50% - 20px);
   }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 769px) {
   .card {
-    flex: 1 1 100%;
-    max-width: 100%;
+    flex: 1 1 calc(25% - 20px);
+    max-width: calc(25% - 20px);
   }
 }
 
@@ -281,13 +281,6 @@ main,
   border: 1px solid #ccc;
 }
 
-.loading-text {
-  text-align: center;
-  font-style: italic;
-  color: #555;
-  margin-top: 10px;
-}
-
 /* === RESULT SECTION === */
 .result-section {
   margin-top: 40px;
@@ -307,11 +300,17 @@ main,
 
 .grid-2x2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 20px;
   justify-items: center;
   max-width: 500px;
   margin: 0 auto;
+}
+
+@media (min-width: 481px) {
+  .grid-2x2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .grid-card {
@@ -337,6 +336,11 @@ main,
   color: #333;
   margin: 0;
 }
+
+/* === INTRO OVERLAY, ANIMASI, TYPING, DLL === */
+/* Tetap sama seperti sebelumnya, tidak perlu diubah karena tidak tergantung ukuran layar */
+
+
 
 /* === INTRO OVERLAY === */
 .intro-overlay {

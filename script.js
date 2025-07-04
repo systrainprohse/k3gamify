@@ -88,3 +88,54 @@ if (typeof particlesJS !== "undefined") {
     retina_detect: true
   });
 }
+
+// script.js
+document.addEventListener('DOMContentLoaded', () => {
+  const items = document.querySelectorAll('.behavior-list li');
+
+  items.forEach(li => {
+    li.addEventListener('click', () => {
+      li.classList.toggle('completed');
+    });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const items = document.querySelectorAll('.behavior-list li');
+  const zeroText = document.querySelector('.zero-accident-text');
+
+  // stagger muncul zero-accident-text
+  setTimeout(() => {
+    zeroText.style.opacity = 1;
+  }, 500);
+
+  items.forEach((li, idx) => {
+    li.style.setProperty('--delay', `${idx * 0.1 + 0.4}s`);
+    const b = li.querySelector('.badge');
+    if (b) b.style.setProperty('--i', idx);
+    li.addEventListener('click', () => li.classList.toggle('completed'));
+  });
+});
+
+// 3D Tilt Effect
+const card3d = document.querySelector('.kompetent-card.card-3d');
+const inner  = card3d.querySelector('.card-inner');
+
+card3d.addEventListener('mousemove', e => {
+  const rect = card3d.getBoundingClientRect();
+  const xPos = e.clientX - rect.left;
+  const yPos = e.clientY - rect.top;
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+
+  // rotasi +/- berdasarkan jarak dari center
+  const rotY = ((xPos - centerX) / centerX) * 10; // max  ±10°
+  const rotX = ((centerY - yPos) / centerY) * 10; // max  ±10°
+
+  inner.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+});
+
+card3d.addEventListener('mouseleave', () => {
+  inner.style.transform = 'rotateX(0deg) rotateY(0deg)';
+});
+

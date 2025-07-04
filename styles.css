@@ -51,8 +51,8 @@ main,
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   padding: 16px;
   text-align: center;
-  flex: 1 1 calc(25% - 20px);
-  max-width: calc(25% - 20px);
+  flex: 1 1 100%;
+  max-width: 100%;
   transition: transform 0.2s ease;
 }
 
@@ -78,18 +78,18 @@ main,
   line-height: 1.4;
 }
 
-/* === RESPONSIVE CARDS === */
-@media (max-width: 768px) {
+/* === RESPONSIVE BREAKPOINTS === */
+@media (min-width: 481px) {
   .card {
     flex: 1 1 calc(50% - 20px);
     max-width: calc(50% - 20px);
   }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 769px) {
   .card {
-    flex: 1 1 100%;
-    max-width: 100%;
+    flex: 1 1 calc(25% - 20px);
+    max-width: calc(25% - 20px);
   }
 }
 
@@ -281,13 +281,6 @@ main,
   border: 1px solid #ccc;
 }
 
-.loading-text {
-  text-align: center;
-  font-style: italic;
-  color: #555;
-  margin-top: 10px;
-}
-
 /* === RESULT SECTION === */
 .result-section {
   margin-top: 40px;
@@ -307,11 +300,17 @@ main,
 
 .grid-2x2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 20px;
   justify-items: center;
   max-width: 500px;
   margin: 0 auto;
+}
+
+@media (min-width: 481px) {
+  .grid-2x2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .grid-card {
@@ -337,6 +336,11 @@ main,
   color: #333;
   margin: 0;
 }
+
+/* === INTRO OVERLAY, ANIMASI, TYPING, DLL === */
+/* Tetap sama seperti sebelumnya, tidak perlu diubah karena tidak tergantung ukuran layar */
+
+
 
 /* === INTRO OVERLAY === */
 .intro-overlay {
@@ -487,4 +491,200 @@ main,
   z-index: -1;
   top: 0;
   left: 0;
+}
+
+.kompetent-card {
+  background-color: #d60000;
+  color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.card-header h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.card-header p {
+  font-size: 1.1rem;
+  margin: 5px 0 0;
+}
+
+.card-content h2 {
+  font-size: 1.4rem;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.card-content p {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.behavior-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.behavior-list li {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.behavior-list li:nth-child(odd) {
+  background-color: #ff4d4d;
+}
+
+.behavior-list li:nth-child(even) {
+  background-color: #b30000;
+}
+
+.badge {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  background: #fff;
+  color: #d60000;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.card-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.card-footer p {
+  font-style: italic;
+}
+
+.behavior-list li.completed {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* === KEYFRAMES === */
+@keyframes fadeInUp {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  0%   { opacity: 0; transform: translateX(-30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pop {
+  0%   { transform: scale(0); }
+  80%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* === CARD APPEARANCE === */
+.kompetent-card {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* === HEADER TITLE POP === */
+.card-header h1 {
+  display: inline-block;
+  animation: pop 0.6s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+/* === BEHAVIOR ITEMS SLIDE IN === */
+.behavior-list li {
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: slideInLeft 0.5s ease-out var(--delay) forwards;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.behavior-list li:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* === OPTIONAL: completed state === */
+.behavior-list li.completed {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* === BADGE POP ON LOAD === */
+.badge {
+  display: inline-block;
+  transform: scale(0);
+  animation: pop 0.5s ease-out calc(var(--i) * 0.1s) forwards;
+}
+
+/* === 3D PERSPECTIVE & INNER WRAP === */
+.kompetent-card.card-3d {
+  perspective: 1000px;
+}
+
+.card-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+}
+
+/* === DEPTH LAYERS === */
+.zero-accident-text {
+  position: absolute;
+  top: 50%; left: -60px;
+  transform: rotate(-90deg) translateY(-50%) scale(0.8) translateZ(40px);
+  opacity: 0.6;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: .1em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.vector-bg {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 200px; height: 200px;
+  background: url('https://www.svgrepo.com/show/331313/safety-card.svg') no-repeat center/contain;
+  transform: translateZ(20px);
+  opacity: 0.2;
+}
+
+/* Header, content, footer get their own Z-depth */
+.card-header { transform: translateZ(60px); }
+.card-content { transform: translateZ(40px); }
+.card-footer  { transform: translateZ(20px); }
+
+/* === HOVER & MOUSEMOVE TILT === */
+.kompetent-card.card-3d:hover .card-inner {
+  transition: transform 0.1s ease-out;
+}
+
+/* === ENHANCED SHADOW FOR DEPTH === */
+.kompetent-card {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* (optional) sedikit glow saat hover */
+.kompetent-card:hover {
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.3),
+    0 0 20px rgba(255,255,255,0.1);
 }

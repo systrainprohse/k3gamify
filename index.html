@@ -1,120 +1,1820 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>K3 Ninja</title>
-  <link rel="stylesheet" href="styles.css" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GAMITAS - Aplikasi Keselamatan Terpadu</title>
 
-</head>
-<body>
-  <div id="particles-js"></div>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="msapplication-navbutton-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link
+      rel="apple-touch-icon"
+      href="https://cdn-icons-png.flaticon.com/512/3468/3468379.png"
+    />
 
-  <!-- Header dengan animasi ninja -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
+      rel="stylesheet"
+    />
 
-  <div id="intro-overlay" class="intro-overlay">
-    <div class="intro-content">
-      <h2 class="typing">Selamat datang, Ninja K3!</h2>
-      <p>Masukkan namamu untuk memulai perjalanan keselamatan.</p>
-      <input type="text" id="username" placeholder="Nama kamu..." />
-      <button onclick="startExperience()">Mulai</button>
+    <style>
+      /* === GLOBAL RESET & BASE === */
+      :root {
+        --primary-color: #d32f2f;
+        --secondary-color: #ff7043;
+        --background-color: #f4f6f8;
+        --text-color: #212121;
+        --text-color-light: #757575;
+        --card-bg: #ffffff;
+        --header-bg: #ffffff;
+        --border-color: #eeeeee;
+        --tab-active-bg: #d32f2f;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        height: 100%;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #e9e9ef;
+        color: var(--text-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+      }
+
+      /* === MOBILE FRAME WRAPPER === */
+      .mobile-wrapper {
+        width: 100%;
+        height: 100%;
+        max-width: 450px;
+        max-height: 950px;
+        background-color: var(--background-color);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        border-radius: 20px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      /* === MAIN APP STRUCTURE === */
+      #app-container,
+      #login-screen,
+      #register-screen {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+      }
+
+      .scrollable-content {
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+
+      /* === ANIMATION KEYFRAMES === */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      /* === LOGIN & REGISTER SCREEN STYLES === */
+      #login-screen,
+      #register-screen {
+        background-color: var(--header-bg);
+        padding: 24px;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        overflow-y: auto;
+      }
+      .form-container {
+        width: 100%;
+        max-width: 400px;
+        margin: auto;
+      }
+      .form-container .logo {
+        font-weight: bold;
+        font-size: 48px;
+        color: var(--primary-color);
+        margin-bottom: 16px;
+        animation: fadeInUp 0.5s ease-out;
+      }
+      .form-container h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 8px;
+        animation: fadeInUp 0.5s ease-out 0.1s;
+        animation-fill-mode: both;
+      }
+      .form-container p {
+        font-size: 16px;
+        color: var(--text-color-light);
+        margin-bottom: 40px;
+        animation: fadeInUp 0.5s ease-out 0.2s;
+        animation-fill-mode: both;
+      }
+      .login-choices {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .login-choice-btn {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        animation: fadeInUp 0.5s ease-out;
+        animation-fill-mode: both;
+      }
+      .login-choice-btn:nth-child(1) {
+        animation-delay: 0.3s;
+      }
+      .login-choice-btn:nth-child(2) {
+        animation-delay: 0.4s;
+      }
+
+      .login-choice-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-color);
+      }
+      .login-choice-btn img {
+        width: 40px;
+        height: 40px;
+        margin-right: 16px;
+      }
+      .login-choice-btn .btn-text h4 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .login-choice-btn .btn-text p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text-color-light);
+      }
+      .register-link {
+        margin-top: 24px;
+        font-size: 14px;
+        color: var(--text-color-light);
+        animation: fadeInUp 0.5s ease-out 0.5s;
+        animation-fill-mode: both;
+      }
+      .register-link a {
+        color: var(--primary-color);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      /* === REGISTER FORM STYLES === */
+      .register-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        text-align: left;
+      }
+      .register-form .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+      .register-form label {
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 14px;
+      }
+      .register-form input {
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      .register-form button {
+        padding: 14px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 16px;
+      }
+
+      /* === UTILITIES & PAGE TRANSITIONS === */
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+        animation: fadeIn 0.4s ease-in-out;
+      }
+
+      /* === APP HEADER === */
+      .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background-color: var(--header-bg);
+        flex-shrink: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        transition: top 0.3s ease-in-out;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .app-header.hidden {
+        top: -100px; /* Sembunyikan header saat scroll */
+      }
+      .app-header .logo {
+        font-weight: bold;
+        font-size: 24px;
+        color: var(--primary-color);
+      }
+      .app-header .logout-btn {
+        background: none;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s, color 0.2s;
+      }
+      .app-header .logout-btn:hover {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      /* === USER PROFILE SECTION === */
+      .user-profile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background-color: var(--header-bg);
+        border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0;
+      }
+      .user-profile .greeting h2 {
+        margin: 0;
+        font-size: clamp(20px, 5vw, 22px);
+        font-weight: 600;
+      }
+      .user-profile .quick-actions {
+        display: flex;
+        gap: 16px;
+      }
+      .user-profile .quick-actions .action-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 12px;
+        color: var(--text-color-light);
+        text-decoration: none;
+      }
+      .user-profile .quick-actions img {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 4px;
+      }
+
+      /* === TAB NAVIGATION === */
+      .main-tabs {
+        display: flex;
+        gap: 10px;
+        padding: 0 16px 20px 16px;
+        background-color: var(--header-bg);
+        overflow-x: auto;
+        flex-shrink: 0;
+      }
+      .main-tabs .tab {
+        padding: 8px 20px;
+        border-radius: 20px;
+        background-color: #e0e0e0;
+        color: var(--text-color-light);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+      .main-tabs .tab.active {
+        background-color: var(--tab-active-bg);
+        color: white;
+      }
+
+      /* === MAIN CONTENT & CARDS === */
+      main {
+        padding: 16px;
+      }
+
+      /* === CAROUSEL BANNER === */
+      .carousel-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        animation: fadeInUp 0.5s ease-out;
+      }
+      .carousel-track {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+      }
+      .carousel-slide {
+        min-width: 100%;
+        background: linear-gradient(
+          105deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 180px;
+      }
+      .carousel-slide .card-title {
+        font-size: 14px;
+        font-weight: 600;
+        opacity: 0.8;
+        margin: 0 0 8px 0;
+        text-transform: uppercase;
+      }
+      .carousel-slide .card-content {
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1.4;
+      }
+      .carousel-dots {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+      }
+      .carousel-dots .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.5);
+        transition: background-color 0.3s;
+        cursor: pointer;
+      }
+      .carousel-dots .dot.active {
+        background-color: white;
+      }
+
+      /* === SECTION TITLE === */
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        animation: fadeInUp 0.5s ease-out 0.1s;
+        animation-fill-mode: both;
+      }
+      .section-title h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .section-title a {
+        font-size: 14px;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      /* === FEATURE GRID === */
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 16px;
+      }
+      .feature-card {
+        background-color: var(--card-bg);
+        border-radius: 16px;
+        padding: 12px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+        animation: fadeInUp 0.5s ease-out;
+        animation-fill-mode: both;
+      }
+      .feature-card:hover {
+        transform: translateY(-4px);
+      }
+      .feature-card .icon-wrapper {
+        background-color: #feeceb;
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 12px auto;
+      }
+      .feature-card img {
+        width: 32px;
+        height: 32px;
+      }
+      .feature-card p {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      /* === FOOTER NAVIGATION (ROBUST & RESPONSIVE) === */
+      .footer-nav {
+        background-color: var(--card-bg);
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+        flex-shrink: 0;
+        width: 100%;
+      }
+      .footer-nav ul {
+        display: flex;
+        justify-content: space-around;
+        align-items: stretch; /* Make items fill height */
+        margin: 0;
+        padding: 8px 0;
+        list-style: none;
+        width: 100%;
+      }
+      .footer-nav li {
+        flex: 1; /* CRITICAL CHANGE: Each item takes equal space */
+        display: flex;
+      }
+      .footer-nav li a {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Center content vertically */
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-color);
+        font-size: 11px;
+        padding: 4px 2px;
+        position: relative;
+        text-align: center;
+        width: 100%; /* Make link fill the list item */
+      }
+      .footer-nav li a span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 95%; /* Give a little breathing room */
+        display: inline-block;
+      }
+      .footer-nav li a img {
+        width: 24px;
+        height: 24px;
+        margin-bottom: 4px;
+      }
+      .footer-nav li.active a span {
+        color: var(--primary-color);
+        font-weight: bold;
+      }
+      .footer-nav li.active a::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40%;
+        height: 3px;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+      }
+
+      /* === Other Pages (Kompetensi, Kartu, Jadwal) === */
+      .page-content {
+        padding: 16px;
+      }
+      .page-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 24px;
+      }
+      #page-kartudigital.active .kompetent-card {
+        animation: fadeInUp 0.5s ease-out;
+      }
+      .kompetent-card {
+        background-color: #d60000;
+        color: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px auto;
+        max-width: 500px;
+        perspective: 1000px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+      #page-jadwal.active #calendar {
+        animation: fadeInUp 0.5s ease-out;
+      }
+      #calendar {
+        max-width: 100%;
+        margin: 20px auto;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+      }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close:hover {
+        color: #000;
+      }
+      #page-kompetensi.active .search-container {
+        animation: fadeInUp 0.5s ease-out;
+      }
+      .search-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+      .search-container input[type="text"] {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 16px;
+        border: 2px solid var(--primary-color);
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      .search-container button {
+        padding: 12px 20px;
+        font-size: 14px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .search-container button:first-of-type {
+        background-color: var(--primary-color);
+        color: white;
+      }
+      .search-container .reset-btn {
+        background-color: #f0f0f0;
+        color: var(--text-color);
+        border: 1px solid #ccc;
+      }
+      .loading-text {
+        text-align: center;
+        font-style: italic;
+        color: #555;
+        margin-top: 10px;
+      }
+      .result-section {
+        margin-top: 24px;
+        padding: 0;
+      }
+      .result-section h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--text-color);
+      }
+
+      /* === COMPETENCY GRID STYLES === */
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+      }
+      .grid-card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 24px 16px;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+        transition: transform 0.2s ease;
+        opacity: 0;
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+      .grid-card:hover {
+        transform: translateY(-4px);
+      }
+      .grid-card img {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+      }
+      .grid-card p {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-color);
+        margin: 0;
+      }
+
+      /* === NEW INDUCTION LIST STYLES === */
+      .induction-flow-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .induction-step {
+        background-color: var(--card-bg);
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        animation: fadeInUp 0.5s ease-out forwards;
+        opacity: 0;
+      }
+      .induction-step h3 {
+        margin: 0 0 12px 0;
+        font-size: 18px;
+      }
+      .induction-step p {
+        margin: 0;
+        line-height: 1.6;
+        color: var(--text-color-light);
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .form-group label {
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .form-group select {
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background-color: white;
+        font-size: 16px;
+      }
+      .form-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        background-color: #feeceb;
+        border-radius: 8px;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 8px;
+      }
+      .form-link img {
+        width: 24px;
+        height: 24px;
+        margin-right: 12px;
+      }
+      .instruction-box {
+        background-color: #fff9c4;
+        border: 1px solid #fbc02d;
+        color: #3e2723;
+        padding: 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+      .final-step-box {
+        background-color: #e8f5e9;
+        border: 1px solid #4caf50;
+        color: #1b5e20;
+        padding: 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 1.7;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mobile-wrapper">
+      <div id="login-screen">
+        <div class="form-container">
+          <div class="logo">GAMITAS</div>
+          <h2>Selamat Datang</h2>
+          <p>Pilih tipe login untuk melanjutkan</p>
+          <div class="login-choices">
+            <div class="login-choice-btn" onclick="login('Karyawan GAM')">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png"
+                alt="Ikon Karyawan"
+              />
+              <div class="btn-text">
+                <h4>Login sebagai Karyawan GAM</h4>
+                <p>Akses fitur untuk internal perusahaan</p>
+              </div>
+            </div>
+            <div class="login-choice-btn" onclick="login('Mitra Kerja')">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/904/904772.png"
+                alt="Ikon Mitra"
+              />
+              <div class="btn-text">
+                <h4>Login sebagai Mitra Kerja</h4>
+                <p>Akses fitur untuk vendor dan kontraktor</p>
+              </div>
+            </div>
+          </div>
+          <p class="register-link">
+            Belum punya akun?
+            <a href="#" onclick="showRegisterForm()">Daftar sekarang</a>
+          </p>
+        </div>
+      </div>
+
+      <div id="register-screen" style="display: none">
+        <div class="form-container">
+          <div class="logo">GAMITAS</div>
+          <h2>Buat Akun Baru</h2>
+          <form class="register-form" onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label for="reg-nama">Nama Lengkap</label>
+              <input type="text" id="reg-nama" required />
+            </div>
+            <div class="form-group">
+              <label for="reg-nik">NIK KTP</label>
+              <input type="text" id="reg-nik" required />
+            </div>
+            <div class="form-group">
+              <label for="reg-email">Email</label>
+              <input type="email" id="reg-email" required />
+            </div>
+            <div class="form-group">
+              <label for="reg-wa">No. WhatsApp</label>
+              <input
+                type="tel"
+                id="reg-wa"
+                required
+                pattern="^(08|\+628)\d{8,11}$"
+                title="Gunakan format 08... atau +628..."
+              />
+            </div>
+            <div class="form-group">
+              <label for="reg-perusahaan">Perusahaan</label>
+              <input type="text" id="reg-perusahaan" required />
+            </div>
+            <button type="submit">Daftar Sekarang</button>
+          </form>
+          <p class="register-link">
+            Sudah punya akun? <a href="#" onclick="showLoginForm()">Login</a>
+          </p>
+        </div>
+      </div>
+
+      <div id="app-container" style="display: none">
+        <header class="app-header">
+          <div class="logo">GAMITAS</div>
+          <button class="logout-btn" onclick="logout()">Keluar</button>
+        </header>
+
+        <div class="scrollable-content">
+          <div id="page-home" class="page">
+            <section class="user-profile">
+              <div class="greeting">
+                <h2 id="user-greeting">Hi, Pengguna!</h2>
+              </div>
+              <div class="quick-actions">
+                <a href="#" class="action-icon">
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/3602/3602123.png"
+                    alt="Notifikasi"
+                  />
+                  <span>Notifikasi</span>
+                </a>
+                <a href="#" class="action-icon">
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/1574/1574671.png"
+                    alt="Riwayat"
+                  />
+                  <span>Riwayat</span>
+                </a>
+              </div>
+            </section>
+
+            <section class="main-tabs">
+              <div class="tab active">Dashboard</div>
+              <div class="tab">Insight</div>
+              <div class="tab">Laporan</div>
+            </section>
+
+            <main>
+              <div class="carousel-container">
+                <div class="carousel-track">
+                  <div class="carousel-slide">
+                    <p class="card-title">Pesan Keselamatan</p>
+                    <p class="card-content">
+                      Selalu periksa peralatan Anda sebelum memulai pekerjaan.
+                    </p>
+                  </div>
+                  <div class="carousel-slide">
+                    <p class="card-title">Zona Berbahaya</p>
+                    <p class="card-content">
+                      Waspada area peledakan. Dilarang masuk tanpa izin.
+                    </p>
+                  </div>
+                  <div class="carousel-slide">
+                    <p class="card-title">Area Berbahaya</p>
+                    <p class="card-content">
+                      Gunakan pelindung telinga di sekitar area genset.
+                    </p>
+                  </div>
+                  <div class="carousel-slide">
+                    <p class="card-title">TTA/KTA Hari Ini</p>
+                    <p class="card-content">
+                      Fokus pada pencegahan tangan terjepit saat perbaikan unit.
+                    </p>
+                  </div>
+                  <div class="carousel-slide">
+                    <p class="card-title">Top Hazard Report</p>
+                    <p class="card-content">
+                      Lantai licin di area workshop menjadi laporan terbanyak
+                      minggu ini.
+                    </p>
+                  </div>
+                </div>
+                <div class="carousel-dots"></div>
+              </div>
+
+              <div class="section-title">
+                <h2>Fitur Pilihan</h2>
+              </div>
+
+              <div class="feature-grid">
+                <a
+                  onclick="showPage('page-kompetensi')"
+                  class="feature-card"
+                  style="animation-delay: 0.2s"
+                >
+                  <div class="icon-wrapper">
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/992/992648.png"
+                      alt="Kompetensi Icon"
+                    />
+                  </div>
+                  <p>Kompetensi</p>
+                </a>
+                <a
+                  onclick="showPage('page-kartudigital')"
+                  class="feature-card"
+                  style="animation-delay: 0.25s"
+                >
+                  <div class="icon-wrapper">
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/8351/8351110.png"
+                      alt="Kartu Digital Icon"
+                    />
+                  </div>
+                  <p>Kartu Digital</p>
+                </a>
+                <a
+                  onclick="showPage('page-jadwal')"
+                  class="feature-card"
+                  style="animation-delay: 0.3s"
+                >
+                  <div class="icon-wrapper">
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/3652/3652191.png"
+                      alt="Jadwal Pelatihan Icon"
+                    />
+                  </div>
+                  <p>Jadwal</p>
+                </a>
+                <a
+                  onclick="showPage('page-induksi')"
+                  class="feature-card"
+                  style="animation-delay: 0.35s"
+                >
+                  <div class="icon-wrapper">
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/3063/3063823.png"
+                      alt="Induksi Icon"
+                    />
+                  </div>
+                  <p>Induksi</p>
+                </a>
+                <a href="#" class="feature-card" style="animation-delay: 0.4s">
+                  <div class="icon-wrapper">
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/2991/2991108.png"
+                      alt="Buku Keselamatan Icon"
+                    />
+                  </div>
+                  <p>Panduan</p>
+                </a>
+                <a href="#" class="feature-card" style="animation-delay: 0.45s">
+                  <div class="icon-wrapper">
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/2942/2942788.png"
+                      alt="Lapor Bahaya Icon"
+                    />
+                  </div>
+                  <p>Lapor</p>
+                </a>
+                <a href="#" class="feature-card" style="animation-delay: 0.55s">
+                  <div class="icon-wrapper">
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/993/993771.png"
+                      alt="Semua Fitur Icon"
+                    />
+                  </div>
+                  <p>Lainnya</p>
+                </a>
+              </div>
+            </main>
+          </div>
+
+          <div id="page-kompetensi" class="page">
+            <main class="page-content">
+              <h1 class="page-title">Kompetensi Saya</h1>
+              <div class="search-container">
+                <input
+                  type="text"
+                  id="search-kompetensi"
+                  placeholder="🔍 Cari nama Anda di sini..."
+                />
+                <button onclick="searchData()">Cari</button>
+                <button class="reset-btn" onclick="resetSearch()">Reset</button>
+              </div>
+              <div id="loading" class="loading-text" style="display: none">
+                🔄 Memuat data...
+              </div>
+              <div id="results"></div>
+            </main>
+          </div>
+
+          <div id="page-kartudigital" class="page">
+            <main class="page-content">
+              <h1 class="page-title">Kartu Digital</h1>
+              <div class="kompetent-card">
+                <div class="card-inner">
+                  <section class="card-header">
+                    <h1>KOMPETENT CARD</h1>
+                    <p>ZERO ACCIDENT</p>
+                  </section>
+                  <section class="card-content">
+                    <h2>10 SUPERVISORY BEHAVIOR PROFILE</h2>
+                    <ul class="behavior-list">
+                      <li>
+                        <span class="badge">1</span>Memberikan Arahan yang Jelas
+                      </li>
+                      <li>
+                        <span class="badge">2</span>Membuat Perencanaan Kerja
+                        yang Aman
+                      </li>
+                      <li>
+                        <span class="badge">3</span>Mendelegasikan Tugas Sesuai
+                        Kompetensi K3
+                      </li>
+                      <li>
+                        <span class="badge">4</span>Monitoring &amp; Follow-Up
+                        Kegiatan K3
+                      </li>
+                      <li>
+                        <span class="badge">5</span>Memberikan Dukungan &amp;
+                        Fasilitas K3
+                      </li>
+                      <li>
+                        <span class="badge">6</span>Membangun Komunikasi Positif
+                        Mengenai Safety
+                      </li>
+                      <li>
+                        <span class="badge">7</span>Mengembangkan Kompetensi K3
+                        Tim
+                      </li>
+                      <li>
+                        <span class="badge">8</span>Memberikan Apresiasi
+                        Terhadap Perilaku Aman
+                      </li>
+                      <li>
+                        <span class="badge">9</span>Mengelola Konflik dan Risiko
+                        Sosial
+                      </li>
+                      <li>
+                        <span class="badge">10</span>Menjadi Teladan dalam
+                        Budaya K3
+                      </li>
+                    </ul>
+                  </section>
+                  <section class="card-footer">
+                    <p>K3 adalah Jalan Ninjaku Menuju Keselamatan</p>
+                  </section>
+                </div>
+              </div>
+            </main>
+          </div>
+
+          <div id="page-jadwal" class="page">
+            <main class="page-content">
+              <h1 class="page-title">Jadwal Pelatihan</h1>
+              <div id="calendar"></div>
+              <div id="eventModal" class="modal">
+                <div class="modal-content">
+                  <span class="close">&times;</span>
+                  <h3 id="modalTitle"></h3>
+                  <p>
+                    <strong>Tanggal Mulai:</strong>
+                    <span id="modalStart"></span>
+                  </p>
+                  <p>
+                    <strong>Tanggal Selesai:</strong>
+                    <span id="modalEnd"></span>
+                  </p>
+                </div>
+              </div>
+            </main>
+          </div>
+
+          <div id="page-induksi" class="page">
+            <main class="page-content">
+              <h1 class="page-title">Alur Induksi Keselamatan</h1>
+              <div class="induction-flow-container">
+                <div class="induction-step" style="animation-delay: 0.1s">
+                  <h3>Langkah 1: Pendaftaran Induksi</h3>
+                  <p>
+                    Pilih tipe pendaftaran sesuai dengan status Anda (karyawan
+                    baru, pasca cuti, visitor, atau temporary).
+                  </p>
+                </div>
+
+                <div class="induction-step" style="animation-delay: 0.2s">
+                  <h3>Langkah 2: Pengisian Formulir</h3>
+                  <div class="form-group">
+                    <label for="induction-type">Pilih Tipe Induksi:</label>
+                    <select
+                      id="induction-type"
+                      class="induction-dropdown"
+                      onchange="updateInductionAction()"
+                    >
+                      <option value="">-- Pilih Tipe --</option>
+                      <option value="karyawan-baru">
+                        Induksi Karyawan Baru
+                      </option>
+                      <option value="pasca-cuti">Induksi Pasca Cuti</option>
+                      <option value="visitor">Induksi Visitor</option>
+                      <option value="temporary">Induksi Temporary</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="job-category">Pilih Kategori Jabatan:</label>
+                    <select
+                      id="job-category"
+                      class="induction-dropdown"
+                      onchange="updateInductionAction()"
+                    >
+                      <option value="pengawas">
+                        Pengawas / Group Leader ke Atas
+                      </option>
+                      <option value="operator">Operator</option>
+                      <option value="mekanik">Mekanik</option>
+                      <option value="non-pengawas">
+                        Admin / Non Pengawas Lainnya
+                      </option>
+                    </select>
+                  </div>
+                  <div
+                    id="induction-action-container"
+                    style="display: none; margin-top: 24px"
+                  >
+                    <a
+                      id="induction-continue-btn"
+                      href="#"
+                      class="form-link"
+                      style="
+                        background-color: var(--primary-color);
+                        color: white;
+                        justify-content: center;
+                      "
+                      >Lanjutkan</a
+                    >
+                  </div>
+                </div>
+
+                <div
+                  class="induction-step final-step-box"
+                  style="animation-delay: 0.3s"
+                >
+                  <p>
+                    SETELAH MELAKUKAN SEMUA INSTRUKSI DI ATAS, MAKA ANDA BERHAK
+                    UNTUK BEKERJA DI WILAYAH PT. GANDA ALAM MAKMUR.
+                  </p>
+                </div>
+              </div>
+            </main>
+          </div>
+
+          <div id="page-induksi-pasca-cuti" class="page">
+            <main class="page-content">
+              <h1 class="page-title">Induksi Keselamatan Pasca Cuti</h1>
+              <div
+                class="induction-step"
+                style="animation-delay: 0.1s; opacity: 1"
+              >
+                <h3>Penyegaran Keselamatan</h3>
+                <p>
+                  Selamat datang kembali! Sebagai bagian dari komitmen kami
+                  terhadap keselamatan, Anda diwajibkan untuk meninjau kembali
+                  Poin-Poin Keselamatan Kritis (Critical Safety Points) sebelum
+                  kembali aktif bekerja.
+                </p>
+              </div>
+              <div
+                class="induction-step"
+                style="animation-delay: 0.2s; opacity: 1"
+              >
+                <h4>Materi Penyegaran:</h4>
+                <ul style="text-align: left; padding-left: 20px">
+                  <li>Review Kebijakan K3LH terbaru.</li>
+                  <li>Identifikasi bahaya di area kerja Anda saat ini.</li>
+                  <li>Prosedur tanggap darurat dan lokasi Muster Point.</li>
+                  <li>Penggunaan APD (Alat Pelindung Diri) yang wajib.</li>
+                </ul>
+              </div>
+              <div
+                class="induction-step final-step-box"
+                style="animation-delay: 0.3s; opacity: 1"
+              >
+                <p>
+                  Dengan menekan tombol 'Selesai', Anda menyatakan telah
+                  memahami materi penyegaran ini dan siap bekerja dengan aman.
+                </p>
+              </div>
+              <div style="text-align: center; margin-top: 24px">
+                <button
+                  onclick="showPage('page-home')"
+                  style="
+                    background-color: var(--primary-color);
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    font-size: 16px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: 600;
+                  "
+                >
+                  Selesai & Kembali ke Home
+                </button>
+              </div>
+            </main>
+          </div>
+        </div>
+
+        <nav class="footer-nav">
+          <ul>
+            <li id="nav-home" class="active">
+              <a href="#" onclick="showPage('page-home')"
+                ><img
+                  src="https://cdn-icons-png.flaticon.com/512/25/25694.png"
+                  alt="Home"
+                /><span>Home</span></a
+              >
+            </li>
+            <li id="nav-kompetensi">
+              <a href="#" onclick="showPage('page-kompetensi')"
+                ><img
+                  src="https://cdn-icons-png.flaticon.com/512/992/992648.png"
+                  alt="Kompetensi"
+                /><span>Kompetensi</span></a
+              >
+            </li>
+            <li id="nav-kartudigital">
+              <a href="#" onclick="showPage('page-kartudigital')"
+                ><img
+                  src="https://cdn-icons-png.flaticon.com/512/8351/8351110.png"
+                  alt="Kartu"
+                /><span>Kartu</span></a
+              >
+            </li>
+            <li id="nav-jadwal">
+              <a href="#" onclick="showPage('page-jadwal')"
+                ><img
+                  src="https://cdn-icons-png.flaticon.com/512/3652/3652191.png"
+                  alt="Jadwal"
+                /><span>Jadwal</span></a
+              >
+            </li>
+            <li id="nav-induksi">
+              <a href="#" onclick="showPage('page-induksi')"
+                ><img
+                  src="https://cdn-icons-png.flaticon.com/512/3063/3063823.png"
+                  alt="Induksi"
+                /><span>Induksi</span></a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
     </div>
-  </div>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-  
+    <script>
+      // --- PWA Setup ---
+      function setupPWA() {
+        const manifest = {
+          name: "GAMITAS - Aplikasi Keselamatan",
+          short_name: "GAMITAS",
+          description:
+            "Aplikasi terpadu untuk manajemen kompetensi dan keselamatan kerja.",
+          start_url: ".",
+          display: "standalone",
+          background_color: "#f5f5f5",
+          theme_color: "#ffffff",
+          icons: [
+            {
+              src: "https://cdn-icons-png.flaticon.com/192x192/3468/3468379.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any maskable",
+            },
+            {
+              src: "https://cdn-icons-png.flaticon.com/512x512/3468/3468379.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable",
+            },
+          ],
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {
+          type: "application/json",
+        });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        document
+          .querySelector('link[rel="manifest"]')
+          .setAttribute("href", manifestURL);
+      }
 
+      // --- Global Variables & State ---
+      let calendarInstance = null;
+      let calendarRendered = false;
+      let kompetensiInitialized = false;
+      let lastScrollTop = 0;
+      let carouselInterval;
 
-  <header class="k3-header">
-    <div class="ninja-bg">
-      <h1>K3 adalah jalan ninjaku</h1>
-      <p>
-        Menjadi ninja keselamatan berarti menjadikan kompetensi dan kewaspadaan sebagai senjata utama.
-        Bersama kita ciptakan lingkungan kerja yang aman, produktif, dan bebas dari kecelakaan!
-      </p>
-      <img src="https://cdn-icons-png.flaticon.com/512/3468/3468379.png" alt="Ninja Icon" class="ninja-animated" />
-    </div>
-  </header>
+      // --- Carousel Logic ---
+      function initCarousel() {
+        const track = document.querySelector(".carousel-track");
+        if (!track) return;
+        const slides = Array.from(track.children);
+        const dotsContainer = document.querySelector(".carousel-dots");
+        dotsContainer.innerHTML = ""; // Clear existing dots
+        let slideIndex = 0;
 
-  <!-- Konten utama -->
-  <main>
-    <div class="category">
-        <a href="kompetensi.html" class="card">
-          <img src="https://cdn-icons-png.flaticon.com/512/2631/2631384.png" alt="Kompetensi Icon" />
-          <h2>Kompetensi Saya</h2>
-        <p>Cek Kompetensi Saya</p>
-        </a>
+        slides.forEach((_, i) => {
+          const dot = document.createElement("span");
+          dot.classList.add("dot");
+          if (i === 0) dot.classList.add("active");
+          dot.addEventListener("click", () => {
+            slideIndex = i;
+            updateCarousel();
+            resetCarouselInterval();
+          });
+          dotsContainer.appendChild(dot);
+        });
 
-    <a href="kartudigital.html" class="card">
-      <img src="https://cdn3d.iconscout.com/3d/premium/thumb/employee-card-3d-icon-download-in-png-blend-fbx-gltf-file-formats--id-identity-identification-badge-recruitmen-pack-business-icons-5668233.png" alt="Kartu Digital Icon" />
-      <h2>Kartu Digital</h2>
-      <p>10 Supervisor Behavior</p>
-    </a>
+        const dots = Array.from(dotsContainer.children);
 
+        const updateCarousel = () => {
+          track.style.transform = "translateX(-" + slideIndex * 100 + "%)";
+          dots.forEach((dot) => dot.classList.remove("active"));
+          dots[slideIndex].classList.add("active");
+        };
 
+        const resetCarouselInterval = () => {
+          clearInterval(carouselInterval);
+          carouselInterval = setInterval(() => {
+            slideIndex = (slideIndex + 1) % slides.length;
+            updateCarousel();
+          }, 5000); // 5 seconds
+        };
 
+        resetCarouselInterval();
+      }
 
-      <div class="card">
-        <img src="https://cdn-icons-png.flaticon.com/512/4116/4116265.png" alt="Pelatihan Icon" />
-        <h2>Pelatihan</h2>
-        <p>Pelatihan Saya</p>
-      </div>
-      <div class="card">
-        <img src="https://cdn-icons-png.flaticon.com/512/2991/2991108.png" alt="Buku Keselamatan Icon" />
-        <h2>Buku Keselamatan</h2>
-        <p>Materi & Panduan</p>
-      </div>
-      <div class="card">
-        <img src="https://cdn-icons-png.flaticon.com/512/3475/3475156.png" alt="Jadwal Pelatihan Icon" />
-        <h2>Jadwal Pelatihan</h2>
-        <p>Cek Jadwal Pelatihan</p>
-      </div>
-      <div class="card">
-        <img src="https://png.pngtree.com/png-vector/20250408/ourmid/pngtree-k3-priority-symbol-vector-png-image_15940634.png" alt="Pusat K3 Icon" />
-        <h2>Pusat K3</h2>
-        <p>Informasi K3</p>
-      </div>
-    </div>
-  </main>
+      // --- Page Navigation ---
+      function showPage(pageId) {
+        document
+          .querySelectorAll(".page")
+          .forEach((page) => page.classList.remove("active"));
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) targetPage.classList.add("active");
 
-  <!-- Footer navigasi -->
-  <nav class="footer-nav">
-    <ul>
-      <li>
-        <a href="#">
-          <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="Features" />
-          <span>Features</span>
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <img src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png" alt="Media" />
-          <span>Media</span>
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home" />
-          <span>Home</span>
-        </a>
-      </li>
-      <li class="active">
-        <a href="#">
-          <img src="https://cdn-icons-png.flaticon.com/512/1828/1828911.png" alt="Pages" />
-          <span>Pages</span>
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <img src="https://cdn-icons-png.flaticon.com/512/2099/2099058.png" alt="Settings" />
-          <span>Settings</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+        const modernHeaderElements = document.querySelectorAll(
+          ".user-profile, .main-tabs"
+        );
+        if (pageId === "page-home") {
+          modernHeaderElements.forEach((el) => (el.style.display = "flex"));
+          initCarousel();
+        } else {
+          modernHeaderElements.forEach((el) => (el.style.display = "none"));
+          clearInterval(carouselInterval);
+        }
 
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-<script src="script.js"></script>
+        if (pageId === "page-jadwal" && !calendarRendered) initCalendar();
+        if (pageId === "page-kartudigital") initDigitalCard();
+        if (pageId === "page-kompetensi" && !kompetensiInitialized)
+          initKompetensiPage();
+        if (pageId === "page-induksi") updateInductionAction(); // Set initial state for induction page
 
-  <script src="script.js"></script>
-</body>
+        updateFooterNav(pageId);
+        document.querySelector(".scrollable-content").scrollTo(0, 0);
+      }
+
+      function updateFooterNav(pageId) {
+        document
+          .querySelectorAll(".footer-nav li")
+          .forEach((li) => li.classList.remove("active"));
+        let navId = "nav-home"; // Default to home
+        if (pageId.startsWith("page-")) {
+          const pageName = pageId.split("-")[1];
+          const navItem = document.getElementById("nav-" + pageName);
+          if (navItem) {
+            // Check if a direct nav item exists
+            navId = "nav-" + pageName;
+          }
+        }
+        const activeNav = document.getElementById(navId);
+        if (activeNav) activeNav.classList.add("active");
+      }
+
+      // --- Authentication & User Flow ---
+      function login(userType) {
+        localStorage.setItem("userType", userType);
+        const loginScreen = document.getElementById("login-screen");
+        const appContainer = document.getElementById("app-container");
+
+        loginScreen.style.animation = "fadeOut 0.5s forwards";
+
+        setTimeout(() => {
+          loginScreen.style.display = "none";
+          appContainer.style.display = "flex";
+          appContainer.style.animation = "fadeIn 0.5s";
+
+          document.getElementById(
+            "user-greeting"
+          ).textContent = `Hi, ${userType}!`;
+          // Removed lines that caused errors because the target elements do not exist.
+
+          initCarousel();
+        }, 500);
+      }
+
+      function logout() {
+        localStorage.removeItem("userType");
+        const appContainer = document.getElementById("app-container");
+        const loginScreen = document.getElementById("login-screen");
+
+        appContainer.style.animation = "fadeOut 0.5s forwards";
+
+        setTimeout(() => {
+          appContainer.style.display = "none";
+          loginScreen.style.display = "flex";
+          loginScreen.style.animation = "fadeIn 0.5s";
+        }, 500);
+      }
+
+      function showRegisterForm() {
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("register-screen").style.display = "flex";
+      }
+
+      function showLoginForm() {
+        document.getElementById("register-screen").style.display = "none";
+        document.getElementById("login-screen").style.display = "flex";
+      }
+
+      function handleRegister(event) {
+        event.preventDefault();
+        // In a real application, you would send registration data to a server here.
+        alert("Pendaftaran berhasil! Silakan login.");
+        showLoginForm();
+      }
+
+      // --- App Initialization ---
+      window.addEventListener("DOMContentLoaded", () => {
+        setupPWA();
+        const storedUserType = localStorage.getItem("userType");
+        const loginScreen = document.getElementById("login-screen");
+        const appContainer = document.getElementById("app-container");
+        const header = document.querySelector(".app-header");
+        const scrollableContent = document.querySelector(".scrollable-content");
+
+        if (storedUserType) {
+          loginScreen.style.display = "none";
+          appContainer.style.display = "flex";
+          document.getElementById(
+            "user-greeting"
+          ).textContent = `Hi, ${storedUserType}!`;
+          // Removed lines that caused errors because the target elements do not exist.
+        } else {
+          loginScreen.style.display = "flex";
+          appContainer.style.display = "none";
+        }
+        showPage("page-home");
+
+        // Hide header on scroll down
+        scrollableContent.addEventListener(
+          "scroll",
+          function () {
+            var st = scrollableContent.scrollTop;
+            if (st > lastScrollTop && st > 50) {
+              header.classList.add("hidden");
+            } else {
+              header.classList.remove("hidden");
+            }
+            lastScrollTop = st <= 0 ? 0 : st;
+          },
+          false
+        );
+      });
+
+      // --- Page-Specific Initializers ---
+      function initDigitalCard() {
+        const card3d = document.querySelector(".kompetent-card");
+        if (!card3d) return;
+        const inner = card3d.querySelector(".card-inner");
+        card3d.addEventListener("mousemove", (e) => {
+          const rect = card3d.getBoundingClientRect();
+          const xPos = e.clientX - rect.left;
+          const yPos = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotY = ((xPos - centerX) / centerX) * 10;
+          const rotX = ((centerY - yPos) / centerY) * 10;
+          inner.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        });
+        card3d.addEventListener("mouseleave", () => {
+          inner.style.transform = "rotateX(0deg) rotateY(0deg)";
+        });
+        document.querySelectorAll(".behavior-list li").forEach((li) => {
+          li.addEventListener("click", () => {
+            li.classList.toggle("completed");
+          });
+        });
+      }
+
+      async function initCalendar() {
+        const calendarEl = document.getElementById("calendar");
+        if (!calendarEl) return;
+        const modal = document.getElementById("eventModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalStart = document.getElementById("modalStart");
+        const modalEnd = document.getElementById("modalEnd");
+        const closeBtn = modal.querySelector(".close");
+        const spreadsheetId = "1tuTh3lLiPYAUOJwCTpvsag6jqt9TZXuieSjI2Q1T42A";
+        const sheetName = "training_calendar";
+        const url = `https://opensheet.elk.sh/${spreadsheetId}/${sheetName}`;
+        try {
+          const response = await fetch(url);
+          if (!response.ok)
+            throw new Error(
+              `Network response was not ok: ${response.statusText}`
+            );
+          const data = await response.json();
+          const events = data.map((row) => ({
+            title: row.Title,
+            start: row.Start,
+            end: row.End || row.Start,
+          }));
+          calendarInstance = new FullCalendar.Calendar(calendarEl, {
+            initialView: window.innerWidth < 768 ? "listWeek" : "dayGridMonth",
+            events: events,
+            height: "auto",
+            headerToolbar: {
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek",
+            },
+            eventClick: function (info) {
+              modalTitle.textContent = info.event.title;
+              modalStart.textContent = new Date(
+                info.event.start
+              ).toLocaleDateString("id-ID");
+              modalEnd.textContent = info.event.end
+                ? new Date(info.event.end).toLocaleDateString("id-ID")
+                : new Date(info.event.start).toLocaleDateString("id-ID");
+              modal.style.display = "block";
+            },
+          });
+          calendarInstance.render();
+          calendarRendered = true;
+          closeBtn.onclick = () => {
+            modal.style.display = "none";
+          };
+          window.onclick = (event) => {
+            if (event.target === modal) {
+              modal.style.display = "none";
+            }
+          };
+        } catch (error) {
+          console.error("Gagal mengambil data dari spreadsheet:", error);
+          calendarEl.innerHTML = `<p style="text-align:center; color:red;">Gagal memuat jadwal. Silakan coba lagi nanti.</p>`;
+        }
+      }
+
+      // --- Induction Page Logic ---
+      function updateInductionAction() {
+        const inductionType = document.getElementById("induction-type").value;
+        const actionContainer = document.getElementById(
+          "induction-action-container"
+        );
+        const actionButton = document.getElementById("induction-continue-btn");
+
+        if (!inductionType) {
+          actionContainer.style.display = "none";
+          return;
+        }
+
+        const userType = localStorage.getItem("userType") || "";
+        const isMitra = userType.includes("Mitra Kerja");
+        const googleFormUrl = "https://forms.gle/5Ug2WaNv8ZaXEut9A";
+
+        let href = "#";
+        let onclick = null;
+        let text = "Lanjutkan";
+        let target = "_self";
+
+        // Default to Google Form for Visitor and Temporary
+        if (
+          inductionType === "karyawan-baru" ||
+          inductionType === "visitor" ||
+          inductionType === "temporary"
+        ) {
+          href = googleFormUrl;
+          text = "Lanjutkan ke Formulir";
+          target = "_blank";
+        } else if (inductionType === "pasca-cuti") {
+          if (isMitra) {
+            href = googleFormUrl;
+            text = "Lanjutkan ke Formulir";
+            target = "_blank";
+          } else {
+            // Karyawan GAM
+            onclick = () => showPage("page-induksi-pasca-cuti");
+            text = "Lanjutkan ke Materi Penyegaran";
+          }
+        }
+
+        actionButton.href = href;
+        actionButton.target = target;
+        actionButton.textContent = text;
+
+        // Clear previous onclick, then set the new one if it exists
+        actionButton.onclick = null;
+        if (onclick) {
+          actionButton.onclick = onclick;
+        }
+
+        actionContainer.style.display = "block";
+      }
+
+      // --- Kompetensi Page Logic (with Google Sheets API) ---
+      const apiKey = "AIzaSyA7Wbhd7KYAMKt10vKVnJY81qDWTCs9MPw";
+      const spreadsheetId_kompetensi =
+        "1IUZpjUEHsZe-4k4V6w1JqDNSH9zw9gKpceogu6cqx3Q";
+      const sheet1Range = "BASE MANPOWER!E:I";
+      const sheet2Range = "KOMPETENSI SEARCH GITHUB!B:G";
+      const sheet3Range = "DEPT_JAB_GITHUB!A:E";
+
+      function initKompetensiPage() {
+        const lastSearch = localStorage.getItem("lastSearchKompetensi");
+        if (lastSearch) {
+          document.getElementById("search-kompetensi").value = lastSearch;
+          searchData();
+        }
+        kompetensiInitialized = true;
+      }
+
+      function searchData() {
+        const searchTerm = document
+          .getElementById("search-kompetensi")
+          .value.trim()
+          .toLowerCase();
+        if (!searchTerm) {
+          alert("Silakan masukkan nama untuk mencari.");
+          return;
+        }
+        localStorage.setItem("lastSearchKompetensi", searchTerm);
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("results").innerHTML = "";
+        const sheet1Url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId_kompetensi}/values/${sheet1Range}?key=${apiKey}`;
+        const sheet2Url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId_kompetensi}/values/${sheet2Range}?key=${apiKey}`;
+        const sheet3Url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId_kompetensi}/values/${sheet3Range}?key=${apiKey}`;
+        Promise.all([
+          fetch(sheet1Url).then((res) => res.json()),
+          fetch(sheet2Url).then((res) => res.json()),
+          fetch(sheet3Url).then((res) => res.json()),
+        ])
+          .then(([data1, data2, data3]) => {
+            // FIX: Added checks to prevent errors on empty rows from the spreadsheet.
+            const manpowerResults = (data1.values || []).filter(
+              (row) =>
+                row &&
+                row[0] &&
+                typeof row[0] === "string" &&
+                row[0].toLowerCase().includes(searchTerm)
+            );
+            const competencyResults = (data2.values || []).filter(
+              (row) =>
+                row &&
+                row[0] &&
+                typeof row[0] === "string" &&
+                row[0].toLowerCase().includes(searchTerm)
+            );
+            const recommendationData = data3.values || [];
+
+            displayKompetensiResults(competencyResults, "Status Kompetensi");
+            displayCompetencyRecommendations(
+              manpowerResults,
+              recommendationData,
+              competencyResults.length
+            );
+
+            document.getElementById("loading").style.display = "none";
+          })
+          .catch((error) => {
+            console.error("Gagal mengambil data:", error);
+            document.getElementById("loading").innerHTML =
+              "Terjadi kesalahan saat mengambil data.";
+          });
+      }
+
+      function displayKompetensiResults(results, sectionTitle) {
+        const resultsDiv = document.getElementById("results");
+        const section = document.createElement("section");
+        section.className = "result-section";
+        const title = document.createElement("h2");
+        title.innerText = sectionTitle;
+        section.appendChild(title);
+
+        const listContainer = document.createElement("div");
+        listContainer.className = "grid-4";
+
+        if (!results || results.length === 0) {
+          const noDataMessage = document.createElement("p");
+          noDataMessage.textContent = `Tidak ada data kompetensi yang ditemukan.`;
+          section.appendChild(noDataMessage);
+        } else {
+          results.forEach((row, index) => {
+            const item = document.createElement("div");
+            item.className = "grid-card";
+            item.style.animationDelay = `${index * 0.05}s`;
+
+            let icon =
+              "https://cdn-icons-png.flaticon.com/512/4213/4213843.png"; // Default: Help/Unknown
+            let label = row[3] || "Pelatihan Tidak Terdaftar";
+            let status = row[4];
+
+            if (status === "Y") {
+              icon = "https://cdn-icons-png.flaticon.com/512/190/190411.png"; // Check
+            } else if (status === "OFF") {
+              icon = "https://cdn-icons-png.flaticon.com/512/1828/1828843.png"; // Cross
+            } else if (status === "Y/I") {
+              icon = "https://cdn-icons-png.flaticon.com/512/107/107144.png"; // Hourglass/Pending
+            }
+
+            item.innerHTML = `
+                    <img src="${icon}" alt="Status Icon" />
+                    <p>${label}</p>
+                `;
+            listContainer.appendChild(item);
+          });
+          section.appendChild(listContainer);
+        }
+        resultsDiv.appendChild(section);
+      }
+
+      function displayCompetencyRecommendations(
+        manpowerResults,
+        recommendationData,
+        competencyCount = 0
+      ) {
+        const resultsDiv = document.getElementById("results");
+        const section = document.createElement("section");
+        section.className = "result-section";
+        const title = document.createElement("h2");
+        title.innerText = "Rekomendasi Kompetensi Jabatan";
+        section.appendChild(title);
+
+        const listContainer = document.createElement("div");
+        listContainer.className = "grid-4";
+
+        const matches = [];
+        const uniqueRoles = new Set();
+
+        manpowerResults.forEach((row) => {
+          const dept = row[1]?.trim().toLowerCase();
+          const jabatan = row[4]?.trim().toLowerCase();
+          if (dept && jabatan) uniqueRoles.add(`${dept}|${jabatan}`);
+        });
+
+        uniqueRoles.forEach((roleKey) => {
+          const [deptKey, jabKey] = roleKey.split("|");
+          recommendationData.forEach((row3) => {
+            const dept3 = row3[0]?.trim().toLowerCase();
+            const jab3 = row3[2]?.trim().toLowerCase();
+            const namaPelatihan = row3[4];
+            if (dept3 === deptKey && jab3 === jabKey && namaPelatihan) {
+              const key = `${jab3}|${namaPelatihan}`;
+              if (!matches.some((item) => item.key === key)) {
+                matches.push({ namaPelatihan, key });
+              }
+            }
+          });
+        });
+
+        if (matches.length === 0) {
+          const noDataMessage = document.createElement("p");
+          noDataMessage.textContent =
+            "Tidak ada rekomendasi kompetensi yang cocok.";
+          section.appendChild(noDataMessage);
+        } else {
+          matches.forEach((item, index) => {
+            const listItem = document.createElement("div");
+            listItem.className = "grid-card";
+            listItem.style.animationDelay = `${
+              (competencyCount + index) * 0.05
+            }s`;
+
+            listItem.innerHTML = `
+                    <img src="https://cdn-icons-png.flaticon.com/512/3063/3063823.png" alt="Rekomendasi Icon" />
+                    <p>${item.namaPelatihan}</p>
+                `;
+            listContainer.appendChild(listItem);
+          });
+          section.appendChild(listContainer);
+        }
+        resultsDiv.appendChild(section);
+      }
+
+      function resetSearch() {
+        document.getElementById("search-kompetensi").value = "";
+        document.getElementById("results").innerHTML = "";
+        document.getElementById("loading").style.display = "none";
+        localStorage.removeItem("lastSearchKompetensi");
+      }
+    </script>
+  </body>
 </html>

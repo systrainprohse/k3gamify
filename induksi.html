@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Induksi Karyawan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk membuat PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .step-card {
+        transition: all 0.3s ease-in-out;
+      }
+      .locked {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      .step-header {
+        cursor: pointer;
+      }
+      .step-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-out;
+      }
+      .step-content.open {
+        max-height: 2500px; /* Increased max-height for forms */
+        transition: max-height 1s ease-in;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-left-color: #ffffff;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+      button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      .tally-embed {
+        width: 100%;
+        height: 500px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      /* Confetti Animation */
+      .confetti-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 999;
+      }
+      .confetti {
+        position: absolute;
+        width: 10px;
+        height: 20px;
+        opacity: 0.9;
+        animation: fall 5s linear forwards;
+      }
+      @keyframes fall {
+        to {
+          transform: translateY(110vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+          Sistem Induksi Keselamatan
+        </h1>
+        <p class="text-gray-600 mt-2">PT. Ganda Alam Makmur</p>
+        <div
+          id="online-status"
+          class="mt-2 text-sm font-semibold rounded-full px-3 py-1 inline-block"
+        ></div>
+      </div>
+
+      <div id="app-container" class="space-y-4">
+        <!-- Langkah 0: Data Diri & Pilihan Test -->
+        <div id="step-0" class="step-card bg-white p-6 rounded-xl shadow-md">
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-700">Informasi Peserta</h2>
+            <span class="text-gray-500 font-semibold">Langkah Awal</span>
+          </div>
+          <div id="step-0-content" class="step-content pt-4">
+            <form id="user-info-form" class="space-y-4">
+              <input
+                type="text"
+                id="timestamp"
+                name="timestamp"
+                class="hidden"
+              />
+              <div>
+                <label for="nik" class="block text-sm font-medium text-gray-700"
+                  >NIK KTP</label
+                >
+                <input
+                  type="number"
+                  id="nik"
+                  name="nik"
+                  required
+                  class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  for="nama"
+                  class="block text-sm font-medium text-gray-700"
+                  >Nama Lengkap</label
+                >
+                <input
+                  type="text"
+                  id="nama"
+                  name="nama"
+                  required
+                  class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  for="email"
+                  class="block text-sm font-medium text-gray-700"
+                  >Email</label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  for="whatsapp"
+                  class="block text-sm font-medium text-gray-700"
+                  >No. WhatsApp</label
+                >
+                <input
+                  type="tel"
+                  id="whatsapp"
+                  name="whatsapp"
+                  required
+                  class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  for="perusahaan-select"
+                  class="block text-sm font-medium text-gray-700"
+                  >Perusahaan</label
+                >
+                <select
+                  id="perusahaan-select"
+                  name="perusahaan-select"
+                  required
+                  class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="" disabled selected>Pilih Perusahaan</option>
+                  <option value="PT. GAM">PT. GAM</option>
+                  <option value="PT. KRI">PT. KRI</option>
+                  <option value="PT. SUM">PT. SUM</option>
+                  <option value="PT. DAUN BUAH">PT. DAUN BUAH</option>
+                  <option value="PT. KAI">PT. KAI</option>
+                  <option value="PT. GPE">PT. GPE</option>
+                  <option value="PT. SMP">PT. SMP</option>
+                  <option value="PT. INDEXIM COALINDO">
+                    PT. INDEXIM COALINDO
+                  </option>
+                  <option value="PT. RPJ">PT. RPJ</option>
+                  <option value="PT. SCI">PT. SCI</option>
+                  <option value="PT. WEM">PT. WEM</option>
+                  <option value="CV. AJS">CV. AJS</option>
+                  <option value="PT. TRAKINDO UTAMA">PT. TRAKINDO UTAMA</option>
+                  <option value="PT. GHJ">PT. GHJ</option>
+                  <option value="PT. TEM">PT. TEM</option>
+                  <option value="PT. HEXINDO ADIPERKASA">
+                    PT. HEXINDO ADIPERKASA
+                  </option>
+                  <option value="PT. BELFANO">PT. BELFANO</option>
+                  <option value="PT. BORNEO MELAWEN JAYA">
+                    PT. BORNEO MELAWEN JAYA
+                  </option>
+                  <option value="PT. UT">PT. UT</option>
+                  <option value="PT. BDE">PT. BDE</option>
+                  <option value="PT. SUCOFINDO">PT. SUCOFINDO</option>
+                  <option value="MAGANG / PKL / KKN">MAGANG / PKL / KKN</option>
+                  <option value="PT. BAGONG">PT. BAGONG</option>
+                  <option value="PT. PMJ">PT. PMJ</option>
+                  <option value="Lainnya">Lainnya...</option>
+                </select>
+              </div>
+              <div id="perusahaan-lainnya-container" class="hidden">
+                <label
+                  for="perusahaan-lainnya"
+                  class="block text-sm font-medium text-gray-700"
+                  >Nama Perusahaan Lainnya</label
+                >
+                <input
+                  type="text"
+                  id="perusahaan-lainnya"
+                  name="perusahaan-lainnya"
+                  class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  for="jabatan"
+                  class="block text-sm font-medium text-gray-700"
+                  >Jabatan</label
+                >
+                <select
+                  id="jabatan"
+                  name="jabatan"
+                  required
+                  class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="" disabled selected>Pilih Jabatan Anda</option>
+                  <option value="pengawas">Pengawas / GL / SPV</option>
+                  <option value="suptend">Superintendent / Manager</option>
+                  <option value="non_pengawas">
+                    Non Pengawas (Admin, Helper, dll)
+                  </option>
+                  <option value="driver">Driver Bus / Elf / Sarana</option>
+                  <option value="mekanik">Mekanik</option>
+                  <option value="operator">
+                    Operator HD / DT / Dozzer / Exca / Rigger / dll.
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700"
+                  >Pilih Jenis Tes</label
+                >
+                <div class="mt-2 flex space-x-4">
+                  <label class="flex items-center"
+                    ><input
+                      type="radio"
+                      name="testType"
+                      value="pre-test"
+                      required
+                      class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                    /><span class="ml-2 text-gray-700">Pre-Test</span></label
+                  >
+                  <label class="flex items-center"
+                    ><input
+                      type="radio"
+                      name="testType"
+                      value="post-test"
+                      required
+                      class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                    /><span class="ml-2 text-gray-700">Post-Test</span></label
+                  >
+                </div>
+              </div>
+              <button
+                type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+              >
+                Simpan & Lanjutkan
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Langkah 1: Absensi -->
+        <div
+          id="step-1"
+          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+        >
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-700">Langkah 1: Absensi</h2>
+            <span id="step-1-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-1-content" class="step-content pt-4 text-center">
+            <p class="text-gray-600 mb-4">
+              Klik tombol di bawah untuk mencatat kehadiran Anda.
+            </p>
+            <button
+              id="start-absensi-btn"
+              class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+            >
+              Lakukan Absensi
+            </button>
+          </div>
+        </div>
+
+        <!-- Langkah 2: Pilih Jenis Induksi -->
+        <div
+          id="step-2"
+          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+        >
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-700">
+              Langkah 2: Pilih Jenis Induksi
+            </h2>
+            <span id="step-2-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-2-content" class="step-content pt-4">
+            <p class="text-gray-600 mb-4">
+              Pilih tipe pendaftaran sesuai dengan status Anda.
+            </p>
+            <select
+              id="induction-type"
+              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="" disabled selected>Pilih Tipe Induksi</option>
+              <option value="induksi_visitor">INDUKSI VISITOR</option>
+              <option value="kb_mitra">Karyawan Baru Mitra</option>
+              <option value="kb_gam">Karyawan Baru GAM</option>
+              <option value="pc_mitra">Pasca Cuti Mitra</option>
+              <option value="pc_gam">Pasca Cuti GAM</option>
+              <option value="tp_mitra">Temporary Mitra</option>
+              <option value="tp_gam">Temporary GAM</option>
+              <option value="vst_mitra">Visitor Mitra</option>
+              <option value="vst_gam">Visitor GAM</option>
+              <option value="mg_mitra">Magang Mitra</option>
+              <option value="mg_gam">Magang GAM</option>
+            </select>
+            <button
+              id="select-induction-btn"
+              class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            >
+              Lanjutkan ke Kuis
+            </button>
+          </div>
+        </div>
+
+        <!-- Langkah 3: Kuis -->
+        <div
+          id="step-3"
+          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+        >
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-700">
+              Langkah 3: Pengerjaan Kuis
+            </h2>
+            <span id="step-3-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-3-content" class="step-content pt-4 text-center">
+            <p class="text-gray-600 mb-4">
+              Anda akan mengerjakan kuis sekarang. Soal akan dimuat dari server.
+            </p>
+            <p id="quiz-error" class="hidden text-red-500"></p>
+            <button
+              id="start-quiz-btn"
+              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+            >
+              Mulai Kuis
+            </button>
+          </div>
+        </div>
+
+        <!-- Langkah 4: TTD & Checklist (Hanya Post-Test) -->
+        <div
+          id="step-4"
+          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+        >
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-700">
+              Langkah 4: TTD & Checklist
+            </h2>
+            <span id="step-4-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-4-content" class="step-content pt-4 space-y-8">
+            <!-- SPDK Form -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                1. Surat Pernyataan dan Kesanggupan (SPDK)
+              </h3>
+              <p class="text-gray-600 mb-4">
+                Silakan isi dan tandatangani formulir SPDK di bawah ini.
+              </p>
+              <iframe
+                id="spdk-frame"
+                src=""
+                class="tally-embed"
+                title="Formulir SPDK"
+              ></iframe>
+              <label class="mt-4 flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="spdk-checkbox"
+                  class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="ml-3 text-gray-700 font-medium"
+                  >Saya telah menandatangani SPDK.</span
+                >
+              </label>
+            </div>
+            <!-- Checklist Induksi Form -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                2. Checklist Induksi
+              </h3>
+              <p class="text-gray-600 mb-4">
+                Lengkapi formulir checklist induksi berikut.
+              </p>
+              <iframe
+                id="checklist-frame"
+                src=""
+                class="tally-embed"
+                title="Formulir Checklist Induksi"
+              ></iframe>
+              <label class="mt-4 flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="checklist-checkbox"
+                  class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="ml-3 text-gray-700 font-medium"
+                  >Saya telah mengisi Checklist Induksi.</span
+                >
+              </label>
+            </div>
+            <button
+              id="finish-checklist-btn"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+              disabled
+            >
+              Selesai & Terbitkan Kartu
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="completion-screen"
+        class="hidden bg-white p-8 rounded-xl shadow-md text-center mt-6 relative"
+      ></div>
+
+      <div class="text-center mt-8">
+        <button
+          id="reset-btn"
+          class="text-sm text-gray-500 hover:text-gray-700 hover:underline"
+        >
+          Ulangi Proses dari Awal
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Konfirmasi -->
+    <div
+      id="confirmation-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white rounded-lg p-8 shadow-xl text-center">
+        <p id="modal-text" class="text-lg font-medium mb-6"></p>
+        <div class="flex justify-center space-x-4">
+          <button
+            id="modal-cancel"
+            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg"
+          >
+            Batal
+          </button>
+          <button
+            id="modal-confirm"
+            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg"
+          >
+            Ya
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kuis Modal -->
+    <div
+      id="quiz-modal"
+      class="hidden fixed inset-0 bg-gray-100 z-40 p-4 overflow-y-auto"
+    >
+      <div
+        class="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden my-8"
+      >
+        <div class="p-8">
+          <!-- Bagian Materi (Video) -->
+          <div id="quiz-material-section" class="mb-6 pb-6 border-b">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h2
+                  id="material-title"
+                  class="text-2xl font-bold text-gray-800"
+                ></h2>
+                <p id="material-progress" class="text-sm text-gray-500"></p>
+              </div>
+              <button
+                id="open-video-btn"
+                class="bg-blue-100 text-blue-700 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-blue-200 transition"
+              >
+                Buka Video di Tab Baru
+              </button>
+            </div>
+            <div
+              id="video-container"
+              class="aspect-video bg-black rounded-lg mb-4"
+            ></div>
+            <div class="flex items-center justify-between">
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="video-watched-checkbox"
+                  class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="ml-3 text-gray-700 font-medium"
+                  >Saya telah menonton dan memahami materi video.</span
+                >
+              </label>
+              <button
+                id="replay-video-btn"
+                class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition"
+              >
+                Putar Ulang
+              </button>
+            </div>
+          </div>
+
+          <!-- Bagian Pertanyaan (Awalnya Tersembunyi) -->
+          <div id="quiz-question-section" class="hidden">
+            <div class="flex justify-between mb-1">
+              <span
+                id="progress-text"
+                class="text-base font-medium text-blue-700"
+              ></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+              <div
+                id="progress-bar"
+                class="bg-blue-600 h-2.5 rounded-full"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div id="quiz-container"></div>
+          </div>
+
+          <!-- Tombol Navigasi -->
+          <div
+            id="navigation-buttons"
+            class="mt-8 pt-6 border-t border-gray-200 flex justify-between items-center"
+          >
+            <button
+              id="prev-button"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors"
+            >
+              Sebelumnya
+            </button>
+            <button
+              id="next-button"
+              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+            >
+              Selanjutnya
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fullscreen Loader -->
+    <div
+      id="fullscreen-loader"
+      class="hidden fixed inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center z-[100]"
+    >
+      <div class="spinner"></div>
+      <p id="loader-text" class="text-white text-lg mt-4 font-semibold">
+        Memuat...
+      </p>
+    </div>
+
+    <script>
+      // --- KONFIGURASI WAJIB ---
+      const WEB_APP_URL =
+        "https://script.google.com/macros/s/AKfycbzO5jCkjM93TIfFW5Ef9STMePYP6DRXjGuGghVmxhExARs-xaq_GzO9KvUuRqsAVUCz/exec";
+      const TALLY_SPDK_URL =
+        "https://tally.so/embed/wv6yz0?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
+      const TALLY_CHECKLIST_URL =
+        "https://tally.so/embed/mDOdMR?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
+      const PASSING_SCORE = 75; // Nilai Kelulusan Minimal (contoh: 75)
+      // -------------------------
+
+      // Inisialisasi jsPDF
+      const { jsPDF } = window.jspdf;
+
+      const dom = {
+        appContainer: document.getElementById("app-container"),
+        onlineStatus: document.getElementById("online-status"),
+        completionScreen: document.getElementById("completion-screen"),
+        allSteps: document.querySelectorAll(".step-card"),
+        resetButton: document.getElementById("reset-btn"),
+        userInfoForm: document.getElementById("user-info-form"),
+        absensiBtn: document.getElementById("start-absensi-btn"),
+        inductionTypeSelect: document.getElementById("induction-type"),
+        selectInductionBtn: document.getElementById("select-induction-btn"),
+        startQuizBtn: document.getElementById("start-quiz-btn"),
+        finishChecklistBtn: document.getElementById("finish-checklist-btn"),
+        spdkCheckbox: document.getElementById("spdk-checkbox"),
+        checklistCheckbox: document.getElementById("checklist-checkbox"),
+        spdkFrame: document.getElementById("spdk-frame"),
+        checklistFrame: document.getElementById("checklist-frame"),
+        loader: {
+          container: document.getElementById("fullscreen-loader"),
+          text: document.getElementById("loader-text"),
+        },
+        quiz: {
+          modal: document.getElementById("quiz-modal"),
+          materialSection: document.getElementById("quiz-material-section"),
+          materialTitle: document.getElementById("material-title"),
+          materialProgress: document.getElementById("material-progress"),
+          videoContainer: document.getElementById("video-container"),
+          videoWatchedCheckbox: document.getElementById(
+            "video-watched-checkbox"
+          ),
+          replayVideoBtn: document.getElementById("replay-video-btn"),
+          openVideoBtn: document.getElementById("open-video-btn"),
+          questionSection: document.getElementById("quiz-question-section"),
+          progressText: document.getElementById("progress-text"),
+          progressBar: document.getElementById("progress-bar"),
+          container: document.getElementById("quiz-container"),
+          nextBtn: document.getElementById("next-button"),
+          prevBtn: document.getElementById("prev-button"),
+        },
+        modal: {
+          container: document.getElementById("confirmation-modal"),
+          text: document.getElementById("modal-text"),
+          confirmBtn: document.getElementById("modal-confirm"),
+          cancelBtn: document.getElementById("modal-cancel"),
+        },
+      };
+
+      let state = {
+        currentStep: 0,
+        isOnline: navigator.onLine,
+        userData: {},
+        quizData: {
+          materials: [],
+          answers: {},
+          totalQuestions: 0,
+          currentMaterialIndex: 0,
+          currentQuestionIndex: 0,
+          score: 0,
+        },
+      };
+
+      const inductionTypeMap = {
+        induksi_visitor: "INDUKSI VISITOR",
+        kb_mitra: "Karyawan Baru Mitra",
+        kb_gam: "Karyawan Baru GAM",
+        pc_mitra: "Pasca Cuti Mitra",
+        pc_gam: "Pasca Cuti GAM",
+        tp_mitra: "Temporary Mitra",
+        tp_gam: "Temporary GAM",
+        vst_mitra: "Visitor Mitra",
+        vst_gam: "Visitor GAM",
+        mg_mitra: "Magang Mitra",
+        mg_gam: "Magang GAM",
+      };
+
+      function initApp() {
+        loadState();
+        checkOnlineStatus();
+        addEventListeners();
+        updateUI();
+      }
+
+      function updateUI() {
+        dom.allSteps.forEach((step, index) => {
+          const content = step.querySelector(".step-content");
+          const statusEl = document.getElementById(`step-${index}-status`);
+          if (index <= state.currentStep) {
+            step.classList.remove("locked");
+            if (statusEl) {
+              statusEl.textContent = "Selesai";
+              statusEl.className = "text-sm font-semibold text-green-500";
+            }
+            content.classList.toggle("open", index === state.currentStep);
+          } else {
+            step.classList.add("locked");
+            content.classList.remove("open");
+            if (statusEl) {
+              statusEl.textContent = "Terkunci";
+              statusEl.className = "text-sm font-semibold text-red-500";
+            }
+          }
+        });
+
+        const step4 = document.getElementById("step-4");
+        step4.style.display =
+          state.userData.testType === "pre-test" ? "none" : "block";
+
+        for (const key in state.userData) {
+          const el = dom.userInfoForm.elements[key];
+          if (el && key !== "perusahaan") {
+            // Don't auto-fill company
+            if (el.type === "radio") {
+              const radioToCheck = document.querySelector(
+                `input[name="${key}"][value="${state.userData[key]}"]`
+              );
+              if (radioToCheck) radioToCheck.checked = true;
+            } else {
+              el.value = state.userData[key];
+            }
+          }
+        }
+
+        if (state.userData.perusahaan) {
+          const perusahaanSelect =
+            dom.userInfoForm.elements["perusahaan-select"];
+          const perusahaanLainnyaInput =
+            dom.userInfoForm.elements["perusahaan-lainnya"];
+          const perusahaanLainnyaContainer = document.getElementById(
+            "perusahaan-lainnya-container"
+          );
+
+          const isStandardCompany = [...perusahaanSelect.options].some(
+            (opt) => opt.value === state.userData.perusahaan
+          );
+
+          if (isStandardCompany) {
+            perusahaanSelect.value = state.userData.perusahaan;
+            perusahaanLainnyaContainer.classList.add("hidden");
+            perusahaanLainnyaInput.required = false;
+          } else {
+            perusahaanSelect.value = "Lainnya";
+            perusahaanLainnyaContainer.classList.remove("hidden");
+            perusahaanLainnyaInput.value = state.userData.perusahaan;
+            perusahaanLainnyaInput.required = true;
+          }
+        }
+
+        if (state.userData.inductionType)
+          dom.inductionTypeSelect.value = state.userData.inductionType;
+      }
+
+      function saveState() {
+        localStorage.setItem("inductionAppState", JSON.stringify(state));
+      }
+
+      function loadState() {
+        const savedState = localStorage.getItem("inductionAppState");
+        if (savedState) state = JSON.parse(savedState);
+      }
+
+      function resetState() {
+        showModal(
+          "Apakah Anda yakin ingin mengulang semua proses? Data yang belum tersimpan akan hilang.",
+          () => {
+            localStorage.removeItem("inductionAppState");
+            localStorage.removeItem("offlineQueue");
+            location.reload();
+          },
+          "Ya, Ulangi"
+        );
+      }
+
+      function advanceStep(step) {
+        state.currentStep = step;
+        saveState();
+        updateUI();
+
+        if (step === 4) {
+          loadTallyForms();
+        }
+      }
+
+      function addEventListeners() {
+        window.addEventListener("online", checkOnlineStatus);
+        window.addEventListener("offline", checkOnlineStatus);
+        dom.resetButton.addEventListener("click", resetState);
+
+        document.querySelectorAll(".step-header").forEach((header) => {
+          header.addEventListener("click", () => {
+            if (!header.parentElement.classList.contains("locked")) {
+              header.nextElementSibling.classList.toggle("open");
+            }
+          });
+        });
+
+        dom.userInfoForm.addEventListener("submit", handleUserInfoSubmit);
+        dom.absensiBtn.addEventListener("click", handleAbsensi);
+        dom.selectInductionBtn.addEventListener("click", handleSelectInduction);
+        dom.startQuizBtn.addEventListener("click", handleStartQuiz);
+
+        dom.spdkCheckbox.addEventListener("change", checkStep4Completion);
+        dom.checklistCheckbox.addEventListener("change", checkStep4Completion);
+        dom.finishChecklistBtn.addEventListener("click", () =>
+          showCertificateScreen(true)
+        );
+
+        const perusahaanSelect = document.getElementById("perusahaan-select");
+        const perusahaanLainnyaContainer = document.getElementById(
+          "perusahaan-lainnya-container"
+        );
+        const perusahaanLainnyaInput =
+          document.getElementById("perusahaan-lainnya");
+
+        perusahaanSelect.addEventListener("change", (e) => {
+          if (e.target.value === "Lainnya") {
+            perusahaanLainnyaContainer.classList.remove("hidden");
+            perusahaanLainnyaInput.required = true;
+          } else {
+            perusahaanLainnyaContainer.classList.add("hidden");
+            perusahaanLainnyaInput.required = false;
+            perusahaanLainnyaInput.value = "";
+          }
+        });
+      }
+
+      function checkStep4Completion() {
+        if (dom.spdkCheckbox.checked && dom.checklistCheckbox.checked) {
+          dom.finishChecklistBtn.disabled = false;
+        } else {
+          dom.finishChecklistBtn.disabled = true;
+        }
+      }
+
+      async function handleUserInfoSubmit(e) {
+        e.preventDefault();
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        showLoader("Menyimpan data peserta...");
+
+        try {
+          const formData = new FormData(e.target);
+          state.userData = Object.fromEntries(formData.entries());
+
+          const perusahaanPilihan = formData.get("perusahaan-select");
+          if (perusahaanPilihan === "Lainnya") {
+            state.userData.perusahaan = formData.get("perusahaan-lainnya");
+          } else {
+            state.userData.perusahaan = perusahaanPilihan;
+          }
+          delete state.userData["perusahaan-select"];
+          delete state.userData["perusahaan-lainnya"];
+
+          state.userData.timestamp = new Date().toISOString();
+
+          await postDataWithOfflineQueue({
+            action: "saveUser",
+            payload: state.userData,
+          });
+          await postDataWithOfflineQueue({
+            action: "saveDataDiri",
+            payload: state.userData,
+          });
+
+          advanceStep(1);
+        } catch (error) {
+          console.error("Gagal menyimpan data diri:", error);
+          alert(`Terjadi kesalahan: ${error.message}`);
+        } finally {
+          hideLoader();
+          submitButton.disabled = false;
+        }
+      }
+
+      function handleAbsensi(e) {
+        const button = e.target;
+        showModal(
+          "Konfirmasi untuk melakukan absensi?",
+          async () => {
+            button.disabled = true;
+            showLoader("Mencatat absensi...");
+            try {
+              await postDataWithOfflineQueue({
+                action: "saveAbsensi",
+                payload: state.userData,
+              });
+              advanceStep(2);
+            } catch (error) {
+              console.error("Gagal mencatat absensi:", error);
+              alert(`Terjadi kesalahan: ${error.message}`);
+            } finally {
+              hideLoader();
+              button.disabled = false;
+            }
+          },
+          "Ya, Absen"
+        );
+      }
+
+      function handleSelectInduction() {
+        const type = dom.inductionTypeSelect.value;
+        if (type) {
+          state.userData.inductionType = type;
+          advanceStep(3);
+        } else {
+          alert("Silakan pilih tipe induksi.");
+        }
+      }
+
+      async function handleStartQuiz(e) {
+        const button = e.target;
+        button.disabled = true;
+        showLoader("Memuat soal kuis...");
+
+        const errorEl = document.getElementById("quiz-error");
+        errorEl.classList.add("hidden");
+
+        try {
+          const payload = {
+            tipe_induksi: state.userData.inductionType,
+            jabatan_id: state.userData.jabatan,
+          };
+          const materials = await postDataWithOfflineQueue({
+            action: "getSoal",
+            payload: payload,
+          });
+
+          if (!materials || materials.length === 0)
+            throw new Error(
+              "Tidak ada materi/soal yang ditemukan untuk tipe induksi dan jabatan ini."
+            );
+
+          let totalQuestions = 0;
+          materials.forEach((m) => {
+            if (m.questions && Array.isArray(m.questions)) {
+              totalQuestions += m.questions.length;
+            }
+          });
+
+          if (totalQuestions === 0)
+            throw new Error(
+              "Materi ditemukan, tetapi tidak ada soal di dalamnya."
+            );
+
+          state.quizData.materials = materials;
+          state.quizData.totalQuestions = totalQuestions;
+          state.quizData.answers = {};
+
+          saveState();
+          launchQuizModal();
+        } catch (error) {
+          console.error("Gagal memuat soal:", error);
+          errorEl.textContent = `Gagal memuat soal. Pesan dari server: ${error.message}`;
+          errorEl.classList.remove("hidden");
+        } finally {
+          hideLoader();
+          button.disabled = false;
+        }
+      }
+
+      function showModal(text, onConfirm, confirmText = "Ya") {
+        dom.modal.text.textContent = text;
+        dom.modal.confirmBtn.textContent = confirmText;
+        dom.modal.container.classList.remove("hidden");
+
+        const confirmHandler = () => {
+          onConfirm();
+          hideModal();
+          cleanup();
+        };
+        const cancelHandler = () => {
+          hideModal();
+          cleanup();
+        };
+        const cleanup = () => {
+          dom.modal.confirmBtn.removeEventListener("click", confirmHandler);
+          dom.modal.cancelBtn.removeEventListener("click", cancelHandler);
+        };
+
+        dom.modal.confirmBtn.addEventListener("click", confirmHandler);
+        dom.modal.cancelBtn.addEventListener("click", cancelHandler);
+      }
+
+      function hideModal() {
+        dom.modal.container.classList.add("hidden");
+      }
+
+      function showLoader(message = "Memuat...") {
+        dom.loader.text.textContent = message;
+        dom.loader.container.classList.remove("hidden");
+      }
+
+      function hideLoader() {
+        dom.loader.container.classList.add("hidden");
+      }
+
+      function launchQuizModal() {
+        state.quizData.currentMaterialIndex = 0;
+        state.quizData.currentQuestionIndex = 0;
+        dom.quiz.modal.classList.remove("hidden");
+        dom.quiz.nextBtn.onclick = handleQuizNext;
+        dom.quiz.prevBtn.onclick = handleQuizPrev;
+        displayCurrentMaterial();
+      }
+
+      function displayCurrentMaterial() {
+        const { materials, currentMaterialIndex } = state.quizData;
+        const material = materials[currentMaterialIndex];
+
+        dom.quiz.questionSection.classList.add("hidden");
+        dom.quiz.videoWatchedCheckbox.checked = false;
+        dom.quiz.videoWatchedCheckbox.disabled = false;
+        dom.quiz.materialSection.classList.remove("hidden");
+
+        dom.quiz.materialTitle.textContent = material.materi_judul;
+        dom.quiz.materialProgress.textContent = `Materi ${
+          currentMaterialIndex + 1
+        } dari ${materials.length}`;
+
+        loadVideo(material.video_url);
+
+        dom.quiz.openVideoBtn.onclick = () =>
+          window.open(material.video_url, "_blank");
+        dom.quiz.replayVideoBtn.onclick = () => loadVideo(material.video_url);
+
+        dom.quiz.videoWatchedCheckbox.onchange = (e) => {
+          if (e.target.checked) {
+            dom.quiz.questionSection.classList.remove("hidden");
+            e.target.disabled = true;
+            displayCurrentQuestion();
+          }
+        };
+
+        updateNavigationButtons();
+      }
+
+      function loadVideo(videoUrl) {
+        if (videoUrl && videoUrl.trim() !== "") {
+          const videoId =
+            videoUrl.split("v=")[1]?.split("&")[0] || videoUrl.split("/").pop();
+          dom.quiz.videoContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        } else {
+          dom.quiz.videoContainer.innerHTML = `<div class="w-full h-full bg-gray-200 flex items-center justify-center"><p class="text-gray-500">Tidak ada video untuk materi ini.</p></div>`;
+          dom.quiz.videoWatchedCheckbox.checked = true;
+          dom.quiz.videoWatchedCheckbox.dispatchEvent(new Event("change"));
+        }
+      }
+
+      function displayCurrentQuestion() {
+        const { materials, currentMaterialIndex, currentQuestionIndex } =
+          state.quizData;
+        const material = materials[currentMaterialIndex];
+        const q = material.questions[currentQuestionIndex];
+
+        const options = [
+          q.pilihan_a,
+          q.pilihan_b,
+          q.pilihan_c,
+          q.pilihan_d,
+        ].filter((opt) => opt);
+
+        let imageHtml = "";
+        if (q.gambar && q.gambar.trim() !== "") {
+          imageHtml = `<img src="${q.gambar}" alt="Gambar Soal" class="my-4 rounded-lg max-w-full h-auto mx-auto border">`;
+        }
+
+        dom.quiz.container.innerHTML = `
+            <h2 class="text-xl font-semibold mb-2">
+                <span class="font-bold">Pertanyaan ${
+                  currentQuestionIndex + 1
+                } dari ${material.questions.length}:</span>
+            </h2>
+            <p class="text-lg mb-4">${q.pertanyaan}</p>
+            ${imageHtml}
+            <div class="space-y-4">
+                ${options
+                  .map(
+                    (option, i) => `
+                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 transition-all">
+                        <input type="radio" name="question${q.id_soal}" value="${option}" class="h-5 w-5 text-blue-600">
+                        <span class="ml-4 text-md">${option}</span>
+                    </label>
+                `
+                  )
+                  .join("")}
+            </div>`;
+
+        const savedAnswer = state.quizData.answers[q.id_soal];
+        if (savedAnswer) {
+          const radio = dom.quiz.container.querySelector(
+            `input[value="${savedAnswer}"]`
+          );
+          if (radio) radio.checked = true;
+        }
+
+        updateQuizProgress();
+        updateNavigationButtons();
+      }
+
+      function updateQuizProgress() {
+        const totalQuestions = state.quizData.totalQuestions;
+
+        let questionNumber = 1;
+        for (let i = 0; i < state.quizData.currentMaterialIndex; i++) {
+          questionNumber += state.quizData.materials[i].questions.length;
+        }
+        questionNumber += state.quizData.currentQuestionIndex;
+
+        const progress =
+          totalQuestions > 0 ? (questionNumber / totalQuestions) * 100 : 0;
+        dom.quiz.progressBar.style.width = `${progress}%`;
+        dom.quiz.progressText.textContent = `Soal ${questionNumber} dari ${totalQuestions}`;
+      }
+
+      function updateNavigationButtons() {
+        const { materials, currentMaterialIndex, currentQuestionIndex } =
+          state.quizData;
+        const isFirstQuestionOverall =
+          currentMaterialIndex === 0 && currentQuestionIndex === 0;
+        dom.quiz.prevBtn.disabled = isFirstQuestionOverall;
+
+        const isLastQuestionOverall =
+          currentMaterialIndex === materials.length - 1 &&
+          currentQuestionIndex ===
+            materials[currentMaterialIndex].questions.length - 1;
+        dom.quiz.nextBtn.textContent = isLastQuestionOverall
+          ? "Selesai"
+          : "Selanjutnya";
+      }
+
+      function handleQuizNext() {
+        const { materials, currentMaterialIndex, currentQuestionIndex } =
+          state.quizData;
+        const currentQuestion =
+          materials[currentMaterialIndex].questions[currentQuestionIndex];
+        const selectedOption = document.querySelector(
+          `input[name="question${currentQuestion.id_soal}"]:checked`
+        );
+
+        if (!dom.quiz.videoWatchedCheckbox.checked) {
+          alert(
+            "Harap tonton video dan centang kotak konfirmasi terlebih dahulu."
+          );
+          return;
+        }
+
+        if (!selectedOption) {
+          alert("Harap pilih satu jawaban untuk melanjutkan.");
+          return;
+        }
+        state.quizData.answers[currentQuestion.id_soal] = selectedOption.value;
+
+        const isLastQuestionInMaterial =
+          currentQuestionIndex ===
+          materials[currentMaterialIndex].questions.length - 1;
+
+        if (!isLastQuestionInMaterial) {
+          state.quizData.currentQuestionIndex++;
+          displayCurrentQuestion();
+        } else {
+          const isLastMaterial = currentMaterialIndex === materials.length - 1;
+          if (!isLastMaterial) {
+            state.quizData.currentMaterialIndex++;
+            state.quizData.currentQuestionIndex = 0;
+            displayCurrentMaterial();
+          } else {
+            finishQuiz();
+          }
+        }
+        saveState();
+      }
+
+      function handleQuizPrev() {
+        const { currentMaterialIndex, currentQuestionIndex } = state.quizData;
+        const isFirstQuestionInMaterial = currentQuestionIndex === 0;
+
+        if (!isFirstQuestionInMaterial) {
+          state.quizData.currentQuestionIndex--;
+          displayCurrentQuestion();
+        } else {
+          const isFirstMaterial = currentMaterialIndex === 0;
+          if (!isFirstMaterial) {
+            state.quizData.currentMaterialIndex--;
+            const prevMaterial =
+              state.quizData.materials[state.quizData.currentMaterialIndex];
+            state.quizData.currentQuestionIndex =
+              prevMaterial.questions.length - 1;
+            dom.quiz.materialSection.classList.remove("hidden");
+            dom.quiz.questionSection.classList.remove("hidden");
+            dom.quiz.materialTitle.textContent = prevMaterial.materi_judul;
+            dom.quiz.materialProgress.textContent = `Materi ${
+              state.quizData.currentMaterialIndex + 1
+            } dari ${state.quizData.materials.length}`;
+            displayCurrentQuestion();
+          }
+        }
+        saveState();
+      }
+
+      async function finishQuiz() {
+        dom.quiz.modal.classList.add("hidden");
+        showLoader("Menyimpan jawaban...");
+        try {
+          calculateScore();
+          const payload = {
+            ...state.userData,
+            skor: state.quizData.score,
+            tipe_induksi: state.userData.inductionType,
+            detail_jawaban: JSON.stringify(state.quizData.answers),
+          };
+          await postDataWithOfflineQueue({ action: "saveJawaban", payload });
+
+          if (
+            state.userData.testType === "pre-test" ||
+            state.quizData.score < PASSING_SCORE
+          ) {
+            showFinalScreen();
+          } else {
+            advanceStep(4);
+          }
+        } catch (error) {
+          console.error("Gagal menyimpan jawaban:", error);
+          alert(`Gagal menyimpan jawaban: ${error.message}`);
+        } finally {
+          hideLoader();
+        }
+      }
+
+      function calculateScore() {
+        let correctAnswers = 0;
+        const totalQuestions = state.quizData.totalQuestions;
+
+        state.quizData.materials.forEach((material) => {
+          if (material.questions && Array.isArray(material.questions)) {
+            material.questions.forEach((q) => {
+              if (state.quizData.answers[q.id_soal] === q.kunci_jawaban) {
+                correctAnswers++;
+              }
+            });
+          }
+        });
+
+        state.quizData.score =
+          totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+      }
+
+      function triggerConfetti() {
+        const container = document.createElement("div");
+        container.className = "confetti-container";
+        dom.completionScreen.appendChild(container);
+        const colors = [
+          "#f44336",
+          "#e91e63",
+          "#9c27b0",
+          "#673ab7",
+          "#3f51b5",
+          "#2196f3",
+          "#03a9f4",
+          "#00bcd4",
+          "#009688",
+          "#4caf50",
+          "#8bc34a",
+          "#cddc39",
+          "#ffeb3b",
+          "#ffc107",
+          "#ff9800",
+        ];
+        for (let i = 0; i < 100; i++) {
+          const confetti = document.createElement("div");
+          confetti.className = "confetti";
+          confetti.style.left = Math.random() * 100 + "vw";
+          confetti.style.top = Math.random() * -100 + "vh";
+          confetti.style.backgroundColor =
+            colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.animationDelay = Math.random() * 2 + "s";
+          container.appendChild(confetti);
+        }
+        setTimeout(() => container.remove(), 6000);
+      }
+
+      function showFinalScreen() {
+        dom.appContainer.classList.add("hidden");
+        dom.completionScreen.classList.remove("hidden");
+        let content = "";
+
+        if (state.userData.testType === "pre-test") {
+          content = `<h2 class="text-2xl font-bold text-indigo-600">Pre-Test Selesai!</h2>
+                       <p class="mt-4 text-gray-700">Skor Anda: <strong>${state.quizData.score.toFixed(
+                         2
+                       )}</strong></p>
+                       <p class="mt-2 text-gray-600">Sekarang, silakan mengikuti sesi induksi tatap muka. Setelah itu, kembali lagi untuk mengerjakan Post-Test.</p>`;
+          localStorage.removeItem("inductionAppState");
+        } else if (state.quizData.score < PASSING_SCORE) {
+          content = `<h2 class="text-2xl font-bold text-red-600">Mohon Maaf, Anda Belum Lulus</h2>
+                       <p class="mt-4 text-gray-700">Skor Anda adalah <strong>${state.quizData.score.toFixed(
+                         2
+                       )}</strong>, sedangkan nilai kelulusan minimal adalah <strong>${PASSING_SCORE}</strong>.</p>
+                       <p class="mt-2 text-gray-600">Anda dapat mengulang proses dari awal atau tetap melanjutkan ke tahap TTD & Checklist dengan persetujuan pengawas.</p>
+                       <button id="continue-anyway-btn" class="mt-6 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Tetap Lanjutkan</button>`;
+        } else {
+          showCertificateScreen();
+          return;
+        }
+
+        dom.completionScreen.innerHTML = content;
+
+        const continueButton = document.getElementById("continue-anyway-btn");
+        if (continueButton) {
+          continueButton.addEventListener("click", () => {
+            dom.completionScreen.classList.add("hidden");
+            dom.appContainer.classList.remove("hidden");
+            advanceStep(4);
+          });
+        }
+      }
+
+      function showCertificateScreen(isFromTally = false) {
+        dom.appContainer.classList.add("hidden");
+        dom.completionScreen.classList.remove("hidden");
+
+        const date = new Date(state.userData.timestamp);
+        const formattedTime = date.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const inductionText =
+          inductionTypeMap[state.userData.inductionType] ||
+          state.userData.inductionType;
+
+        const content = `<div class="border-4 border-green-500 rounded-lg p-6 bg-green-50 text-left space-y-3 relative">
+                        <h2 class="text-2xl font-bold text-green-700 text-center mb-4">🎉 Selamat! Induksi Selesai 🎉</h2>
+                        <div class="flex flex-col md:flex-row gap-4 items-center">
+                            <div class="flex-1 space-y-2">
+                                <p><span class="font-semibold w-28 inline-block">Nama</span>: ${
+                                  state.userData.nama
+                                }</p>
+                                <p><span class="font-semibold w-28 inline-block">Perusahaan</span>: ${
+                                  state.userData.perusahaan
+                                }</p>
+                                <p><span class="font-semibold w-28 inline-block">Jenis Induksi</span>: ${inductionText}</p>
+                                <p><span class="font-semibold w-28 inline-block">Jam Submit</span>: ${formattedTime} WITA</p>
+                                <p><span class="font-semibold w-28 inline-block">Skor Akhir</span>: <strong>${state.quizData.score.toFixed(
+                                  2
+                                )}</strong></p>
+                            </div>
+                            <div class="p-2 bg-white border rounded-lg">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=NIK:${
+                                  state.userData.nik
+                                },Nama:${
+          state.userData.nama
+        }" alt="QR Code" class="mx-auto">
+                            </div>
+                        </div>
+                       </div>
+                       <p class="mt-6 font-semibold text-center text-red-600 bg-red-100 p-3 rounded-lg">PENTING: Simpan bukti ini dengan screenshot pada halaman ini.</p>
+                       <button id="download-pdf-btn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Unduh Sertifikat (PDF)</button>`;
+
+        dom.completionScreen.innerHTML = content;
+        setTimeout(triggerConfetti, 100);
+
+        const pdfButton = document.getElementById("download-pdf-btn");
+        if (pdfButton) {
+          pdfButton.addEventListener("click", generateCertificatePDF);
+        }
+        localStorage.removeItem("inductionAppState");
+      }
+
+      async function generateCertificatePDF() {
+        showLoader("Membuat sertifikat PDF...");
+        const doc = new jsPDF();
+        const { nama, perusahaan, timestamp } = state.userData;
+        const inductionText =
+          inductionTypeMap[state.userData.inductionType] ||
+          state.userData.inductionType;
+        const date = new Date(timestamp);
+        const formattedDate = date.toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+        const formattedTime = date.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.text("SERTIFIKAT PENYELESAIAN INDUKSI", 105, 30, {
+          align: "center",
+        });
+
+        doc.setFontSize(14);
+        doc.text("PT. Ganda Alam Makmur", 105, 40, { align: "center" });
+
+        doc.setLineWidth(0.5);
+        doc.line(20, 45, 190, 45);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.text("Dengan ini menyatakan bahwa:", 105, 60, { align: "center" });
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text(nama, 105, 80, { align: "center" });
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.text(`Dari perusahaan: ${perusahaan}`, 105, 90, {
+          align: "center",
+        });
+
+        doc.text("Telah berhasil menyelesaikan:", 105, 110, {
+          align: "center",
+        });
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text(inductionText, 105, 120, { align: "center" });
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.text(
+          `Pada tanggal ${formattedDate}, pukul ${formattedTime} WITA`,
+          105,
+          140,
+          { align: "center" }
+        );
+        doc.text(`Dengan skor akhir:`, 105, 150, { align: "center" });
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.text(state.quizData.score.toFixed(2), 105, 160, {
+          align: "center",
+        });
+
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=NIK:${state.userData.nik},Nama:${state.userData.nama}`;
+        try {
+          const qrCodeDataUrl = await getImageDataUrl(qrCodeUrl);
+          doc.addImage(qrCodeDataUrl, "PNG", 85, 180, 40, 40);
+        } catch (error) {
+          console.error("Gagal memuat QR code untuk PDF:", error);
+          doc.text("[Gagal memuat QR Code]", 105, 200, { align: "center" });
+        }
+
+        doc.setFontSize(10);
+        doc.setTextColor(150);
+        doc.text(
+          "Sertifikat ini dibuat secara otomatis oleh sistem.",
+          105,
+          280,
+          { align: "center" }
+        );
+
+        doc.save(`Sertifikat_Induksi_${nama}.pdf`);
+        hideLoader();
+      }
+
+      function getImageDataUrl(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.height = img.naturalHeight;
+            canvas.width = img.naturalWidth;
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL("image/png"));
+          };
+          img.onerror = () => {
+            reject(new Error("Gagal memuat gambar dari URL: " + url));
+          };
+          img.src = url;
+        });
+      }
+
+      async function postDataWithOfflineQueue(request) {
+        if (WEB_APP_URL === "GANTI_DENGAN_URL_WEB_APP_ANDA") {
+          const msg = "URL Web App belum dikonfigurasi.";
+          if (request.action === "getSoal") throw new Error(msg);
+          alert(msg);
+          addToOfflineQueue(request);
+          return;
+        }
+        if (state.isOnline) {
+          try {
+            const response = await fetch(WEB_APP_URL, {
+              method: "POST",
+              mode: "cors",
+              cache: "no-cache",
+              headers: {
+                "Content-Type": "text/plain;charset=utf-8",
+              },
+              body: JSON.stringify(request),
+            });
+            if (!response.ok)
+              throw new Error(`Server error: ${response.statusText}`);
+            const result = await response.json();
+            if (result.status !== "success")
+              throw new Error(result.message || "Unknown server error");
+            return result.data;
+          } catch (error) {
+            console.error("API call failed, saving to offline queue:", error);
+            if (request.action === "getSoal") throw error;
+            addToOfflineQueue(request);
+          }
+        } else {
+          if (request.action === "getSoal")
+            throw new Error("Tidak bisa memuat soal saat offline.");
+          addToOfflineQueue(request);
+        }
+      }
+
+      function addToOfflineQueue(request) {
+        const queue = JSON.parse(localStorage.getItem("offlineQueue") || "[]");
+        queue.push(request);
+        localStorage.setItem("offlineQueue", JSON.stringify(queue));
+        alert(
+          "Koneksi terputus. Data Anda disimpan sementara dan akan dikirim saat kembali online."
+        );
+      }
+
+      async function syncOfflineData() {
+        const queue = JSON.parse(localStorage.getItem("offlineQueue") || "[]");
+        if (queue.length === 0) return;
+        showLoader(`Menyinkronkan ${queue.length} data offline...`);
+        const failedSync = [];
+        for (const request of queue) {
+          try {
+            await postDataWithOfflineQueue(request);
+          } catch (error) {
+            failedSync.push(request);
+          }
+        }
+        localStorage.setItem("offlineQueue", JSON.stringify(failedSync));
+        hideLoader();
+        if (failedSync.length === 0) {
+          alert("Semua data yang tersimpan berhasil diunggah.");
+        } else {
+          alert(
+            `Gagal mengunggah ${failedSync.length} data. Akan dicoba lagi nanti.`
+          );
+        }
+      }
+
+      function checkOnlineStatus() {
+        state.isOnline = navigator.onLine;
+        dom.onlineStatus.textContent = state.isOnline
+          ? "● Online"
+          : "● Offline";
+        dom.onlineStatus.className = `mt-2 text-sm font-semibold rounded-full px-3 py-1 inline-block ${
+          state.isOnline
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800"
+        }`;
+        if (state.isOnline) syncOfflineData();
+      }
+
+      function loadTallyForms() {
+        const { nik, nama, perusahaan } = state.userData;
+        const queryParams = `?nik=${encodeURIComponent(
+          nik
+        )}&nama=${encodeURIComponent(nama)}&perusahaan=${encodeURIComponent(
+          perusahaan
+        )}`;
+
+        dom.spdkFrame.src = TALLY_SPDK_URL + queryParams;
+        dom.checklistFrame.src = TALLY_CHECKLIST_URL + queryParams;
+      }
+
+      document.addEventListener("DOMContentLoaded", initApp);
+    </script>
+  </body>
+</html>

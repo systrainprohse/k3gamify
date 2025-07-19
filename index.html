@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GAMITAS - Aplikasi Keselamatan Terpadu</title>
 
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="msapplication-navbutton-color" content="#ffffff" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="manifest" href="" />
+    <meta name="theme-color" content="#ffffff" />
     <link
       rel="apple-touch-icon"
       href="https://cdn-icons-png.flaticon.com/512/3468/3468379.png"
@@ -22,6 +21,7 @@
       /* === GLOBAL RESET & BASE === */
       :root {
         --primary-color: #d32f2f;
+        --primary-color-dark: #b71c1c;
         --secondary-color: #ff7043;
         --background-color: #f4f6f8;
         --text-color: #212121;
@@ -78,6 +78,7 @@
       .scrollable-content {
         flex-grow: 1;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       /* === ANIMATION KEYFRAMES === */
@@ -246,12 +247,12 @@
         animation: fadeIn 0.4s ease-in-out;
       }
 
-      /* === APP HEADER === */
+      /* === APP HEADER (REVAMPED) === */
       .app-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px;
+        padding: 12px 16px;
         background-color: var(--header-bg);
         flex-shrink: 0;
         position: sticky;
@@ -261,59 +262,85 @@
         border-bottom: 1px solid var(--border-color);
       }
       .app-header.hidden {
-        top: -100px; /* Sembunyikan header saat scroll */
+        top: -100px;
       }
       .app-header .logo {
         font-weight: bold;
         font-size: 24px;
         color: var(--primary-color);
       }
-      .app-header .logout-btn {
-        background: none;
-        border: 1px solid var(--border-color);
-        color: var(--text-color);
-        padding: 8px 16px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.2s, color 0.2s;
+      .profile-dropdown {
+        position: relative;
       }
-      .app-header .logout-btn:hover {
+      .profile-btn {
+        background-color: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+      .profile-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
         background-color: var(--primary-color);
         color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .profile-dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 45px;
+        background-color: white;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .profile-dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+      }
+      .profile-dropdown-content a:hover {
+        background-color: #f1f1f1;
+      }
+      .profile-dropdown-content a svg {
+        width: 16px;
+        height: 16px;
+        stroke: #555;
+      }
+      .profile-dropdown:hover .profile-dropdown-content {
+        display: block;
       }
 
       /* === USER PROFILE SECTION === */
       .user-profile {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px;
+        padding: 24px 16px;
         background-color: var(--header-bg);
         border-bottom: 1px solid var(--border-color);
         flex-shrink: 0;
       }
+      .user-profile .greeting p {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        color: var(--text-color-light);
+      }
       .user-profile .greeting h2 {
         margin: 0;
-        font-size: clamp(20px, 5vw, 22px);
+        font-size: clamp(22px, 5vw, 24px);
         font-weight: 600;
-      }
-      .user-profile .quick-actions {
-        display: flex;
-        gap: 16px;
-      }
-      .user-profile .quick-actions .action-icon {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-size: 12px;
-        color: var(--text-color-light);
-        text-decoration: none;
-      }
-      .user-profile .quick-actions img {
-        width: 28px;
-        height: 28px;
-        margin-bottom: 4px;
       }
 
       /* === TAB NAVIGATION === */
@@ -439,12 +466,13 @@
         text-decoration: none;
         color: var(--text-color);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         animation: fadeInUp 0.5s ease-out;
         animation-fill-mode: both;
       }
       .feature-card:hover {
         transform: translateY(-4px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
       }
       .feature-card .icon-wrapper {
         background-color: #feeceb;
@@ -493,28 +521,28 @@
         justify-content: center; /* Center content vertically */
         align-items: center;
         text-decoration: none;
-        color: var(--text-color);
+        color: var(--text-color-light);
         font-size: 11px;
         padding: 4px 2px;
         position: relative;
         text-align: center;
         width: 100%; /* Make link fill the list item */
+        transition: color 0.2s;
       }
-      .footer-nav li a span {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 95%; /* Give a little breathing room */
-        display: inline-block;
-      }
-      .footer-nav li a img {
+      .footer-nav li a svg {
         width: 24px;
         height: 24px;
         margin-bottom: 4px;
+        stroke: var(--text-color-light);
+        transition: stroke 0.2s;
       }
-      .footer-nav li.active a span {
+      .footer-nav li.active a,
+      .footer-nav li a:hover {
         color: var(--primary-color);
-        font-weight: bold;
+      }
+      .footer-nav li.active a svg,
+      .footer-nav li a:hover svg {
+        stroke: var(--primary-color);
       }
       .footer-nav li.active a::after {
         content: "";
@@ -671,62 +699,21 @@
         margin: 0;
       }
 
-      /* === NEW INDUCTION LIST STYLES === */
-      .induction-flow-container {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-      .induction-step {
-        background-color: var(--card-bg);
-        padding: 16px;
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        animation: fadeInUp 0.5s ease-out forwards;
-        opacity: 0;
-      }
-      .induction-step h3 {
-        margin: 0 0 12px 0;
-        font-size: 18px;
-      }
-      .induction-step p {
-        margin: 0;
-        line-height: 1.6;
-        color: var(--text-color-light);
-      }
-      .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 16px;
-      }
-      .form-group label {
-        font-weight: 600;
-        font-size: 14px;
-      }
-      .form-group select {
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        background-color: white;
-        font-size: 16px;
-      }
-      .form-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 16px;
-        background-color: #feeceb;
-        border-radius: 8px;
-        color: var(--primary-color);
+      /* === INDUCTION PAGE STYLES === */
+      .start-induction-btn {
+        display: inline-block;
+        padding: 16px 32px;
+        background-color: var(--primary-color);
+        color: white;
         text-decoration: none;
         font-weight: 600;
-        margin-top: 8px;
+        font-size: 18px;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
       }
-      .form-link img {
-        width: 24px;
-        height: 24px;
-        margin-right: 12px;
+      .start-induction-btn:hover {
+        background-color: var(--primary-color-dark);
+        transform: translateY(-2px);
       }
       .instruction-box {
         background-color: #fff9c4;
@@ -737,15 +724,61 @@
         font-size: 14px;
         line-height: 1.7;
       }
-      .final-step-box {
-        background-color: #e8f5e9;
-        border: 1px solid #4caf50;
-        color: #1b5e20;
+
+      /* === EMERGENCY PAGE STYLES === */
+      .emergency-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .emergency-item {
+        display: flex;
+        align-items: center;
+        background-color: var(--card-bg);
         padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+      .emergency-item .icon-wrapper {
+        flex-shrink: 0;
+        margin-right: 16px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
+      .emergency-item .icon-wrapper svg {
+        width: 24px;
+        height: 24px;
+      }
+      .emergency-item .contact-info {
+        flex-grow: 1;
+      }
+      .emergency-item .contact-info h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+      }
+      .emergency-item .contact-info p {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+      .emergency-item .call-btn {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        text-decoration: none;
         border-radius: 8px;
-        font-size: 14px;
-        line-height: 1.7;
-        text-align: center;
+        font-weight: 600;
+        transition: background-color 0.2s;
+      }
+      .emergency-item .call-btn:hover {
+        background-color: #45a049;
       }
     </style>
   </head>
@@ -827,30 +860,57 @@
       <div id="app-container" style="display: none">
         <header class="app-header">
           <div class="logo">GAMITAS</div>
-          <button class="logout-btn" onclick="logout()">Keluar</button>
+          <div class="profile-dropdown">
+            <button class="profile-btn">
+              <span id="header-user-name" style="font-weight: 600"></span>
+              <div class="profile-avatar" id="profile-initial">?</div>
+            </button>
+            <div class="profile-dropdown-content">
+              <a href="#">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                Profil
+              </a>
+              <a href="#" onclick="logout()">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Keluar
+              </a>
+            </div>
+          </div>
         </header>
 
         <div class="scrollable-content">
           <div id="page-home" class="page">
             <section class="user-profile">
               <div class="greeting">
-                <h2 id="user-greeting">Hi, Pengguna!</h2>
-              </div>
-              <div class="quick-actions">
-                <a href="#" class="action-icon">
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/512/3602/3602123.png"
-                    alt="Notifikasi"
-                  />
-                  <span>Notifikasi</span>
-                </a>
-                <a href="#" class="action-icon">
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/512/1574/1574671.png"
-                    alt="Riwayat"
-                  />
-                  <span>Riwayat</span>
-                </a>
+                <p id="time-greeting">Selamat Pagi,</p>
+                <h2 id="user-greeting">Pengguna!</h2>
               </div>
             </section>
 
@@ -881,19 +941,6 @@
                       Gunakan pelindung telinga di sekitar area genset.
                     </p>
                   </div>
-                  <div class="carousel-slide">
-                    <p class="card-title">TTA/KTA Hari Ini</p>
-                    <p class="card-content">
-                      Fokus pada pencegahan tangan terjepit saat perbaikan unit.
-                    </p>
-                  </div>
-                  <div class="carousel-slide">
-                    <p class="card-title">Top Hazard Report</p>
-                    <p class="card-content">
-                      Lantai licin di area workshop menjadi laporan terbanyak
-                      minggu ini.
-                    </p>
-                  </div>
                 </div>
                 <div class="carousel-dots"></div>
               </div>
@@ -906,7 +953,7 @@
                 <a
                   onclick="showPage('page-kompetensi')"
                   class="feature-card"
-                  style="animation-delay: 0.2s"
+                  style="animation-delay: 0.1s"
                 >
                   <div class="icon-wrapper">
                     <img
@@ -919,7 +966,7 @@
                 <a
                   onclick="showPage('page-kartudigital')"
                   class="feature-card"
-                  style="animation-delay: 0.25s"
+                  style="animation-delay: 0.15s"
                 >
                   <div class="icon-wrapper">
                     <img
@@ -932,7 +979,7 @@
                 <a
                   onclick="showPage('page-jadwal')"
                   class="feature-card"
-                  style="animation-delay: 0.3s"
+                  style="animation-delay: 0.2s"
                 >
                   <div class="icon-wrapper">
                     <img
@@ -945,7 +992,7 @@
                 <a
                   onclick="showPage('page-induksi')"
                   class="feature-card"
-                  style="animation-delay: 0.35s"
+                  style="animation-delay: 0.25s"
                 >
                   <div class="icon-wrapper">
                     <img
@@ -955,16 +1002,20 @@
                   </div>
                   <p>Induksi</p>
                 </a>
-                <a href="#" class="feature-card" style="animation-delay: 0.4s">
+                <a
+                  onclick="showPage('page-emergency')"
+                  class="feature-card"
+                  style="animation-delay: 0.3s"
+                >
                   <div class="icon-wrapper">
                     <img
-                      src="https://cdn-icons-png.flaticon.com/512/2991/2991108.png"
-                      alt="Buku Keselamatan Icon"
+                      src="https://cdn-icons-png.flaticon.com/512/2927/2927649.png"
+                      alt="Nomor Darurat Icon"
                     />
                   </div>
-                  <p>Panduan</p>
+                  <p>Nomor Darurat</p>
                 </a>
-                <a href="#" class="feature-card" style="animation-delay: 0.45s">
+                <a href="#" class="feature-card" style="animation-delay: 0.35s">
                   <div class="icon-wrapper">
                     <img
                       src="https://cdn-icons-png.flaticon.com/512/2942/2942788.png"
@@ -973,7 +1024,7 @@
                   </div>
                   <p>Lapor</p>
                 </a>
-                <a href="#" class="feature-card" style="animation-delay: 0.55s">
+                <a href="#" class="feature-card" style="animation-delay: 0.4s">
                   <div class="icon-wrapper">
                     <img
                       src="https://cdn-icons-png.flaticon.com/512/993/993771.png"
@@ -1089,78 +1140,32 @@
 
           <div id="page-induksi" class="page">
             <main class="page-content">
-              <h1 class="page-title">Alur Induksi Keselamatan</h1>
-              <div class="induction-flow-container">
-                <div class="induction-step" style="animation-delay: 0.1s">
-                  <h3>Langkah 1: Pendaftaran Induksi</h3>
-                  <p>
-                    Pilih tipe pendaftaran sesuai dengan status Anda (karyawan
-                    baru, pasca cuti, visitor, atau temporary).
-                  </p>
-                </div>
-
-                <div class="induction-step" style="animation-delay: 0.2s">
-                  <h3>Langkah 2: Pengisian Formulir</h3>
-                  <div class="form-group">
-                    <label for="induction-type">Pilih Tipe Induksi:</label>
-                    <select
-                      id="induction-type"
-                      class="induction-dropdown"
-                      onchange="updateInductionAction()"
-                    >
-                      <option value="">-- Pilih Tipe --</option>
-                      <option value="karyawan-baru">
-                        Induksi Karyawan Baru
-                      </option>
-                      <option value="pasca-cuti">Induksi Pasca Cuti</option>
-                      <option value="visitor">Induksi Visitor</option>
-                      <option value="temporary">Induksi Temporary</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label for="job-category">Pilih Kategori Jabatan:</label>
-                    <select
-                      id="job-category"
-                      class="induction-dropdown"
-                      onchange="updateInductionAction()"
-                    >
-                      <option value="pengawas">
-                        Pengawas / Group Leader ke Atas
-                      </option>
-                      <option value="operator">Operator</option>
-                      <option value="mekanik">Mekanik</option>
-                      <option value="non-pengawas">
-                        Admin / Non Pengawas Lainnya
-                      </option>
-                    </select>
-                  </div>
-                  <div
-                    id="induction-action-container"
-                    style="display: none; margin-top: 24px"
-                  >
-                    <a
-                      id="induction-continue-btn"
-                      href="#"
-                      class="form-link"
-                      style="
-                        background-color: var(--primary-color);
-                        color: white;
-                        justify-content: center;
-                      "
-                      >Lanjutkan</a
-                    >
-                  </div>
-                </div>
-
-                <div
-                  class="induction-step final-step-box"
-                  style="animation-delay: 0.3s"
+              <h1 class="page-title">Induksi Keselamatan</h1>
+              <div style="text-align: center; padding: 40px 20px">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/2950/2950450.png"
+                  alt="Induksi Icon"
+                  style="width: 100px; height: 100px; margin-bottom: 24px"
+                />
+                <h3>Siap untuk Memulai?</h3>
+                <p
+                  style="
+                    color: var(--text-color-light);
+                    line-height: 1.6;
+                    margin-bottom: 32px;
+                  "
                 >
-                  <p>
-                    SETELAH MELAKUKAN SEMUA INSTRUKSI DI ATAS, MAKA ANDA BERHAK
-                    UNTUK BEKERJA DI WILAYAH PT. GANDA ALAM MAKMUR.
-                  </p>
-                </div>
+                  Tekan tombol di bawah ini untuk memulai proses induksi
+                  keselamatan. Pastikan Anda menyelesaikan seluruh materi untuk
+                  dapat bekerja dengan aman di area kami.
+                </p>
+                <a
+                  href="induksi.html"
+                  target="_self"
+                  class="start-induction-btn"
+                >
+                  Mulai Induksi
+                </a>
               </div>
             </main>
           </div>
@@ -1220,48 +1225,238 @@
               </div>
             </main>
           </div>
+
+          <div id="page-emergency" class="page">
+            <main class="page-content">
+              <h1 class="page-title">Kontak Darurat</h1>
+              <div
+                class="instruction-box"
+                style="
+                  margin-bottom: 24px;
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fbc02d"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                  <line x1="12" x2="12" y1="9" y2="13" />
+                  <line x1="12" x2="12.01" y1="17" y2="17" />
+                </svg>
+                <span
+                  >Gunakan nomor ini hanya untuk keadaan darurat yang mengancam
+                  jiwa atau properti.</span
+                >
+              </div>
+              <div class="emergency-list">
+                <div class="emergency-item" style="animation-delay: 0.1s">
+                  <div
+                    class="icon-wrapper"
+                    style="background-color: var(--primary-color-dark)"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="contact-info">
+                    <h3>ERT (Emergency Response Team)</h3>
+                    <p>0821-1667-7991</p>
+                  </div>
+                  <a href="tel:082116677991" class="call-btn">Panggil</a>
+                </div>
+                <div class="emergency-item" style="animation-delay: 0.2s">
+                  <div class="icon-wrapper" style="background-color: #1e88e5">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M20.59 4.85a2.05 2.05 0 0 0-2.93 0L16.5 6l-3.5-3.5L11.5 1a2.05 2.05 0 0 0-2.93 0L3.41 6.15a2.05 2.05 0 0 0 0 2.93L5 10.5l3.5 3.5L7 15.5a2.05 2.05 0 0 0 0 2.93l5.15 5.15a2.05 2.05 0 0 0 2.93 0L21 18l-3.5-3.5L19 13a2.05 2.05 0 0 0 0-2.93Z"
+                      />
+                      <path d="m18 1-1 1" />
+                    </svg>
+                  </div>
+                  <div class="contact-info">
+                    <h3>Klinik</h3>
+                    <p>0813-1661-5353</p>
+                  </div>
+                  <a href="tel:081316615353" class="call-btn">Panggil</a>
+                </div>
+                <div class="emergency-item" style="animation-delay: 0.3s">
+                  <div class="icon-wrapper" style="background-color: #43a047">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 22a10 10 0 1 0-10-10h.01" />
+                      <path d="M16 16c-2.5-2.5-2.5-7.5-2.5-7.5s0 5-2.5 7.5" />
+                      <path d="M14 14c-1.5-1.5-1.5-4.5-1.5-4.5s0 3-1.5 4.5" />
+                      <path d="M12 12c-.5-.5-.5-1.5-.5-1.5s0 1-.5 1.5" />
+                    </svg>
+                  </div>
+                  <div class="contact-info">
+                    <h3>Channel Radio HSE / ERT</h3>
+                    <p>165.475</p>
+                  </div>
+                </div>
+              </div>
+            </main>
+          </div>
         </div>
 
         <nav class="footer-nav">
           <ul>
             <li id="nav-home" class="active">
               <a href="#" onclick="showPage('page-home')"
-                ><img
-                  src="https://cdn-icons-png.flaticon.com/512/25/25694.png"
-                  alt="Home"
-                /><span>Home</span></a
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" /></svg
+                ><span>Home</span></a
               >
             </li>
             <li id="nav-kompetensi">
               <a href="#" onclick="showPage('page-kompetensi')"
-                ><img
-                  src="https://cdn-icons-png.flaticon.com/512/992/992648.png"
-                  alt="Kompetensi"
-                /><span>Kompetensi</span></a
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
+                  /></svg
+                ><span>Kompetensi</span></a
               >
             </li>
             <li id="nav-kartudigital">
               <a href="#" onclick="showPage('page-kartudigital')"
-                ><img
-                  src="https://cdn-icons-png.flaticon.com/512/8351/8351110.png"
-                  alt="Kartu"
-                /><span>Kartu</span></a
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect width="20" height="14" x="2" y="5" rx="2" />
+                  <line x1="2" x2="22" y1="10" y2="10" /></svg
+                ><span>Kartu</span></a
               >
             </li>
             <li id="nav-jadwal">
               <a href="#" onclick="showPage('page-jadwal')"
-                ><img
-                  src="https://cdn-icons-png.flaticon.com/512/3652/3652191.png"
-                  alt="Jadwal"
-                /><span>Jadwal</span></a
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M8 2v4" />
+                  <path d="M16 2v4" />
+                  <rect width="18" height="18" x="3" y="4" rx="2" />
+                  <path d="M3 10h18" /></svg
+                ><span>Jadwal</span></a
               >
             </li>
             <li id="nav-induksi">
               <a href="#" onclick="showPage('page-induksi')"
-                ><img
-                  src="https://cdn-icons-png.flaticon.com/512/3063/3063823.png"
-                  alt="Induksi"
-                /><span>Induksi</span></a
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+                  /></svg
+                ><span>Induksi</span></a
+              >
+            </li>
+            <li id="nav-emergency">
+              <a href="#" onclick="showPage('page-emergency')"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                  <line x1="12" x2="12" y1="9" y2="13" />
+                  <line x1="12" x2="12.01" y1="17" y2="17" /></svg
+                ><span>Darurat</span></a
               >
             </li>
           </ul>
@@ -1312,6 +1507,15 @@
       let kompetensiInitialized = false;
       let lastScrollTop = 0;
       let carouselInterval;
+
+      // --- Time-based Greeting ---
+      function getTimeBasedGreeting() {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Selamat Pagi";
+        if (hour < 15) return "Selamat Siang";
+        if (hour < 18) return "Selamat Sore";
+        return "Selamat Malam";
+      }
 
       // --- Carousel Logic ---
       function initCarousel() {
@@ -1376,7 +1580,6 @@
         if (pageId === "page-kartudigital") initDigitalCard();
         if (pageId === "page-kompetensi" && !kompetensiInitialized)
           initKompetensiPage();
-        if (pageId === "page-induksi") updateInductionAction(); // Set initial state for induction page
 
         updateFooterNav(pageId);
         document.querySelector(".scrollable-content").scrollTo(0, 0);
@@ -1386,12 +1589,11 @@
         document
           .querySelectorAll(".footer-nav li")
           .forEach((li) => li.classList.remove("active"));
-        let navId = "nav-home"; // Default to home
+        let navId = "nav-home";
         if (pageId.startsWith("page-")) {
           const pageName = pageId.split("-")[1];
           const navItem = document.getElementById("nav-" + pageName);
           if (navItem) {
-            // Check if a direct nav item exists
             navId = "nav-" + pageName;
           }
         }
@@ -1412,10 +1614,13 @@
           appContainer.style.display = "flex";
           appContainer.style.animation = "fadeIn 0.5s";
 
-          document.getElementById(
-            "user-greeting"
-          ).textContent = `Hi, ${userType}!`;
-          // Removed lines that caused errors because the target elements do not exist.
+          document.getElementById("user-greeting").textContent = `${userType}!`;
+          document.getElementById("time-greeting").textContent =
+            getTimeBasedGreeting() + ",";
+          document.getElementById("header-user-name").textContent =
+            userType.split(" ")[0];
+          document.getElementById("profile-initial").textContent =
+            userType.charAt(0);
 
           initCarousel();
         }, 500);
@@ -1423,16 +1628,7 @@
 
       function logout() {
         localStorage.removeItem("userType");
-        const appContainer = document.getElementById("app-container");
-        const loginScreen = document.getElementById("login-screen");
-
-        appContainer.style.animation = "fadeOut 0.5s forwards";
-
-        setTimeout(() => {
-          appContainer.style.display = "none";
-          loginScreen.style.display = "flex";
-          loginScreen.style.animation = "fadeIn 0.5s";
-        }, 500);
+        window.location.reload();
       }
 
       function showRegisterForm() {
@@ -1447,7 +1643,6 @@
 
       function handleRegister(event) {
         event.preventDefault();
-        // In a real application, you would send registration data to a server here.
         alert("Pendaftaran berhasil! Silakan login.");
         showLoginForm();
       }
@@ -1466,15 +1661,19 @@
           appContainer.style.display = "flex";
           document.getElementById(
             "user-greeting"
-          ).textContent = `Hi, ${storedUserType}!`;
-          // Removed lines that caused errors because the target elements do not exist.
+          ).textContent = `${storedUserType}!`;
+          document.getElementById("time-greeting").textContent =
+            getTimeBasedGreeting() + ",";
+          document.getElementById("header-user-name").textContent =
+            storedUserType.split(" ")[0];
+          document.getElementById("profile-initial").textContent =
+            storedUserType.charAt(0);
         } else {
           loginScreen.style.display = "flex";
           appContainer.style.display = "none";
         }
         showPage("page-home");
 
-        // Hide header on scroll down
         scrollableContent.addEventListener(
           "scroll",
           function () {
@@ -1574,62 +1773,6 @@
         }
       }
 
-      // --- Induction Page Logic ---
-      function updateInductionAction() {
-        const inductionType = document.getElementById("induction-type").value;
-        const actionContainer = document.getElementById(
-          "induction-action-container"
-        );
-        const actionButton = document.getElementById("induction-continue-btn");
-
-        if (!inductionType) {
-          actionContainer.style.display = "none";
-          return;
-        }
-
-        const userType = localStorage.getItem("userType") || "";
-        const isMitra = userType.includes("Mitra Kerja");
-        const googleFormUrl = "https://forms.gle/5Ug2WaNv8ZaXEut9A";
-
-        let href = "#";
-        let onclick = null;
-        let text = "Lanjutkan";
-        let target = "_self";
-
-        // Default to Google Form for Visitor and Temporary
-        if (
-          inductionType === "karyawan-baru" ||
-          inductionType === "visitor" ||
-          inductionType === "temporary"
-        ) {
-          href = googleFormUrl;
-          text = "Lanjutkan ke Formulir";
-          target = "_blank";
-        } else if (inductionType === "pasca-cuti") {
-          if (isMitra) {
-            href = googleFormUrl;
-            text = "Lanjutkan ke Formulir";
-            target = "_blank";
-          } else {
-            // Karyawan GAM
-            onclick = () => showPage("page-induksi-pasca-cuti");
-            text = "Lanjutkan ke Materi Penyegaran";
-          }
-        }
-
-        actionButton.href = href;
-        actionButton.target = target;
-        actionButton.textContent = text;
-
-        // Clear previous onclick, then set the new one if it exists
-        actionButton.onclick = null;
-        if (onclick) {
-          actionButton.onclick = onclick;
-        }
-
-        actionContainer.style.display = "block";
-      }
-
       // --- Kompetensi Page Logic (with Google Sheets API) ---
       const apiKey = "AIzaSyA7Wbhd7KYAMKt10vKVnJY81qDWTCs9MPw";
       const spreadsheetId_kompetensi =
@@ -1668,7 +1811,6 @@
           fetch(sheet3Url).then((res) => res.json()),
         ])
           .then(([data1, data2, data3]) => {
-            // FIX: Added checks to prevent errors on empty rows from the spreadsheet.
             const manpowerResults = (data1.values || []).filter(
               (row) =>
                 row &&

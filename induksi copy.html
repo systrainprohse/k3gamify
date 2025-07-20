@@ -348,19 +348,19 @@
               id="select-induction-btn"
               class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
             >
-              Lanjutkan
+              Lanjutkan ke Kuis
             </button>
           </div>
         </div>
 
-        <!-- LANGKAH BARU: Kuis Umum -->
+        <!-- Langkah 3: Kuis -->
         <div
           id="step-3"
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
             <h2 class="text-xl font-bold text-gray-700">
-              Langkah 3: Kuis Umum
+              Langkah 3: Pengerjaan Kuis
             </h2>
             <span id="step-3-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
@@ -368,61 +368,32 @@
           </div>
           <div id="step-3-content" class="step-content pt-4 text-center">
             <p class="text-gray-600 mb-4">
-              Sebelum melanjutkan, Anda wajib menyelesaikan kuis umum berikut
-              ini.
+              Anda akan mengerjakan kuis sekarang. Soal akan dimuat dari server.
             </p>
-            <p id="general-quiz-error" class="hidden text-red-500"></p>
+            <p id="quiz-error" class="hidden text-red-500"></p>
             <button
-              id="start-general-quiz-btn"
-              class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+              id="start-quiz-btn"
+              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
             >
-              Mulai Kuis Umum
+              Mulai Kuis
             </button>
           </div>
         </div>
 
-        <!-- Langkah 4: Kuis Spesifik -->
+        <!-- Langkah 4: TTD & Checklist (Hanya Post-Test) -->
         <div
           id="step-4"
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
             <h2 class="text-xl font-bold text-gray-700">
-              Langkah 4: Kuis Spesifik
+              Langkah 4: TTD & Checklist
             </h2>
             <span id="step-4-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
             >
           </div>
-          <div id="step-4-content" class="step-content pt-4 text-center">
-            <p class="text-gray-600 mb-4">
-              Sekarang kerjakan kuis yang sesuai dengan jenis induksi dan
-              jabatan Anda.
-            </p>
-            <p id="specific-quiz-error" class="hidden text-red-500"></p>
-            <button
-              id="start-specific-quiz-btn"
-              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
-            >
-              Mulai Kuis Spesifik
-            </button>
-          </div>
-        </div>
-
-        <!-- Langkah 5: TTD & Checklist -->
-        <div
-          id="step-5"
-          class="step-card bg-white p-6 rounded-xl shadow-md locked"
-        >
-          <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
-              Langkah 5: TTD & Checklist
-            </h2>
-            <span id="step-5-status" class="text-sm font-semibold text-red-500"
-              >Terkunci</span
-            >
-          </div>
-          <div id="step-5-content" class="step-content pt-4 space-y-8">
+          <div id="step-4-content" class="step-content pt-4 space-y-8">
             <!-- SPDK Form -->
             <div>
               <h3 class="text-lg font-semibold text-gray-800 mb-2">
@@ -581,7 +552,7 @@
                 class="text-base font-medium text-blue-700"
               ></span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2-5 mb-6">
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
               <div
                 id="progress-bar"
                 class="bg-blue-600 h-2.5 rounded-full"
@@ -648,10 +619,7 @@
         absensiBtn: document.getElementById("start-absensi-btn"),
         inductionTypeSelect: document.getElementById("induction-type"),
         selectInductionBtn: document.getElementById("select-induction-btn"),
-        startGeneralQuizBtn: document.getElementById("start-general-quiz-btn"),
-        startSpecificQuizBtn: document.getElementById(
-          "start-specific-quiz-btn"
-        ),
+        startQuizBtn: document.getElementById("start-quiz-btn"),
         finishChecklistBtn: document.getElementById("finish-checklist-btn"),
         spdkCheckbox: document.getElementById("spdk-checkbox"),
         checklistCheckbox: document.getElementById("checklist-checkbox"),
@@ -692,12 +660,12 @@
         isOnline: navigator.onLine,
         userData: {},
         quizData: {
-          allAnswers: {},
-          allQuestions: [],
-          currentMaterials: [],
-          currentTotalQuestions: 0,
-          finalScore: 0,
-          currentQuizType: "",
+          materials: [],
+          answers: {},
+          totalQuestions: 0,
+          currentMaterialIndex: 0,
+          currentQuestionIndex: 0,
+          score: 0,
         },
       };
 
@@ -717,7 +685,6 @@
 
       function initApp() {
         loadState();
-        loadCachedUserInfo();
         checkOnlineStatus();
         addEventListeners();
         updateUI();
@@ -744,13 +711,14 @@
           }
         });
 
-        const step5 = document.getElementById("step-5");
-        step5.style.display =
+        const step4 = document.getElementById("step-4");
+        step4.style.display =
           state.userData.testType === "pre-test" ? "none" : "block";
 
         for (const key in state.userData) {
           const el = dom.userInfoForm.elements[key];
           if (el && key !== "perusahaan") {
+            // Don't auto-fill company
             if (el.type === "radio") {
               const radioToCheck = document.querySelector(
                 `input[name="${key}"][value="${state.userData[key]}"]`
@@ -817,7 +785,7 @@
         saveState();
         updateUI();
 
-        if (step === 5) {
+        if (step === 4) {
           loadTallyForms();
         }
       }
@@ -838,15 +806,10 @@
         dom.userInfoForm.addEventListener("submit", handleUserInfoSubmit);
         dom.absensiBtn.addEventListener("click", handleAbsensi);
         dom.selectInductionBtn.addEventListener("click", handleSelectInduction);
-        dom.startGeneralQuizBtn.addEventListener("click", (e) =>
-          handleStartQuiz(e, "general")
-        );
-        dom.startSpecificQuizBtn.addEventListener("click", (e) =>
-          handleStartQuiz(e, "specific")
-        );
+        dom.startQuizBtn.addEventListener("click", handleStartQuiz);
 
-        dom.spdkCheckbox.addEventListener("change", checkStep5Completion);
-        dom.checklistCheckbox.addEventListener("change", checkStep5Completion);
+        dom.spdkCheckbox.addEventListener("change", checkStep4Completion);
+        dom.checklistCheckbox.addEventListener("change", checkStep4Completion);
         dom.finishChecklistBtn.addEventListener("click", () =>
           showCertificateScreen(true)
         );
@@ -870,7 +833,7 @@
         });
       }
 
-      function checkStep5Completion() {
+      function checkStep4Completion() {
         if (dom.spdkCheckbox.checked && dom.checklistCheckbox.checked) {
           dom.finishChecklistBtn.disabled = false;
         } else {
@@ -898,19 +861,6 @@
           delete state.userData["perusahaan-lainnya"];
 
           state.userData.timestamp = new Date().toISOString();
-
-          const userInfoToCache = {
-            nik: state.userData.nik,
-            nama: state.userData.nama,
-            email: state.userData.email,
-            whatsapp: state.userData.whatsapp,
-            perusahaan: state.userData.perusahaan,
-            jabatan: state.userData.jabatan,
-          };
-          localStorage.setItem(
-            "cachedUserInfo",
-            JSON.stringify(userInfoToCache)
-          );
 
           await postDataWithOfflineQueue({
             action: "saveUser",
@@ -958,44 +908,27 @@
 
       function handleSelectInduction() {
         const type = dom.inductionTypeSelect.value;
-        if (!type) {
-          alert("Silakan pilih tipe induksi.");
-          return;
-        }
-        state.userData.inductionType = type;
-
-        if (type.includes("visitor")) {
-          advanceStep(4);
-        } else {
+        if (type) {
+          state.userData.inductionType = type;
           advanceStep(3);
+        } else {
+          alert("Silakan pilih tipe induksi.");
         }
       }
 
-      async function handleStartQuiz(e, quizType) {
+      async function handleStartQuiz(e) {
         const button = e.target;
         button.disabled = true;
         showLoader("Memuat soal kuis...");
 
-        const errorElId = `${quizType}-quiz-error`;
-        const errorEl = document.getElementById(errorElId);
-        if (errorEl) errorEl.classList.add("hidden");
-
-        state.quizData.currentQuizType = quizType;
-
-        if (quizType === "general") {
-          state.quizData.allAnswers = {};
-          state.quizData.allQuestions = [];
-        }
+        const errorEl = document.getElementById("quiz-error");
+        errorEl.classList.add("hidden");
 
         try {
-          const payload =
-            quizType === "general"
-              ? { tipe_induksi: "all", jabatan_id: "all" }
-              : {
-                  tipe_induksi: state.userData.inductionType,
-                  jabatan_id: state.userData.jabatan,
-                };
-
+          const payload = {
+            tipe_induksi: state.userData.inductionType,
+            jabatan_id: state.userData.jabatan,
+          };
           const materials = await postDataWithOfflineQueue({
             action: "getSoal",
             payload: payload,
@@ -1003,33 +936,31 @@
 
           if (!materials || materials.length === 0)
             throw new Error(
-              "Tidak ada materi/soal yang ditemukan untuk kuis ini."
+              "Tidak ada materi/soal yang ditemukan untuk tipe induksi dan jabatan ini."
             );
 
-          let currentTotalQuestions = 0;
+          let totalQuestions = 0;
           materials.forEach((m) => {
             if (m.questions && Array.isArray(m.questions)) {
-              currentTotalQuestions += m.questions.length;
-              state.quizData.allQuestions.push(...m.questions);
+              totalQuestions += m.questions.length;
             }
           });
 
-          if (currentTotalQuestions === 0)
+          if (totalQuestions === 0)
             throw new Error(
               "Materi ditemukan, tetapi tidak ada soal di dalamnya."
             );
 
-          state.quizData.currentMaterials = materials;
-          state.quizData.currentTotalQuestions = currentTotalQuestions;
+          state.quizData.materials = materials;
+          state.quizData.totalQuestions = totalQuestions;
+          state.quizData.answers = {};
 
           saveState();
           launchQuizModal();
         } catch (error) {
-          console.error(`Gagal memuat ${quizType} kuis:`, error);
-          if (errorEl) {
-            errorEl.textContent = `Gagal memuat soal. Pesan dari server: ${error.message}`;
-            errorEl.classList.remove("hidden");
-          }
+          console.error("Gagal memuat soal:", error);
+          errorEl.textContent = `Gagal memuat soal. Pesan dari server: ${error.message}`;
+          errorEl.classList.remove("hidden");
         } finally {
           hideLoader();
           button.disabled = false;
@@ -1082,8 +1013,8 @@
       }
 
       function displayCurrentMaterial() {
-        const { currentMaterials, currentMaterialIndex } = state.quizData;
-        const material = currentMaterials[currentMaterialIndex];
+        const { materials, currentMaterialIndex } = state.quizData;
+        const material = materials[currentMaterialIndex];
 
         dom.quiz.questionSection.classList.add("hidden");
         dom.quiz.videoWatchedCheckbox.checked = false;
@@ -1093,7 +1024,7 @@
         dom.quiz.materialTitle.textContent = material.materi_judul;
         dom.quiz.materialProgress.textContent = `Materi ${
           currentMaterialIndex + 1
-        } dari ${currentMaterials.length}`;
+        } dari ${materials.length}`;
 
         loadVideo(material.video_url);
 
@@ -1124,33 +1055,18 @@
         }
       }
 
-      /**
-       * Mengacak urutan elemen dalam sebuah array.
-       * Menggunakan algoritma Fisher-Yates shuffle.
-       * @param {Array} array Array yang akan diacak.
-       * @returns {Array} Array yang sudah diacak.
-       */
-      function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-      }
-
       function displayCurrentQuestion() {
-        const { currentMaterials, currentMaterialIndex, currentQuestionIndex } =
+        const { materials, currentMaterialIndex, currentQuestionIndex } =
           state.quizData;
-        const material = currentMaterials[currentMaterialIndex];
+        const material = materials[currentMaterialIndex];
         const q = material.questions[currentQuestionIndex];
 
-        let options = [
+        const options = [
           q.pilihan_a,
           q.pilihan_b,
           q.pilihan_c,
           q.pilihan_d,
-        ].filter((opt) => opt && String(opt).trim() !== "");
-        options = shuffleArray(options);
+        ].filter((opt) => opt);
 
         let imageHtml = "";
         if (q.gambar && q.gambar.trim() !== "") {
@@ -1178,7 +1094,7 @@
                   .join("")}
             </div>`;
 
-        const savedAnswer = state.quizData.allAnswers[q.id_soal];
+        const savedAnswer = state.quizData.answers[q.id_soal];
         if (savedAnswer) {
           const radio = dom.quiz.container.querySelector(
             `input[value="${savedAnswer}"]`
@@ -1191,10 +1107,11 @@
       }
 
       function updateQuizProgress() {
-        const totalQuestions = state.quizData.currentTotalQuestions;
+        const totalQuestions = state.quizData.totalQuestions;
+
         let questionNumber = 1;
         for (let i = 0; i < state.quizData.currentMaterialIndex; i++) {
-          questionNumber += state.quizData.currentMaterials[i].questions.length;
+          questionNumber += state.quizData.materials[i].questions.length;
         }
         questionNumber += state.quizData.currentQuestionIndex;
 
@@ -1205,28 +1122,26 @@
       }
 
       function updateNavigationButtons() {
-        const { currentMaterials, currentMaterialIndex, currentQuestionIndex } =
+        const { materials, currentMaterialIndex, currentQuestionIndex } =
           state.quizData;
         const isFirstQuestionOverall =
           currentMaterialIndex === 0 && currentQuestionIndex === 0;
         dom.quiz.prevBtn.disabled = isFirstQuestionOverall;
 
         const isLastQuestionOverall =
-          currentMaterialIndex === currentMaterials.length - 1 &&
+          currentMaterialIndex === materials.length - 1 &&
           currentQuestionIndex ===
-            currentMaterials[currentMaterialIndex].questions.length - 1;
+            materials[currentMaterialIndex].questions.length - 1;
         dom.quiz.nextBtn.textContent = isLastQuestionOverall
           ? "Selesai"
           : "Selanjutnya";
       }
 
       function handleQuizNext() {
-        const { currentMaterials, currentMaterialIndex, currentQuestionIndex } =
+        const { materials, currentMaterialIndex, currentQuestionIndex } =
           state.quizData;
         const currentQuestion =
-          currentMaterials[currentMaterialIndex].questions[
-            currentQuestionIndex
-          ];
+          materials[currentMaterialIndex].questions[currentQuestionIndex];
         const selectedOption = document.querySelector(
           `input[name="question${currentQuestion.id_soal}"]:checked`
         );
@@ -1242,19 +1157,17 @@
           alert("Harap pilih satu jawaban untuk melanjutkan.");
           return;
         }
-        state.quizData.allAnswers[currentQuestion.id_soal] =
-          selectedOption.value;
+        state.quizData.answers[currentQuestion.id_soal] = selectedOption.value;
 
         const isLastQuestionInMaterial =
           currentQuestionIndex ===
-          currentMaterials[currentMaterialIndex].questions.length - 1;
+          materials[currentMaterialIndex].questions.length - 1;
 
         if (!isLastQuestionInMaterial) {
           state.quizData.currentQuestionIndex++;
           displayCurrentQuestion();
         } else {
-          const isLastMaterial =
-            currentMaterialIndex === currentMaterials.length - 1;
+          const isLastMaterial = currentMaterialIndex === materials.length - 1;
           if (!isLastMaterial) {
             state.quizData.currentMaterialIndex++;
             state.quizData.currentQuestionIndex = 0;
@@ -1267,8 +1180,7 @@
       }
 
       function handleQuizPrev() {
-        const { currentMaterials, currentMaterialIndex, currentQuestionIndex } =
-          state.quizData;
+        const { currentMaterialIndex, currentQuestionIndex } = state.quizData;
         const isFirstQuestionInMaterial = currentQuestionIndex === 0;
 
         if (!isFirstQuestionInMaterial) {
@@ -1279,9 +1191,7 @@
           if (!isFirstMaterial) {
             state.quizData.currentMaterialIndex--;
             const prevMaterial =
-              state.quizData.currentMaterials[
-                state.quizData.currentMaterialIndex
-              ];
+              state.quizData.materials[state.quizData.currentMaterialIndex];
             state.quizData.currentQuestionIndex =
               prevMaterial.questions.length - 1;
             dom.quiz.materialSection.classList.remove("hidden");
@@ -1289,7 +1199,7 @@
             dom.quiz.materialTitle.textContent = prevMaterial.materi_judul;
             dom.quiz.materialProgress.textContent = `Materi ${
               state.quizData.currentMaterialIndex + 1
-            } dari ${state.quizData.currentMaterials.length}`;
+            } dari ${state.quizData.materials.length}`;
             displayCurrentQuestion();
           }
         }
@@ -1298,64 +1208,49 @@
 
       async function finishQuiz() {
         dom.quiz.modal.classList.add("hidden");
+        showLoader("Menyimpan jawaban...");
+        try {
+          calculateScore();
+          const payload = {
+            ...state.userData,
+            skor: state.quizData.score,
+            tipe_induksi: state.userData.inductionType,
+            detail_jawaban: JSON.stringify(state.quizData.answers),
+          };
+          await postDataWithOfflineQueue({ action: "saveJawaban", payload });
 
-        if (state.quizData.currentQuizType === "general") {
-          advanceStep(4);
-        } else {
-          showLoader("Menyimpan hasil akhir...");
-          try {
-            calculateFinalScore();
-            const payload = {
-              ...state.userData,
-              skor: state.quizData.finalScore,
-              tipe_induksi: state.userData.inductionType,
-              detail_jawaban: JSON.stringify(state.quizData.allAnswers),
-            };
-            await postDataWithOfflineQueue({
-              action: "saveJawaban",
-              payload: payload,
-            });
-
-            if (
-              state.userData.testType === "pre-test" ||
-              state.quizData.finalScore < PASSING_SCORE
-            ) {
-              showFinalScreen();
-            } else {
-              advanceStep(5);
-            }
-          } catch (error) {
-            console.error("Gagal menyimpan jawaban:", error);
-            alert(`Gagal menyimpan jawaban: ${error.message}`);
-          } finally {
-            hideLoader();
+          if (
+            state.userData.testType === "pre-test" ||
+            state.quizData.score < PASSING_SCORE
+          ) {
+            showFinalScreen();
+          } else {
+            advanceStep(4);
           }
+        } catch (error) {
+          console.error("Gagal menyimpan jawaban:", error);
+          alert(`Gagal menyimpan jawaban: ${error.message}`);
+        } finally {
+          hideLoader();
         }
       }
 
-      function calculateFinalScore() {
+      function calculateScore() {
         let correctAnswers = 0;
-        const totalQuestions = state.quizData.allQuestions.length;
+        const totalQuestions = state.quizData.totalQuestions;
 
-        if (totalQuestions === 0) {
-          state.quizData.finalScore = 0;
-          return;
-        }
-
-        state.quizData.allQuestions.forEach((q) => {
-          const userAnswer = state.quizData.allAnswers[q.id_soal];
-          const correctAnswer = q.kunci_jawaban;
-
-          if (
-            userAnswer &&
-            correctAnswer &&
-            String(userAnswer).trim() === String(correctAnswer).trim()
-          ) {
-            correctAnswers++;
+        state.quizData.materials.forEach((material) => {
+          if (material.questions && Array.isArray(material.questions)) {
+            material.questions.forEach((q) => {
+              if (state.quizData.answers[q.id_soal] === q.kunci_jawaban) {
+                correctAnswers++;
+              }
+            });
           }
         });
 
-        state.quizData.finalScore = (correctAnswers / totalQuestions) * 100;
+        state.quizData.score =
+          totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
       }
 
       function triggerConfetti() {
@@ -1399,14 +1294,14 @@
 
         if (state.userData.testType === "pre-test") {
           content = `<h2 class="text-2xl font-bold text-indigo-600">Pre-Test Selesai!</h2>
-                       <p class="mt-4 text-gray-700">Skor Akhir Anda: <strong>${state.quizData.finalScore.toFixed(
+                       <p class="mt-4 text-gray-700">Skor Anda: <strong>${state.quizData.score.toFixed(
                          2
                        )}</strong></p>
                        <p class="mt-2 text-gray-600">Sekarang, silakan mengikuti sesi induksi tatap muka. Setelah itu, kembali lagi untuk mengerjakan Post-Test.</p>`;
           localStorage.removeItem("inductionAppState");
-        } else if (state.quizData.finalScore < PASSING_SCORE) {
+        } else if (state.quizData.score < PASSING_SCORE) {
           content = `<h2 class="text-2xl font-bold text-red-600">Mohon Maaf, Anda Belum Lulus</h2>
-                       <p class="mt-4 text-gray-700">Skor Akhir Anda adalah <strong>${state.quizData.finalScore.toFixed(
+                       <p class="mt-4 text-gray-700">Skor Anda adalah <strong>${state.quizData.score.toFixed(
                          2
                        )}</strong>, sedangkan nilai kelulusan minimal adalah <strong>${PASSING_SCORE}</strong>.</p>
                        <p class="mt-2 text-gray-600">Anda dapat mengulang proses dari awal atau tetap melanjutkan ke tahap TTD & Checklist dengan persetujuan pengawas.</p>
@@ -1423,7 +1318,7 @@
           continueButton.addEventListener("click", () => {
             dom.completionScreen.classList.add("hidden");
             dom.appContainer.classList.remove("hidden");
-            advanceStep(5);
+            advanceStep(4);
           });
         }
       }
@@ -1453,7 +1348,7 @@
                                 }</p>
                                 <p><span class="font-semibold w-28 inline-block">Jenis Induksi</span>: ${inductionText}</p>
                                 <p><span class="font-semibold w-28 inline-block">Jam Submit</span>: ${formattedTime} WITA</p>
-                                <p><span class="font-semibold w-28 inline-block">Skor Akhir</span>: <strong>${state.quizData.finalScore.toFixed(
+                                <p><span class="font-semibold w-28 inline-block">Skor Akhir</span>: <strong>${state.quizData.score.toFixed(
                                   2
                                 )}</strong></p>
                             </div>
@@ -1543,7 +1438,7 @@
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(20);
-        doc.text(state.quizData.finalScore.toFixed(2), 105, 160, {
+        doc.text(state.quizData.score.toFixed(2), 105, 160, {
           align: "center",
         });
 
@@ -1680,44 +1575,6 @@
 
         dom.spdkFrame.src = TALLY_SPDK_URL + queryParams;
         dom.checklistFrame.src = TALLY_CHECKLIST_URL + queryParams;
-      }
-
-      function loadCachedUserInfo() {
-        if (state.currentStep > 0) return;
-
-        const cachedInfo = localStorage.getItem("cachedUserInfo");
-        if (cachedInfo) {
-          const userInfo = JSON.parse(cachedInfo);
-
-          dom.userInfoForm.elements["nik"].value = userInfo.nik || "";
-          dom.userInfoForm.elements["nama"].value = userInfo.nama || "";
-          dom.userInfoForm.elements["email"].value = userInfo.email || "";
-          dom.userInfoForm.elements["whatsapp"].value = userInfo.whatsapp || "";
-          dom.userInfoForm.elements["jabatan"].value = userInfo.jabatan || "";
-
-          const perusahaanSelect =
-            dom.userInfoForm.elements["perusahaan-select"];
-          const perusahaanLainnyaInput =
-            dom.userInfoForm.elements["perusahaan-lainnya"];
-          const perusahaanLainnyaContainer = document.getElementById(
-            "perusahaan-lainnya-container"
-          );
-
-          const isStandardCompany = [...perusahaanSelect.options].some(
-            (opt) => opt.value === userInfo.perusahaan
-          );
-
-          if (isStandardCompany) {
-            perusahaanSelect.value = userInfo.perusahaan;
-            perusahaanLainnyaContainer.classList.add("hidden");
-            perusahaanLainnyaInput.required = false;
-          } else if (userInfo.perusahaan) {
-            perusahaanSelect.value = "Lainnya";
-            perusahaanLainnyaContainer.classList.remove("hidden");
-            perusahaanLainnyaInput.value = userInfo.perusahaan;
-            perusahaanLainnyaInput.required = true;
-          }
-        }
       }
 
       document.addEventListener("DOMContentLoaded", initApp);

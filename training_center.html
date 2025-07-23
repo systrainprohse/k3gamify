@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Utama - Sistem Ujian SIMPER</title>
+    <link rel="icon" href="https://i.imgur.com/2sQd5Xy.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .menu-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      }
+      .menu-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .calendar-day.has-event {
+        background-color: #dbeafe;
+        color: #1e40af;
+        font-weight: bold;
+        border-radius: 50%;
+        position: relative;
+      }
+      .calendar-day.has-event::after {
+        content: "";
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: #2563eb;
+      }
+      .calendar-day.selected {
+        background-color: #3b82f6 !important;
+        color: white !important;
+      }
+      /* Animasi untuk teks glow */
+      @keyframes glow {
+        0%,
+        100% {
+          color: #1e40af; /* blue-800 */
+          text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+        50% {
+          color: #4f46e5; /* indigo-600 */
+          text-shadow: 0 0 15px rgba(99, 102, 241, 0.7);
+        }
+      }
+      .animated-glow {
+        animation: glow 4s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+      <div class="text-center mb-10">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800">
+          Sistem Ujian SIMPER
+        </h1>
+        <img
+          src="assets/logo_tc.png"
+          alt="Logo Training Center"
+          class="h-24 mx-auto my-4"
+          onerror="this.onerror=null;this.src='https://placehold.co/200x100/FFFFFF/000000?text=Logo';"
+        />
+        <p class="text-gray-600 mt-2 text-lg">PT. Ganda Alam Makmur</p>
+        <p class="animated-glow text-lg font-semibold mt-2">
+          Training Center Km.12
+        </p>
+      </div>
+
+      <!-- Kontainer untuk Tab -->
+      <div id="main-content">
+        <!-- Tab Menu Utama -->
+        <div id="main-menu-view">
+          <div class="mt-4 text-center">
+            <a
+              href="index.html"
+              class="text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+            >
+              &larr; Kembali ke Halaman Utama
+            </a>
+          </div>
+          <div class="grid md:grid-cols-2 gap-8 mt-6">
+            <div class="space-y-6">
+              <a
+                href="simper.html"
+                class="menu-card block bg-white p-6 rounded-xl shadow-md"
+              >
+                <div class="flex items-center">
+                  <div class="p-3 bg-blue-100 rounded-full">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-8 w-8 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="ml-4">
+                    <h2 class="text-xl font-bold text-gray-800">Mulai Ujian</h2>
+                    <p class="text-gray-600">
+                      Masuk ke halaman ujian teori SIMPER.
+                    </p>
+                  </div>
+                </div>
+              </a>
+              <a
+                href="#"
+                id="cek-hasil-btn"
+                class="menu-card block bg-white p-6 rounded-xl shadow-md"
+              >
+                <div class="flex items-center">
+                  <div class="p-3 bg-green-100 rounded-full">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-8 w-8 text-green-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="ml-4">
+                    <h2 class="text-xl font-bold text-gray-800">
+                      Cek Hasil Tes
+                    </h2>
+                    <p class="text-gray-600">
+                      Lihat hasil ujian teori & praktek Anda.
+                    </p>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md">
+              <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
+                Jadwal Praktek / Tes
+              </h2>
+              <div id="calendar-container" class="mb-4">
+                <div class="flex justify-between items-center mb-4">
+                  <button
+                    id="prev-month"
+                    class="p-2 rounded-full hover:bg-gray-100"
+                  >
+                    &lt;
+                  </button>
+                  <h3 id="month-year" class="text-lg font-semibold"></h3>
+                  <button
+                    id="next-month"
+                    class="p-2 rounded-full hover:bg-gray-100"
+                  >
+                    &gt;
+                  </button>
+                </div>
+                <div
+                  id="calendar-grid"
+                  class="grid grid-cols-7 gap-1 text-center"
+                ></div>
+              </div>
+              <div id="schedule-table-container" class="h-48 overflow-y-auto">
+                <div id="schedule-loader" class="text-center text-gray-500">
+                  Memuat jadwal...
+                </div>
+                <table class="min-w-full divide-y divide-gray-200 hidden">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Nama Kegiatan
+                      </th>
+                      <th
+                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Nama Peserta
+                      </th>
+                      <th
+                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Unit
+                      </th>
+                      <th
+                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Kuota
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="schedule-tbody"
+                    class="bg-white divide-y divide-gray-200"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Cek Hasil Tes -->
+        <div id="cek-hasil-view" class="hidden">
+          <button
+            id="kembali-ke-menu-btn"
+            class="mb-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors"
+          >
+            &larr; Kembali ke Menu
+          </button>
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">
+              Cari Hasil Ujian
+            </h2>
+            <div class="flex space-x-4 mb-4">
+              <input
+                type="text"
+                id="search-input"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Cari berdasarkan Nama..."
+              />
+            </div>
+            <div class="overflow-x-auto">
+              <div id="results-loader" class="text-center text-gray-500 py-4">
+                Memuat data hasil...
+              </div>
+              <table
+                id="results-table"
+                class="min-w-full divide-y divide-gray-200 hidden"
+              >
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      NIK
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Nama
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Perusahaan
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Unit
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Tgl. Daftar
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Tgl. Lulus
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="results-tbody"
+                  class="bg-white divide-y divide-gray-200"
+                ></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- KONFIGURASI ---
+        const SCHEDULE_SHEET_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vR7IG40jD57lHqz6SN1-CVAND6ZaG3o9B0Ep21f7VRP-r3k2373fS8GRiInyWoezfsFffAeSsKUI05U/pub?gid=1194889299&single=true&output=csv`;
+        const RESULT_SHEET_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vR7IG40jD57lHqz6SN1-CVAND6ZaG3o9B0Ep21f7VRP-r3k2373fS8GRiInyWoezfsFffAeSsKUI05U/pub?gid=1528146157&single=true&output=csv`;
+
+        // --- ELEMEN DOM ---
+        const mainMenuView = document.getElementById("main-menu-view");
+        const cekHasilView = document.getElementById("cek-hasil-view");
+        const cekHasilBtn = document.getElementById("cek-hasil-btn");
+        const kembaliKeMenuBtn = document.getElementById("kembali-ke-menu-btn");
+        const searchInput = document.getElementById("search-input");
+        const resultsTbody = document.getElementById("results-tbody");
+        const resultsTable = document.getElementById("results-table");
+        const resultsLoader = document.getElementById("results-loader");
+
+        const calendarGrid = document.getElementById("calendar-grid");
+        const monthYearEl = document.getElementById("month-year");
+        const prevMonthBtn = document.getElementById("prev-month");
+        const nextMonthBtn = document.getElementById("next-month");
+        const scheduleTbody = document.getElementById("schedule-tbody");
+        const scheduleTable = document.querySelector(
+          "#schedule-table-container table"
+        );
+        const scheduleLoader = document.getElementById("schedule-loader");
+
+        // --- STATE ---
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let scheduleData = [];
+        let resultsData = [];
+        let resultsFetched = false;
+
+        // --- FUNGSI ---
+        function parseCsvRow(text) {
+          const result = [];
+          let current = "";
+          let inQuotes = false;
+          for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === "," && !inQuotes) {
+              result.push(current);
+              current = "";
+            } else {
+              current += char;
+            }
+          }
+          result.push(current);
+          return result.map((val) => val.trim());
+        }
+
+        async function fetchSchedule() {
+          try {
+            const response = await fetch(SCHEDULE_SHEET_URL);
+            if (!response.ok)
+              throw new Error(
+                `Gagal mengambil data: Status ${response.status}.`
+              );
+            const csvText = await response.text();
+            const rows = csvText.trim().split(/\r?\n/);
+            scheduleData = rows
+              .slice(1)
+              .map((row) => {
+                if (!row) return null;
+                const values = parseCsvRow(row);
+                if (values.length < 5) return null;
+                return {
+                  nama_kegiatan: values[0],
+                  tanggal: values[1],
+                  kuota: values[2],
+                  nama_peserta: values[3],
+                  unit: values[4],
+                };
+              })
+              .filter(Boolean);
+            renderCalendar();
+            renderTable(selectedDate);
+            scheduleLoader.classList.add("hidden");
+            scheduleTable.classList.remove("hidden");
+          } catch (error) {
+            console.error("Error fetching schedule:", error);
+            scheduleLoader.textContent = `Gagal memuat jadwal. ${error.message}`;
+          }
+        }
+
+        async function fetchResults() {
+          if (resultsFetched) return;
+          try {
+            const response = await fetch(RESULT_SHEET_URL);
+            if (!response.ok)
+              throw new Error(
+                `Gagal mengambil data: Status ${response.status}. Pastikan GID benar & sheet "Result" sudah dipublikasikan.`
+              );
+            const csvText = await response.text();
+            const rows = csvText.trim().split(/\r?\n/);
+            resultsData = rows
+              .slice(1)
+              .map((row) => {
+                if (!row) return null;
+                const values = parseCsvRow(row);
+                if (values.length < 7) return null;
+                return {
+                  nik: values[0],
+                  nama: values[1],
+                  perusahaan: values[2],
+                  status: values[3],
+                  unit: values[4],
+                  tgl_daftar: values[5],
+                  tgl_lulus: values[6],
+                };
+              })
+              .filter(Boolean);
+            resultsFetched = true;
+            renderResultsTable();
+            resultsLoader.classList.add("hidden");
+            resultsTable.classList.remove("hidden");
+          } catch (error) {
+            console.error("Error fetching results:", error);
+            resultsLoader.textContent = `Gagal memuat hasil. ${error.message}`;
+          }
+        }
+
+        function renderResultsTable(searchTerm = "") {
+          resultsTbody.innerHTML = "";
+          if (searchTerm === "") {
+            resultsTbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-gray-500">Silahkan masukan nama anda untuk melihat hasil tes.</td></tr>`;
+            return;
+          }
+          const lowerCaseSearchTerm = searchTerm.toLowerCase();
+          const filteredData = resultsData.filter((item) =>
+            item.nama.toLowerCase().includes(lowerCaseSearchTerm)
+          );
+
+          if (filteredData.length === 0) {
+            resultsTbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-gray-500">Tidak ada hasil ditemukan untuk "${searchTerm}".</td></tr>`;
+            return;
+          }
+
+          filteredData.forEach((item) => {
+            const statusClass =
+              item.status.toLowerCase() === "lulus"
+                ? "bg-green-100"
+                : "bg-yellow-100";
+            const row = `
+                        <tr class="${statusClass}">
+                            <td class="px-4 py-2 text-sm font-medium text-gray-900">${item.nik}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${item.nama}</td>
+                            <td class="px-4 py-2 text-sm text-gray-500">${item.perusahaan}</td>
+                            <td class="px-4 py-2 text-sm text-gray-500">${item.unit}</td>
+                            <td class="px-4 py-2 text-sm text-gray-500">${item.tgl_daftar}</td>
+                            <td class="px-4 py-2 text-sm text-gray-500">${item.tgl_lulus}</td>
+                            <td class="px-4 py-2 text-sm font-semibold text-gray-800">${item.status}</td>
+                        </tr>
+                    `;
+            resultsTbody.insertAdjacentHTML("beforeend", row);
+          });
+        }
+
+        function renderCalendar() {
+          calendarGrid.innerHTML = `<div class="font-bold text-xs text-gray-500">MIN</div><div class="font-bold text-xs text-gray-500">SEN</div><div class="font-bold text-xs text-gray-500">SEL</div><div class="font-bold text-xs text-gray-500">RAB</div><div class="font-bold text-xs text-gray-500">KAM</div><div class="font-bold text-xs text-gray-500">JUM</div><div class="font-bold text-xs text-gray-500">SAB</div>`;
+          const year = currentDate.getFullYear();
+          const month = currentDate.getMonth();
+          monthYearEl.textContent = currentDate.toLocaleDateString("id-ID", {
+            month: "long",
+            year: "numeric",
+          });
+          const firstDayOfMonth = new Date(year, month, 1).getDay();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          for (let i = 0; i < firstDayOfMonth; i++) {
+            calendarGrid.insertAdjacentHTML("beforeend", "<div></div>");
+          }
+          for (let day = 1; day <= daysInMonth; day++) {
+            const dayEl = document.createElement("div");
+            dayEl.textContent = day;
+            dayEl.className =
+              "calendar-day p-2 cursor-pointer hover:bg-gray-200 rounded-full";
+            if (
+              day === selectedDate.getDate() &&
+              month === selectedDate.getMonth() &&
+              year === selectedDate.getFullYear()
+            ) {
+              dayEl.classList.add("selected");
+            }
+            const hasEvent = scheduleData.some((event) => {
+              const dateParts = event.tanggal.split("-");
+              if (dateParts.length !== 3) return false;
+              const eventDate = new Date(
+                Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2])
+              );
+              return (
+                eventDate.getUTCDate() === day &&
+                eventDate.getUTCMonth() === month &&
+                eventDate.getUTCFullYear() === year
+              );
+            });
+            if (hasEvent) {
+              dayEl.classList.add("has-event");
+            }
+            dayEl.addEventListener("click", () => {
+              selectedDate = new Date(year, month, day);
+              renderCalendar();
+              renderTable(selectedDate);
+            });
+            calendarGrid.appendChild(dayEl);
+          }
+        }
+
+        function renderTable(date) {
+          scheduleTbody.innerHTML = "";
+          const filteredData = scheduleData.filter((item) => {
+            const dateParts = item.tanggal.split("-");
+            if (dateParts.length !== 3) return false;
+            const eventDate = new Date(
+              Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2])
+            );
+            return (
+              eventDate.getUTCDate() === date.getDate() &&
+              eventDate.getUTCMonth() === date.getMonth() &&
+              eventDate.getUTCFullYear() === date.getFullYear()
+            );
+          });
+          if (filteredData.length === 0) {
+            scheduleTbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-gray-500">Tidak ada jadwal untuk tanggal ini.</td></tr>`;
+            return;
+          }
+          filteredData.forEach((item) => {
+            const row = `<tr><td class="px-4 py-2 text-sm font-medium text-gray-900">${item.nama_kegiatan}</td><td class="px-4 py-2 text-sm text-gray-500">${item.nama_peserta}</td><td class="px-4 py-2 text-sm text-gray-500">${item.unit}</td><td class="px-4 py-2 text-sm text-gray-500">${item.kuota}</td></tr>`;
+            scheduleTbody.insertAdjacentHTML("beforeend", row);
+          });
+        }
+
+        // --- EVENT LISTENERS ---
+        prevMonthBtn.addEventListener("click", () => {
+          currentDate.setMonth(currentDate.getMonth() - 1);
+          renderCalendar();
+        });
+        nextMonthBtn.addEventListener("click", () => {
+          currentDate.setMonth(currentDate.getMonth() + 1);
+          renderCalendar();
+        });
+
+        cekHasilBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          mainMenuView.classList.add("hidden");
+          cekHasilView.classList.remove("hidden");
+          fetchResults();
+        });
+
+        kembaliKeMenuBtn.addEventListener("click", () => {
+          cekHasilView.classList.add("hidden");
+          mainMenuView.classList.remove("hidden");
+        });
+
+        searchInput.addEventListener("keyup", () => {
+          renderResultsTable(searchInput.value);
+        });
+
+        // --- INISIALISASI ---
+        fetchSchedule();
+      });
+    </script>
+  </body>
+</html>

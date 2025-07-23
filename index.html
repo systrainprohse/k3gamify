@@ -6,9 +6,16 @@
     <title>GAMITAS - Aplikasi Keselamatan Terpadu</title>
 
     <link rel="manifest" href="" />
-    <link rel="icon" href="https://i.imgur.com/m7xleK9.png" type="image/png" />
+    <link
+      rel="icon"
+      href="https://cdn-icons-png.flaticon.com/512/3468/3468379.png"
+      type="image/png"
+    />
     <meta name="theme-color" content="#ffffff" />
-    <link rel="apple-touch-icon" href="https://i.imgur.com/m7xleK9.png" />
+    <link
+      rel="apple-touch-icon"
+      href="https://cdn-icons-png.flaticon.com/512/3468/3468379.png"
+    />
 
     <link
       href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
@@ -115,6 +122,14 @@
           transform: rotateY(360deg);
         }
       }
+      @keyframes drive-across {
+        0% {
+          transform: translateX(-60px);
+        }
+        100% {
+          transform: translateX(60px);
+        }
+      }
 
       /* === LOGIN & REGISTER SCREEN STYLES === */
       #login-screen,
@@ -176,12 +191,17 @@
         text-align: left;
         animation: fadeInUp 0.5s ease-out;
         animation-fill-mode: both;
+        color: var(--text-color);
+        text-decoration: none;
       }
       .login-choice-btn:nth-child(1) {
         animation-delay: 0.3s;
       }
       .login-choice-btn:nth-child(2) {
         animation-delay: 0.4s;
+      }
+      .login-choice-btn:nth-child(3) {
+        animation-delay: 0.5s;
       }
 
       .login-choice-btn:hover {
@@ -208,13 +228,27 @@
         margin-top: 24px;
         font-size: 14px;
         color: var(--text-color-light);
-        animation: fadeInUp 0.5s ease-out 0.5s;
+        animation: fadeInUp 0.5s ease-out 0.6s;
         animation-fill-mode: both;
       }
       .register-link a {
         color: var(--primary-color);
         font-weight: 600;
         text-decoration: none;
+      }
+
+      .login-choice-btn .simper-icon-wrapper {
+        width: 40px;
+        height: 40px;
+        margin-right: 16px;
+        overflow: hidden;
+        position: relative;
+      }
+      .login-choice-btn .car-img {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        animation: drive-across 3s linear infinite;
       }
 
       /* === REGISTER FORM STYLES === */
@@ -905,8 +939,8 @@
           <div class="login-choices">
             <div class="login-choice-btn" onclick="login('Karyawan GAM')">
               <img
-                src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png"
-                alt="Ikon Karyawan"
+                src="assets/Logo PT GAM PNG tok.png"
+                alt="Ikon Karyawan GAM"
               />
               <div class="btn-text">
                 <h4>Login sebagai Karyawan GAM</h4>
@@ -915,7 +949,7 @@
             </div>
             <div class="login-choice-btn" onclick="login('Mitra Kerja')">
               <img
-                src="https://cdn-icons-png.flaticon.com/512/904/904772.png"
+                src="https://cdn-icons-png.flaticon.com/512/9187/9187513.png"
                 alt="Ikon Mitra"
               />
               <div class="btn-text">
@@ -923,6 +957,19 @@
                 <p>Akses fitur untuk vendor dan kontraktor</p>
               </div>
             </div>
+            <a href="simper.html" class="login-choice-btn">
+              <div class="simper-icon-wrapper">
+                <img
+                  class="car-img"
+                  src="https://cdn-icons-png.flaticon.com/512/10473/10473321.png"
+                  alt="Ikon Mobil"
+                />
+              </div>
+              <div class="btn-text">
+                <h4>Tes SIMPER</h4>
+                <p>Akses untuk mengikuti tes SIMPER</p>
+              </div>
+            </a>
           </div>
           <p class="register-link">
             Belum punya akun?

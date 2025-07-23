@@ -4,13 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistem Induksi Karyawan</title>
+    <link rel="icon" href="https://i.imgur.com/2sQd5Xy.png" />
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Library untuk membuat PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -33,8 +34,8 @@
         transition: max-height 0.5s ease-out;
       }
       .step-content.open {
-        max-height: 2500px; /* Increased max-height for forms */
-        transition: max-height 1s ease-in;
+        max-height: 3500px; /* Increased max-height for forms */
+        transition: max-height 1.5s ease-in;
       }
       @keyframes spin {
         to {
@@ -83,6 +84,57 @@
           opacity: 0;
         }
       }
+      /* Anti-Screenshot/Print Styles */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #print-message,
+        #print-message * {
+          visibility: visible;
+        }
+        #print-message {
+          position: fixed;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 24px;
+          font-weight: bold;
+          color: black;
+        }
+      }
+      .watermark {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding: 20px;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 1; /* Memastikan watermark di atas konten kartu */
+      }
+      .watermark-item {
+        color: #000;
+        opacity: 0.12; /* Opasitas dinaikkan agar lebih terlihat */
+        font-size: 18px; /* Ukuran font diperbesar */
+        font-weight: bold;
+        transform: rotate(-30deg);
+        white-space: nowrap;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0.5;
+        }
+      }
+      .timer-warning {
+        color: #ef4444; /* red-500 */
+        animation: blink 1s linear infinite;
+      }
     </style>
   </head>
   <body class="bg-gray-100">
@@ -96,16 +148,390 @@
           id="online-status"
           class="mt-2 text-sm font-semibold rounded-full px-3 py-1 inline-block"
         ></div>
+        <!-- Tombol Kembali ke Halaman Utama -->
+        <div class="mt-4">
+          <a
+            href="index.html"
+            class="text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+          >
+            &larr; Kembali ke Halaman Utama
+          </a>
+        </div>
       </div>
 
       <div id="app-container" class="space-y-4">
-        <!-- Langkah 0: Data Diri & Pilihan Test -->
+        <!-- Langkah 0: Panduan Pengerjaan -->
         <div id="step-0" class="step-card bg-white p-6 rounded-xl shadow-md">
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">Informasi Peserta</h2>
-            <span class="text-gray-500 font-semibold">Langkah Awal</span>
+            <h2 class="text-xl font-bold text-gray-700">
+              Langkah 0: Panduan Pengerjaan
+            </h2>
+            <span id="step-0-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
           </div>
           <div id="step-0-content" class="step-content pt-4">
+            <div class="w-full bg-white rounded-2xl p-2 md:p-6">
+              <div class="text-center mb-12">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">
+                  Panduan Pengerjaan Induksi Online
+                </h1>
+                <p class="text-lg text-gray-600 mt-2">
+                  ikuti 5 langkah mudah untuk mendapatkan sertifikat Anda.
+                </p>
+              </div>
+              <div class="space-y-10">
+                <div class="flex items-start space-x-6">
+                  <div class="flex flex-col items-center">
+                    <div
+                      class="flex items-center justify-center w-16 h-16 bg-blue-500 text-white rounded-full text-2xl font-bold shadow-md"
+                    >
+                      1
+                    </div>
+                    <div class="w-1 h-24 bg-blue-200 mt-2"></div>
+                  </div>
+                  <div class="flex-1 pt-2">
+                    <div class="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-8 w-8 text-blue-500 mr-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                      <h2 class="text-2xl font-bold text-gray-800">
+                        Isi Informasi Diri
+                      </h2>
+                    </div>
+                    <p class="text-gray-600 mt-2">
+                      Lengkapi data Anda dengan benar untuk memulai proses.
+                    </p>
+                    <ul
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                    >
+                      <li>Lengkapi formulir NIK, Nama, Email, Jabatan, dll.</li>
+                      <li>
+                        Pilih perusahaan dari daftar, atau pilih "Lainnya" untuk
+                        mengisi manual.
+                      </li>
+                      <li>
+                        Tentukan jenis tes: **Pre-Test** atau **Post-Test**.
+                      </li>
+                      <li>
+                        Klik "Simpan & Lanjutkan" untuk menyimpan data Anda.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-6">
+                  <div class="flex flex-col items-center">
+                    <div
+                      class="flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full text-2xl font-bold shadow-md"
+                    >
+                      2
+                    </div>
+                    <div class="w-1 h-24 bg-green-200 mt-2"></div>
+                  </div>
+                  <div class="flex-1 pt-2">
+                    <div class="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-8 w-8 text-green-500 mr-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <h2 class="text-2xl font-bold text-gray-800">
+                        Absensi & Pilih Induksi
+                      </h2>
+                    </div>
+                    <p class="text-gray-600 mt-2">
+                      Catat kehadiran Anda dan pilih jenis induksi yang sesuai.
+                    </p>
+                    <ul
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                    >
+                      <li>Klik tombol "Lakukan Absensi".</li>
+                      <li>
+                        Pilih jenis induksi (Karyawan Baru, Pasca Cuti, Visitor,
+                        dll.).
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-6">
+                  <div class="flex flex-col items-center">
+                    <div
+                      class="flex items-center justify-center w-16 h-16 bg-purple-500 text-white rounded-full text-2xl font-bold shadow-md"
+                    >
+                      3
+                    </div>
+                    <div class="w-1 h-24 bg-purple-200 mt-2"></div>
+                  </div>
+                  <div class="flex-1 pt-2">
+                    <div class="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-8 w-8 text-purple-500 mr-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <h2 class="text-2xl font-bold text-gray-800">
+                        Kerjakan Kuis
+                      </h2>
+                    </div>
+                    <p class="text-gray-600 mt-2">
+                      Fokus pada materi dan jawab semua pertanyaan.
+                    </p>
+                    <ul
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                    >
+                      <li>Tonton video materi yang ditampilkan.</li>
+                      <li>
+                        Centang kotak konfirmasi setelah menonton untuk membuka
+                        soal.
+                      </li>
+                      <li>
+                        Jawab semua pertanyaan yang diberikan. Pilihan jawaban
+                        akan diacak.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-6">
+                  <div class="flex flex-col items-center">
+                    <div
+                      class="flex items-center justify-center w-16 h-16 bg-yellow-500 text-white rounded-full text-2xl font-bold shadow-md"
+                    >
+                      4
+                    </div>
+                    <div class="w-1 h-24 bg-yellow-200 mt-2"></div>
+                  </div>
+                  <div class="flex-1 pt-2">
+                    <div class="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-8 w-8 text-yellow-500 mr-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                        />
+                      </svg>
+                      <h2 class="text-2xl font-bold text-gray-800">
+                        TTD & Checklist
+                      </h2>
+                    </div>
+                    <p class="text-gray-600 mt-2">
+                      Langkah akhir administrasi jika Anda lulus Post-Test.
+                    </p>
+                    <ul
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                    >
+                      <li>
+                        Isi formulir SPDK dan Checklist Induksi yang
+                        ditampilkan.
+                      </li>
+                      <li>
+                        Centang kedua kotak konfirmasi untuk mengaktifkan tombol
+                        selanjutnya.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-6">
+                  <div
+                    class="flex items-center justify-center w-16 h-16 bg-red-500 text-white rounded-full text-2xl font-bold shadow-md"
+                  >
+                    5
+                  </div>
+                  <div class="flex-1 pt-2 ml-6">
+                    <div class="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-8 w-8 text-red-500 mr-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                        />
+                      </svg>
+                      <h2 class="text-2xl font-bold text-gray-800">
+                        Dapatkan Sertifikat
+                      </h2>
+                    </div>
+                    <p class="text-gray-600 mt-2">
+                      Simpan bukti kelulusan Anda.
+                    </p>
+                    <ul
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                    >
+                      <li>
+                        Lihat kartu induksi digital Anda yang berisi QR Code.
+                      </li>
+                      <li>
+                        **Screenshot** halaman ini sebagai bukti sementara.
+                      </li>
+                      <li>
+                        Klik tombol **"Unduh Sertifikat (PDF)"** untuk menyimpan
+                        file resmi.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-12 pt-8 border-t border-gray-200">
+                <h3 class="text-xl font-bold text-center text-gray-800">
+                  Catatan Penting
+                </h3>
+                <div class="mt-4 grid md:grid-cols-2 gap-6 text-center">
+                  <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                    <h4
+                      class="font-semibold text-red-700 flex items-center justify-center"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-6 w-6 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        /></svg
+                      >Jika Tidak Lulus
+                    </h4>
+                    <p class="text-red-600 text-sm mt-1">
+                      Anda akan diberi pilihan untuk mengulang atau tetap
+                      melanjutkan dengan persetujuan pengawas.
+                    </p>
+                  </div>
+                  <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <h4
+                      class="font-semibold text-blue-700 flex items-center justify-center"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-6 w-6 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071a10 10 0 0114.142 0M1.394 9.393a15 15 0 0121.212 0"
+                        /></svg
+                      >Koneksi Internet
+                    </h4>
+                    <p class="text-blue-600 text-sm mt-1">
+                      Jika koneksi terputus, data Anda aman dan akan diunggah
+                      otomatis saat kembali online.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="mt-6 bg-yellow-50 border border-yellow-300 p-4 rounded-lg text-center"
+                >
+                  <h4
+                    class="font-bold text-yellow-800 flex items-center justify-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-6 w-6 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      /></svg
+                    >PERINGATAN KERAHASIAAN
+                  </h4>
+                  <p class="text-yellow-700 text-sm mt-2">
+                    Dilarang keras mengambil tangkapan layar (screenshot) soal
+                    maupun jawaban. Jika terbukti melakukan pelanggaran, akan
+                    diberikan sanksi SP1 dari tim PT GAM.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-8 pt-6 border-t">
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="guide-checkbox"
+                  class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="ml-3 text-gray-700 font-medium"
+                  >Saya telah membaca dan memahami panduan pengerjaan di
+                  atas.</span
+                >
+              </label>
+              <button
+                id="start-process-btn"
+                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-lg"
+                disabled
+              >
+                Lanjutkan ke Pengisian Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Langkah 1: Data Diri & Pilihan Test -->
+        <div
+          id="step-1"
+          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+        >
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-700">
+              Langkah 1: Informasi Peserta
+            </h2>
+            <span id="step-1-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-1-content" class="step-content pt-4">
             <form id="user-info-form" class="space-y-4">
               <input
                 type="text"
@@ -251,31 +677,6 @@
                   </option>
                 </select>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700"
-                  >Pilih Jenis Tes</label
-                >
-                <div class="mt-2 flex space-x-4">
-                  <label class="flex items-center"
-                    ><input
-                      type="radio"
-                      name="testType"
-                      value="pre-test"
-                      required
-                      class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                    /><span class="ml-2 text-gray-700">Pre-Test</span></label
-                  >
-                  <label class="flex items-center"
-                    ><input
-                      type="radio"
-                      name="testType"
-                      value="post-test"
-                      required
-                      class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                    /><span class="ml-2 text-gray-700">Post-Test</span></label
-                  >
-                </div>
-              </div>
               <button
                 type="submit"
                 class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
@@ -286,18 +687,18 @@
           </div>
         </div>
 
-        <!-- Langkah 1: Absensi -->
+        <!-- Langkah 2: Absensi -->
         <div
-          id="step-1"
+          id="step-2"
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">Langkah 1: Absensi</h2>
-            <span id="step-1-status" class="text-sm font-semibold text-red-500"
+            <h2 class="text-xl font-bold text-gray-700">Langkah 2: Absensi</h2>
+            <span id="step-2-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
             >
           </div>
-          <div id="step-1-content" class="step-content pt-4 text-center">
+          <div id="step-2-content" class="step-content pt-4 text-center">
             <p class="text-gray-600 mb-4">
               Klik tombol di bawah untuk mencatat kehadiran Anda.
             </p>
@@ -310,20 +711,20 @@
           </div>
         </div>
 
-        <!-- Langkah 2: Pilih Jenis Induksi -->
+        <!-- Langkah 3: Pilih Jenis Induksi -->
         <div
-          id="step-2"
+          id="step-3"
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
             <h2 class="text-xl font-bold text-gray-700">
-              Langkah 2: Pilih Jenis Induksi
+              Langkah 3: Pilih Jenis Induksi
             </h2>
-            <span id="step-2-status" class="text-sm font-semibold text-red-500"
+            <span id="step-3-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
             >
           </div>
-          <div id="step-2-content" class="step-content pt-4">
+          <div id="step-3-content" class="step-content pt-4">
             <p class="text-gray-600 mb-4">
               Pilih tipe pendaftaran sesuai dengan status Anda.
             </p>
@@ -332,17 +733,23 @@
               class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="" disabled selected>Pilih Tipe Induksi</option>
-              <option value="induksi_visitor">INDUKSI VISITOR</option>
-              <option value="kb_mitra">Karyawan Baru Mitra</option>
-              <option value="kb_gam">Karyawan Baru GAM</option>
-              <option value="pc_mitra">Pasca Cuti Mitra</option>
-              <option value="pc_gam">Pasca Cuti GAM</option>
-              <option value="tp_mitra">Temporary Mitra</option>
-              <option value="tp_gam">Temporary GAM</option>
-              <option value="vst_mitra">Visitor Mitra</option>
-              <option value="vst_gam">Visitor GAM</option>
-              <option value="mg_mitra">Magang Mitra</option>
-              <option value="mg_gam">Magang GAM</option>
+              <optgroup label="INDUKSI UMUM">
+                <option value="induksi_visitor">INDUKSI VISITOR</option>
+              </optgroup>
+              <optgroup label="PT. GANDA ALAM MAKMUR (GAM)">
+                <option value="kb_gam">Karyawan Baru GAM</option>
+                <option value="pc_gam">Pasca Cuti GAM</option>
+                <option value="tp_gam">Temporary GAM</option>
+                <option value="vst_gam">Visitor GAM</option>
+                <option value="mg_gam">Magang GAM</option>
+              </optgroup>
+              <optgroup label="MITRA KERJA">
+                <option value="kb_mitra">Karyawan Baru Mitra</option>
+                <option value="pc_mitra">Pasca Cuti Mitra</option>
+                <option value="tp_mitra">Temporary Mitra</option>
+                <option value="vst_mitra">Visitor Mitra</option>
+                <option value="mg_mitra">Magang Mitra</option>
+              </optgroup>
             </select>
             <button
               id="select-induction-btn"
@@ -353,20 +760,72 @@
           </div>
         </div>
 
-        <!-- LANGKAH BARU: Kuis Umum -->
+        <!-- LANGKAH 4: Pilih Jenis Tes -->
         <div
-          id="step-3"
+          id="step-4"
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
             <h2 class="text-xl font-bold text-gray-700">
-              Langkah 3: Kuis Umum
+              Langkah 4: Pilih Jenis Tes
             </h2>
-            <span id="step-3-status" class="text-sm font-semibold text-red-500"
+            <span id="step-4-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
             >
           </div>
-          <div id="step-3-content" class="step-content pt-4 text-center">
+          <div id="step-4-content" class="step-content pt-4">
+            <p class="text-gray-600 mb-4">
+              Pilih jenis tes yang akan Anda kerjakan.
+            </p>
+            <div class="mt-2 space-y-2">
+              <label
+                class="flex items-center p-3 border rounded-lg has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500"
+              >
+                <input
+                  type="radio"
+                  name="testType"
+                  value="pre-test"
+                  required
+                  class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                />
+                <span class="ml-3 text-gray-700 font-medium">Pre-Test</span>
+              </label>
+              <label
+                class="flex items-center p-3 border rounded-lg has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500"
+              >
+                <input
+                  type="radio"
+                  name="testType"
+                  value="post-test"
+                  required
+                  class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                />
+                <span class="ml-3 text-gray-700 font-medium">Post-Test</span>
+              </label>
+            </div>
+            <button
+              id="confirm-test-type-btn"
+              class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            >
+              Lanjutkan ke Kuis
+            </button>
+          </div>
+        </div>
+
+        <!-- LANGKAH 5: Kuis Umum -->
+        <div
+          id="step-5"
+          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+        >
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-700">
+              Langkah 5: Kuis Umum
+            </h2>
+            <span id="step-5-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-5-content" class="step-content pt-4 text-center">
             <p class="text-gray-600 mb-4">
               Sebelum melanjutkan, Anda wajib menyelesaikan kuis umum berikut
               ini.
@@ -381,23 +840,22 @@
           </div>
         </div>
 
-        <!-- Langkah 4: Kuis Spesifik -->
+        <!-- Langkah 6: Kuis Spesifik -->
         <div
-          id="step-4"
+          id="step-6"
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
             <h2 class="text-xl font-bold text-gray-700">
-              Langkah 4: Kuis Spesifik
+              Langkah 6: Kuis Spesifik
             </h2>
-            <span id="step-4-status" class="text-sm font-semibold text-red-500"
+            <span id="step-6-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
             >
           </div>
-          <div id="step-4-content" class="step-content pt-4 text-center">
+          <div id="step-6-content" class="step-content pt-4 text-center">
             <p class="text-gray-600 mb-4">
-              Sekarang kerjakan kuis yang sesuai dengan jenis induksi dan
-              jabatan Anda.
+              Sekarang kerjakan kuis yang sesuai dengan jenis induksi Anda.
             </p>
             <p id="specific-quiz-error" class="hidden text-red-500"></p>
             <button
@@ -409,20 +867,20 @@
           </div>
         </div>
 
-        <!-- Langkah 5: TTD & Checklist -->
+        <!-- Langkah 7: TTD & Checklist -->
         <div
-          id="step-5"
+          id="step-7"
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
             <h2 class="text-xl font-bold text-gray-700">
-              Langkah 5: TTD & Checklist
+              Langkah 7: TTD & Checklist
             </h2>
-            <span id="step-5-status" class="text-sm font-semibold text-red-500"
+            <span id="step-7-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
             >
           </div>
-          <div id="step-5-content" class="step-content pt-4 space-y-8">
+          <div id="step-7-content" class="step-content pt-4 space-y-8">
             <!-- SPDK Form -->
             <div>
               <h3 class="text-lg font-semibold text-gray-800 mb-2">
@@ -496,8 +954,16 @@
         >
           Ulangi Proses dari Awal
         </button>
+        <a
+          href="index.html"
+          class="mt-4 inline-block text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          >Kembali ke Halaman Utama</a
+        >
       </div>
     </div>
+
+    <!-- Hidden div for print message -->
+    <div id="print-message" class="hidden">Tindakan ini tidak diizinkan.</div>
 
     <!-- Modal Konfirmasi -->
     <div
@@ -531,7 +997,8 @@
       <div
         class="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden my-8"
       >
-        <div class="p-8">
+        <div class="p-8 relative">
+          <div class="watermark"></div>
           <!-- Bagian Materi (Video) -->
           <div id="quiz-material-section" class="mb-6 pb-6 border-b">
             <div class="flex justify-between items-start mb-4">
@@ -542,12 +1009,18 @@
                 ></h2>
                 <p id="material-progress" class="text-sm text-gray-500"></p>
               </div>
-              <button
-                id="open-video-btn"
-                class="bg-blue-100 text-blue-700 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-blue-200 transition"
-              >
-                Buka Video di Tab Baru
-              </button>
+              <div class="flex items-center">
+                <div
+                  id="quiz-timer"
+                  class="text-xl font-bold text-gray-800 mr-4"
+                ></div>
+                <button
+                  id="open-video-btn"
+                  class="bg-blue-100 text-blue-700 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-blue-200 transition"
+                >
+                  Buka Video di Tab Baru
+                </button>
+              </div>
             </div>
             <div
               id="video-container"
@@ -627,7 +1100,7 @@
     <script>
       // --- KONFIGURASI WAJIB ---
       const WEB_APP_URL =
-        "https://script.google.com/macros/s/AKfycbzO5jCkjM93TIfFW5Ef9STMePYP6DRXjGuGghVmxhExARs-xaq_GzO9KvUuRqsAVUCz/exec";
+        "https://script.google.com/macros/s/AKfycbyEzbJT_-0i3_4mx4fDAo4R0MFWPYNHrAGTguaYkZorQ8tfoZYi0hukvFqSeC2ayg/exec";
       const TALLY_SPDK_URL =
         "https://tally.so/embed/wv6yz0?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
       const TALLY_CHECKLIST_URL =
@@ -648,6 +1121,9 @@
         absensiBtn: document.getElementById("start-absensi-btn"),
         inductionTypeSelect: document.getElementById("induction-type"),
         selectInductionBtn: document.getElementById("select-induction-btn"),
+        guideCheckbox: document.getElementById("guide-checkbox"),
+        startProcessBtn: document.getElementById("start-process-btn"),
+        confirmTestTypeBtn: document.getElementById("confirm-test-type-btn"),
         startGeneralQuizBtn: document.getElementById("start-general-quiz-btn"),
         startSpecificQuizBtn: document.getElementById(
           "start-specific-quiz-btn"
@@ -678,6 +1154,7 @@
           container: document.getElementById("quiz-container"),
           nextBtn: document.getElementById("next-button"),
           prevBtn: document.getElementById("prev-button"),
+          timer: document.getElementById("quiz-timer"),
         },
         modal: {
           container: document.getElementById("confirmation-modal"),
@@ -698,6 +1175,9 @@
           currentTotalQuestions: 0,
           finalScore: 0,
           currentQuizType: "",
+          timerId: null,
+          timeRemaining: 0,
+          timeExtended: false,
         },
       };
 
@@ -744,9 +1224,10 @@
           }
         });
 
-        const step5 = document.getElementById("step-5");
-        step5.style.display =
-          state.userData.testType === "pre-test" ? "none" : "block";
+        const step6 = document.getElementById("step-6");
+        if (step6)
+          step6.style.display =
+            state.userData.testType === "pre-test" ? "none" : "block";
 
         for (const key in state.userData) {
           const el = dom.userInfoForm.elements[key];
@@ -802,13 +1283,13 @@
 
       function resetState() {
         showModal(
-          "Apakah Anda yakin ingin mengulang semua proses? Data yang belum tersimpan akan hilang.",
+          "Apakah Anda yakin ingin memulai sesi baru? Progres saat ini akan hilang.",
           () => {
             localStorage.removeItem("inductionAppState");
             localStorage.removeItem("offlineQueue");
             location.reload();
           },
-          "Ya, Ulangi"
+          "Ya, Mulai Baru"
         );
       }
 
@@ -817,7 +1298,7 @@
         saveState();
         updateUI();
 
-        if (step === 5) {
+        if (step === 6) {
           loadTallyForms();
         }
       }
@@ -835,9 +1316,15 @@
           });
         });
 
+        dom.guideCheckbox.addEventListener("change", () => {
+          dom.startProcessBtn.disabled = !dom.guideCheckbox.checked;
+        });
+        dom.startProcessBtn.addEventListener("click", () => advanceStep(1));
+
         dom.userInfoForm.addEventListener("submit", handleUserInfoSubmit);
         dom.absensiBtn.addEventListener("click", handleAbsensi);
         dom.selectInductionBtn.addEventListener("click", handleSelectInduction);
+        dom.confirmTestTypeBtn.addEventListener("click", handleConfirmTestType);
         dom.startGeneralQuizBtn.addEventListener("click", (e) =>
           handleStartQuiz(e, "general")
         );
@@ -845,8 +1332,8 @@
           handleStartQuiz(e, "specific")
         );
 
-        dom.spdkCheckbox.addEventListener("change", checkStep5Completion);
-        dom.checklistCheckbox.addEventListener("change", checkStep5Completion);
+        dom.spdkCheckbox.addEventListener("change", checkStep6Completion);
+        dom.checklistCheckbox.addEventListener("change", checkStep6Completion);
         dom.finishChecklistBtn.addEventListener("click", () =>
           showCertificateScreen(true)
         );
@@ -870,11 +1357,23 @@
         });
       }
 
-      function checkStep5Completion() {
+      function checkStep6Completion() {
         if (dom.spdkCheckbox.checked && dom.checklistCheckbox.checked) {
           dom.finishChecklistBtn.disabled = false;
         } else {
           dom.finishChecklistBtn.disabled = true;
+        }
+      }
+
+      async function getIpAddress() {
+        try {
+          const response = await fetch("https://api.ipify.org?format=json");
+          if (!response.ok) return "Gagal mendapatkan IP";
+          const data = await response.json();
+          return data.ip;
+        } catch (error) {
+          console.error("Gagal mengambil IP address:", error);
+          return "Tidak tersedia";
         }
       }
 
@@ -898,6 +1397,7 @@
           delete state.userData["perusahaan-lainnya"];
 
           state.userData.timestamp = new Date().toISOString();
+          state.userData.ip_address = await getIpAddress();
 
           const userInfoToCache = {
             nik: state.userData.nik,
@@ -921,7 +1421,7 @@
             payload: state.userData,
           });
 
-          advanceStep(1);
+          advanceStep(2);
         } catch (error) {
           console.error("Gagal menyimpan data diri:", error);
           alert(`Terjadi kesalahan: ${error.message}`);
@@ -943,7 +1443,7 @@
                 action: "saveAbsensi",
                 payload: state.userData,
               });
-              advanceStep(2);
+              advanceStep(3);
             } catch (error) {
               console.error("Gagal mencatat absensi:", error);
               alert(`Terjadi kesalahan: ${error.message}`);
@@ -963,11 +1463,24 @@
           return;
         }
         state.userData.inductionType = type;
+        advanceStep(4); // Lanjut ke pilih jenis tes
+      }
 
-        if (type.includes("visitor")) {
-          advanceStep(4);
+      function handleConfirmTestType() {
+        const testTypeRadio = document.querySelector(
+          'input[name="testType"]:checked'
+        );
+        if (!testTypeRadio) {
+          alert("Silakan pilih jenis tes terlebih dahulu.");
+          return;
+        }
+        state.userData.testType = testTypeRadio.value;
+
+        const type = state.userData.inductionType;
+        if (type.includes("visitor") || type.includes("tp_")) {
+          advanceStep(6); // Lanjut ke kuis spesifik
         } else {
-          advanceStep(3);
+          advanceStep(5); // Lanjut ke kuis umum
         }
       }
 
@@ -988,13 +1501,22 @@
         }
 
         try {
-          const payload =
-            quizType === "general"
-              ? { tipe_induksi: "all", jabatan_id: "all" }
-              : {
-                  tipe_induksi: state.userData.inductionType,
-                  jabatan_id: state.userData.jabatan,
-                };
+          let payload;
+          if (quizType === "general") {
+            payload = { tipe_induksi: "all", jabatan_id: "all" };
+          } else {
+            let jabatan_id_to_send = state.userData.jabatan;
+            if (
+              state.userData.inductionType.includes("visitor") ||
+              state.userData.inductionType.includes("tp_")
+            ) {
+              jabatan_id_to_send = "all";
+            }
+            payload = {
+              tipe_induksi: state.userData.inductionType,
+              jabatan_id: jabatan_id_to_send,
+            };
+          }
 
           const materials = await postDataWithOfflineQueue({
             action: "getSoal",
@@ -1036,9 +1558,16 @@
         }
       }
 
-      function showModal(text, onConfirm, confirmText = "Ya") {
+      function showModal(
+        text,
+        onConfirm,
+        confirmText = "Ya",
+        onCancel = () => {},
+        cancelText = "Batal"
+      ) {
         dom.modal.text.textContent = text;
         dom.modal.confirmBtn.textContent = confirmText;
+        dom.modal.cancelBtn.textContent = cancelText;
         dom.modal.container.classList.remove("hidden");
 
         const confirmHandler = () => {
@@ -1047,6 +1576,7 @@
           cleanup();
         };
         const cancelHandler = () => {
+          onCancel();
           hideModal();
           cleanup();
         };
@@ -1078,36 +1608,69 @@
         dom.quiz.modal.classList.remove("hidden");
         dom.quiz.nextBtn.onclick = handleQuizNext;
         dom.quiz.prevBtn.onclick = handleQuizPrev;
+        populateQuizWatermark();
         displayCurrentMaterial();
+
+        if (state.userData.testType === "pre-test") {
+          state.quizData.timeExtended = false;
+          startTimer(1800); // 30 menit
+        } else if (state.userData.testType === "post-test") {
+          let totalTime = 1800; // Base 30 menit
+          const videoMaterials = state.quizData.currentMaterials.filter(
+            (m) => m.video_url && m.video_url.trim() !== ""
+          ).length;
+          totalTime += videoMaterials * 300; // Tambah 5 menit per video
+          startTimer(totalTime);
+        }
+      }
+
+      function populateQuizWatermark() {
+        const watermarkContainer = dom.quiz.modal.querySelector(".watermark");
+        if (!watermarkContainer) return;
+        watermarkContainer.innerHTML = "";
+        const watermarkText = `${state.userData.nama} - ${state.userData.perusahaan}`;
+        for (let i = 0; i < 25; i++) {
+          const item = document.createElement("div");
+          item.className = "watermark-item";
+          item.textContent = watermarkText;
+          watermarkContainer.appendChild(item);
+        }
       }
 
       function displayCurrentMaterial() {
         const { currentMaterials, currentMaterialIndex } = state.quizData;
         const material = currentMaterials[currentMaterialIndex];
 
-        dom.quiz.questionSection.classList.add("hidden");
-        dom.quiz.videoWatchedCheckbox.checked = false;
-        dom.quiz.videoWatchedCheckbox.disabled = false;
-        dom.quiz.materialSection.classList.remove("hidden");
+        dom.quiz.materialSection.classList.toggle(
+          "hidden",
+          state.userData.testType === "pre-test"
+        );
+        dom.quiz.questionSection.classList.toggle(
+          "hidden",
+          state.userData.testType !== "pre-test"
+        );
 
-        dom.quiz.materialTitle.textContent = material.materi_judul;
-        dom.quiz.materialProgress.textContent = `Materi ${
-          currentMaterialIndex + 1
-        } dari ${currentMaterials.length}`;
-
-        loadVideo(material.video_url);
-
-        dom.quiz.openVideoBtn.onclick = () =>
-          window.open(material.video_url, "_blank");
-        dom.quiz.replayVideoBtn.onclick = () => loadVideo(material.video_url);
-
-        dom.quiz.videoWatchedCheckbox.onchange = (e) => {
-          if (e.target.checked) {
-            dom.quiz.questionSection.classList.remove("hidden");
-            e.target.disabled = true;
-            displayCurrentQuestion();
-          }
-        };
+        if (state.userData.testType === "pre-test") {
+          displayCurrentQuestion();
+        } else {
+          dom.quiz.videoWatchedCheckbox.checked = false;
+          dom.quiz.videoWatchedCheckbox.disabled = false;
+          dom.quiz.materialTitle.textContent = material.materi_judul;
+          dom.quiz.materialProgress.textContent = `Materi ${
+            currentMaterialIndex + 1
+          } dari ${currentMaterials.length}`;
+          loadVideo(material.video_url);
+          dom.quiz.openVideoBtn.onclick = () =>
+            window.open(material.video_url, "_blank");
+          dom.quiz.replayVideoBtn.onclick = () => loadVideo(material.video_url);
+          dom.quiz.videoWatchedCheckbox.onchange = (e) => {
+            if (e.target.checked) {
+              dom.quiz.questionSection.classList.remove("hidden");
+              e.target.disabled = true;
+              displayCurrentQuestion();
+            }
+          };
+        }
 
         updateNavigationButtons();
       }
@@ -1124,12 +1687,6 @@
         }
       }
 
-      /**
-       * Mengacak urutan elemen dalam sebuah array.
-       * Menggunakan algoritma Fisher-Yates shuffle.
-       * @param {Array} array Array yang akan diacak.
-       * @returns {Array} Array yang sudah diacak.
-       */
       function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -1231,7 +1788,10 @@
           `input[name="question${currentQuestion.id_soal}"]:checked`
         );
 
-        if (!dom.quiz.videoWatchedCheckbox.checked) {
+        if (
+          state.userData.testType !== "pre-test" &&
+          !dom.quiz.videoWatchedCheckbox.checked
+        ) {
           alert(
             "Harap tonton video dan centang kotak konfirmasi terlebih dahulu."
           );
@@ -1284,13 +1844,7 @@
               ];
             state.quizData.currentQuestionIndex =
               prevMaterial.questions.length - 1;
-            dom.quiz.materialSection.classList.remove("hidden");
-            dom.quiz.questionSection.classList.remove("hidden");
-            dom.quiz.materialTitle.textContent = prevMaterial.materi_judul;
-            dom.quiz.materialProgress.textContent = `Materi ${
-              state.quizData.currentMaterialIndex + 1
-            } dari ${state.quizData.currentMaterials.length}`;
-            displayCurrentQuestion();
+            displayCurrentMaterial();
           }
         }
         saveState();
@@ -1298,9 +1852,10 @@
 
       async function finishQuiz() {
         dom.quiz.modal.classList.add("hidden");
+        stopTimer();
 
         if (state.quizData.currentQuizType === "general") {
-          advanceStep(4);
+          advanceStep(5);
         } else {
           showLoader("Menyimpan hasil akhir...");
           try {
@@ -1322,7 +1877,7 @@
             ) {
               showFinalScreen();
             } else {
-              advanceStep(5);
+              advanceStep(6);
             }
           } catch (error) {
             console.error("Gagal menyimpan jawaban:", error);
@@ -1423,7 +1978,7 @@
           continueButton.addEventListener("click", () => {
             dom.completionScreen.classList.add("hidden");
             dom.appContainer.classList.remove("hidden");
-            advanceStep(5);
+            advanceStep(6);
           });
         }
       }
@@ -1442,6 +1997,7 @@
           state.userData.inductionType;
 
         const content = `<div class="border-4 border-green-500 rounded-lg p-6 bg-green-50 text-left space-y-3 relative">
+                        <div class="watermark"></div>
                         <h2 class="text-2xl font-bold text-green-700 text-center mb-4">🎉 Selamat! Induksi Selesai 🎉</h2>
                         <div class="flex flex-col md:flex-row gap-4 items-center">
                             <div class="flex-1 space-y-2">
@@ -1466,10 +2022,21 @@
                             </div>
                         </div>
                        </div>
-                       <p class="mt-6 font-semibold text-center text-red-600 bg-red-100 p-3 rounded-lg">PENTING: Simpan bukti ini dengan screenshot pada halaman ini.</p>
+                       <p class="mt-6 font-semibold text-center text-gray-700">Sertifikat ini bersifat pribadi dan tidak untuk disebarluaskan.</p>
                        <button id="download-pdf-btn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Unduh Sertifikat (PDF)</button>`;
 
         dom.completionScreen.innerHTML = content;
+
+        const watermarkContainer =
+          dom.completionScreen.querySelector(".watermark");
+        const watermarkText = `${state.userData.nama} - ${state.userData.perusahaan}`;
+        for (let i = 0; i < 25; i++) {
+          const item = document.createElement("div");
+          item.className = "watermark-item";
+          item.textContent = watermarkText;
+          watermarkContainer.appendChild(item);
+        }
+
         setTimeout(triggerConfetti, 100);
 
         const pdfButton = document.getElementById("download-pdf-btn");
@@ -1602,6 +2169,7 @@
               method: "POST",
               mode: "cors",
               cache: "no-cache",
+              redirect: "follow",
               headers: {
                 "Content-Type": "text/plain;charset=utf-8",
               },

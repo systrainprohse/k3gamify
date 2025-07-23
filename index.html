@@ -6,11 +6,9 @@
     <title>GAMITAS - Aplikasi Keselamatan Terpadu</title>
 
     <link rel="manifest" href="" />
+    <link rel="icon" href="https://i.imgur.com/m7xleK9.png" type="image/png" />
     <meta name="theme-color" content="#ffffff" />
-    <link
-      rel="apple-touch-icon"
-      href="https://cdn-icons-png.flaticon.com/512/3468/3468379.png"
-    />
+    <link rel="apple-touch-icon" href="https://i.imgur.com/m7xleK9.png" />
 
     <link
       href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
@@ -107,6 +105,14 @@
         }
         to {
           opacity: 0;
+        }
+      }
+      @keyframes spin3d {
+        from {
+          transform: rotateY(0deg);
+        }
+        to {
+          transform: rotateY(360deg);
         }
       }
 
@@ -842,10 +848,12 @@
       /* === FILOSOFI PAGE === */
       .filosofi-content {
         text-align: center;
+        perspective: 1000px;
       }
       .filosofi-content img {
         max-width: 150px;
         margin-bottom: 24px;
+        animation: spin3d 15s linear infinite;
       }
       .filosofi-section {
         background-color: var(--card-bg);
@@ -853,6 +861,17 @@
         border-radius: 12px;
         margin-bottom: 20px;
         text-align: left;
+        opacity: 0;
+        animation: fadeInUp 0.5s ease-out forwards;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+      }
+      .filosofi-section.zoomed {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        z-index: 2;
       }
       .filosofi-section h3 {
         margin-top: 0;
@@ -1178,7 +1197,7 @@
                   <p>BS Mekanik</p>
                 </a>
                 <a
-                  onclick="showPage('page-buku-operator')"
+                  href="buku_saku_detail/hd_785.html"
                   class="feature-card"
                   style="animation-delay: 0.15s"
                 >
@@ -1224,6 +1243,7 @@
                   <p>Filosofi</p>
                 </a>
                 <a
+                  id="menu-kartu-digital"
                   onclick="showPage('page-kartudigital')"
                   class="feature-card"
                   style="animation-delay: 0.15s"
@@ -1526,6 +1546,27 @@
                   </div>
                 </div>
               </div>
+              <div
+                class="emergency-procedure"
+                style="
+                  margin-top: 24px;
+                  text-align: center;
+                  animation: fadeInUp 0.5s ease-out forwards;
+                  animation-delay: 0.4s;
+                  opacity: 0;
+                "
+              >
+                <h3 style="margin-bottom: 16px">Prosedur Pelaporan Darurat</h3>
+                <img
+                  src="assets/cara_lapor_ert.png"
+                  alt="Cara Lapor ERT"
+                  style="
+                    max-width: 100%;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                  "
+                />
+              </div>
             </main>
           </div>
 
@@ -1761,13 +1802,13 @@
           theme_color: "#ffffff",
           icons: [
             {
-              src: "https://cdn-icons-png.flaticon.com/192x192/3468/3468379.png",
+              src: "https://i.imgur.com/m7xleK9.png",
               sizes: "192x192",
               type: "image/png",
               purpose: "any maskable",
             },
             {
-              src: "https://cdn-icons-png.flaticon.com/512x512/3468/3468379.png",
+              src: "https://i.imgur.com/m7xleK9.png",
               sizes: "512x512",
               type: "image/png",
               purpose: "any maskable",
@@ -1939,16 +1980,27 @@
           appContainer.style.display = "flex";
           appContainer.style.animation = "fadeIn 0.5s";
 
-          document.getElementById("user-greeting").textContent = `${userType}!`;
-          document.getElementById("time-greeting").textContent =
-            getTimeBasedGreeting() + ",";
-          document.getElementById("header-user-name").textContent =
-            userType.split(" ")[0];
-          document.getElementById("profile-initial").textContent =
-            userType.charAt(0);
+          updateUserUI(userType);
 
           initCarousel();
         }, 500);
+      }
+
+      function updateUserUI(userType) {
+        document.getElementById("user-greeting").textContent = `${userType}!`;
+        document.getElementById("time-greeting").textContent =
+          getTimeBasedGreeting() + ",";
+        document.getElementById("header-user-name").textContent =
+          userType.split(" ")[0];
+        document.getElementById("profile-initial").textContent =
+          userType.charAt(0);
+
+        const kartuDigitalMenu = document.getElementById("menu-kartu-digital");
+        if (userType === "Karyawan GAM") {
+          kartuDigitalMenu.style.display = "";
+        } else {
+          kartuDigitalMenu.style.display = "none";
+        }
       }
 
       function logout() {
@@ -1984,15 +2036,7 @@
         if (storedUserType) {
           loginScreen.style.display = "none";
           appContainer.style.display = "flex";
-          document.getElementById(
-            "user-greeting"
-          ).textContent = `${storedUserType}!`;
-          document.getElementById("time-greeting").textContent =
-            getTimeBasedGreeting() + ",";
-          document.getElementById("header-user-name").textContent =
-            storedUserType.split(" ")[0];
-          document.getElementById("profile-initial").textContent =
-            storedUserType.charAt(0);
+          updateUserUI(storedUserType);
         } else {
           loginScreen.style.display = "flex";
           appContainer.style.display = "none";
@@ -2012,6 +2056,22 @@
           },
           false
         );
+
+        // Add click listener for filosofi sections
+        document.querySelectorAll(".filosofi-section").forEach((section) => {
+          section.addEventListener("click", () => {
+            // Remove 'zoomed' from all other sections first
+            document
+              .querySelectorAll(".filosofi-section.zoomed")
+              .forEach((zoomedEl) => {
+                if (zoomedEl !== section) {
+                  zoomedEl.classList.remove("zoomed");
+                }
+              });
+            // Then toggle the clicked one
+            section.classList.toggle("zoomed");
+          });
+        });
       });
 
       // --- Page-Specific Initializers ---

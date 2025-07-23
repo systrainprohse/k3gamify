@@ -5,65 +5,7 @@ let kompetensiInitialized = false;
 let lastScrollTop = 0;
 let carouselInterval;
 
-/**
- * Initializes the application.
- * Sets up the PWA, event listeners, and initial UI state.
- */
-function initializeApp() {
-  setupPWA();
-  // --- App Initialization ---
-  window.addEventListener("DOMContentLoaded", () => {
-    // Setup connection listener after DOM is loaded
-    setupConnectionListener();
 
-    // Register Service Worker for offline functionality
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/sw.js")
-          .then((reg) =>
-            console.log("Service Worker: Registered with scope", reg.scope)
-          )
-          .catch((err) =>
-            console.error("Service Worker: Registration Failed", err)
-          );
-      });
-    }
-
-    const storedUserType = localStorage.getItem("userType");
-    const loginScreen = document.getElementById("login-screen");
-    const appContainer = document.getElementById("app-container");
-    const header = document.querySelector(".app-header");
-    const scrollableContent = document.querySelector(".scrollable-content");
-
-    if (storedUserType) {
-      loginScreen.style.display = "none";
-      appContainer.style.display = "flex";
-      document.getElementById(
-        "user-greeting"
-      ).textContent = `Hi, ${storedUserType}!`;
-    } else {
-      loginScreen.style.display = "flex";
-      appContainer.style.display = "none";
-    }
-    showPage("page-home");
-
-    // Hide header on scroll down
-    scrollableContent.addEventListener(
-      "scroll",
-      function () {
-        var st = scrollableContent.scrollTop;
-        if (st > lastScrollTop && st > 50) {
-          header.classList.add("hidden");
-        } else {
-          header.classList.remove("hidden");
-        }
-        lastScrollTop = st <= 0 ? 0 : st;
-      },
-      false
-    );
-  });
-}
 
 // --- Page Navigation ---
 /**
@@ -92,7 +34,7 @@ function showPage(pageId) {
   if (pageId === "page-kartudigital") initDigitalCard();
   if (pageId === "page-kompetensi" && !kompetensiInitialized)
     initKompetensiPage();
-  if (pageId === "page-induksi") updateInductionAction(); // Set initial state for induction page
+  
 
   updateFooterNav(pageId);
   document.querySelector(".scrollable-content").scrollTo(0, 0);
@@ -119,8 +61,7 @@ function updateFooterNav(pageId) {
   if (activeNav) activeNav.classList.add("active");
 }
 
-// Initialize the application
-initializeApp();
+
 
 // --- User Profile ---
 /**

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panduan Cerdas Operasi HD785-7</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Icon Library -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      /* Styling untuk garis vertikal pada timeline */
+      .timeline-item:not(:last-child)::before {
+        content: "";
+        position: absolute;
+        top: 40px;
+        left: 20px; /* (width of circle / 2) */
+        width: 2px;
+        height: calc(100% - 20px);
+        background-color: #e5e7eb; /* gray-200 */
+        z-index: 0;
+      }
+      /* Animasi saat elemen muncul di layar */
+      .timeline-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+      .timeline-item.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      /* Animasi hover pada gambar */
+      .zoom-hover {
+        transition: transform 0.3s ease-in-out;
+      }
+      .zoom-hover:hover {
+        transform: scale(1.03);
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-gray-800 p-4 sm:p-6 md:p-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <header class="text-center mb-8 relative">
+        <h1 class="text-3xl font-bold text-slate-900">
+          Panduan Operasi Efisien HD785-7
+        </h1>
+        <p class="text-md text-slate-600 mt-1">PT. Ganda Alam Makmur</p>
+        <div
+          class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mt-2"
+        >
+          <span class="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
+          Online
+        </div>
+        <!-- Tombol Kembali Atas -->
+        <button
+          onclick="history.back()"
+          class="absolute top-0 right-0 bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+        >
+          <i class="fas fa-arrow-left mr-2"></i>Kembali
+        </button>
+      </header>
+
+      <!-- Main Content Card -->
+      <main
+        class="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200"
+      >
+        <div class="mb-12">
+          <h3 class="text-2xl font-bold text-slate-900">Kata Pengantar</h3>
+          <div
+            class="mt-4 text-slate-600 space-y-3 text-sm border-l-4 border-slate-200 pl-4"
+          >
+            <p>
+              Puji syukur kami panjatkan kepada Tuhan Yang Maha Esa atas
+              rahmat-Nya, sehingga Tim Training Center (TC) PT. Ganda Alam
+              Makmur dapat menyelesaikan panduan operasi ini. Panduan ini
+              dirancang sebagai salah satu dukungan utama dari kami untuk
+              memberikan pengetahuan penting dan mendasar mengenai metode
+              operasi yang efisien untuk menghemat bahan bakar.
+            </p>
+            <p>
+              Kami mendorong Anda untuk terus mengkaji dan mempraktikkan metode
+              pengoperasian yang hemat bahan bakar sesuai dengan buku petunjuk
+              ini. Terima kasih kepada semua pihak yang telah membantu
+              penyusunan panduan ini. Semoga panduan ini dapat bermanfaat bagi
+              kita semua.
+            </p>
+          </div>
+        </div>
+
+        <!-- Timeline Steps -->
+        <div class="space-y-12">
+          <!-- Step 1: Mode Power & Econo -->
+          <div class="relative flex timeline-item">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold z-10 shadow-md"
+            >
+              1
+            </div>
+            <div class="ml-6 w-full">
+              <h4
+                class="text-lg font-semibold text-slate-900 flex items-center"
+              >
+                <i class="fas fa-bolt mr-3 text-blue-500"></i>Mode Power & Econo
+              </h4>
+              <p class="text-sm text-slate-500 mt-1 mb-4">
+                Gunakan mode yang tepat untuk menyeimbangkan tenaga dan
+                efisiensi.
+              </p>
+              <img
+                src="https://idkmsistfileshare.blob.core.windows.net/kmsiweb/uploads/file/Inventory/1723803543262-HD785-02.png"
+                alt="Unit HD785-7"
+                class="w-full rounded-lg shadow-md my-4 h-auto object-cover zoom-hover"
+              />
+              <div class="grid md:grid-cols-2 gap-4 mt-4">
+                <div
+                  class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400"
+                >
+                  <h5 class="font-semibold text-blue-800">Power Mode</h5>
+                  <p class="text-sm text-slate-600 mt-1">
+                    Cocok untuk operasi menanjak dengan muatan, di mana tenaga
+                    optimal diperlukan.
+                  </p>
+                </div>
+                <div
+                  class="bg-green-50 p-4 rounded-lg border-l-4 border-green-400"
+                >
+                  <h5 class="font-semibold text-green-800">Econo Mode</h5>
+                  <p class="text-sm text-slate-600 mt-1">
+                    Mengatur tenaga ke tingkat lebih rendah untuk mengurangi
+                    konsumsi bahan bakar. Ideal saat kembali tanpa muatan.
+                  </p>
+                </div>
+              </div>
+              <div
+                class="mt-4 bg-slate-100 p-3 rounded-lg text-center text-sm font-medium text-slate-700"
+              >
+                Studi Komatsu: Econo Mode dapat menurunkan konsumsi bahan bakar
+                hingga <strong>11%</strong>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: ARSC -->
+          <div class="relative flex timeline-item">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center text-lg font-bold z-10 shadow-md"
+            >
+              2
+            </div>
+            <div class="ml-6 w-full">
+              <h4
+                class="text-lg font-semibold text-slate-900 flex items-center"
+              >
+                <i class="fas fa-arrow-down-short-wide mr-3 text-green-500"></i
+                >ARSC (Kontrol Turunan)
+              </h4>
+              <p class="text-sm text-slate-500 mt-1 mb-4">
+                Jaga kecepatan konstan di turunan agar operator bisa fokus pada
+                kemudi.
+              </p>
+              <img
+                src="https://images.unsplash.com/photo-1549317336-206569e8ad83?q=80&w=1024&auto=format&fit=crop"
+                alt="Truk di Jalan Menurun"
+                class="w-full rounded-lg shadow-md my-4 h-64 object-cover zoom-hover"
+              />
+              <ul
+                class="mt-4 space-y-2 text-sm text-slate-600 list-disc list-inside"
+              >
+                <li>
+                  <strong>Cara Pakai:</strong> Aktifkan switch ARSC, atur
+                  kecepatan dengan tuas, lalu lepas pedal gas.
+                </li>
+                <li>
+                  <strong>Keuntungan:</strong> Mengurangi kelelahan, mencegah
+                  rem panas, dan sangat fleksibel (dapat diatur dari 10-55
+                  km/jam).
+                </li>
+              </ul>
+              <div
+                class="mt-4 bg-slate-100 p-3 rounded-lg text-center text-sm font-medium text-slate-700"
+              >
+                Operasi ARSC yang benar dapat menurunkan konsumsi bahan bakar
+                hingga <strong>4%</strong>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: ASR -->
+          <div class="relative flex timeline-item">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center text-lg font-bold z-10 shadow-md"
+            >
+              3
+            </div>
+            <div class="ml-6 w-full">
+              <h4
+                class="text-lg font-semibold text-slate-900 flex items-center"
+              >
+                <i class="fas fa-shield-alt mr-3 text-purple-500"></i>ASR
+                (Anti-Selip)
+              </h4>
+              <p class="text-sm text-slate-500 mt-1 mb-4">
+                Sistem yang berfungsi seperti *Differential Lock* agar unit
+                tidak selip di jalan licin.
+              </p>
+              <img
+                src="https://images.unsplash.com/photo-1590355461596-4e4370056d29?q=80&w=1024&auto=format&fit=crop"
+                alt="Jalan Licin Berlumpur"
+                class="w-full rounded-lg shadow-md my-4 h-64 object-cover zoom-hover"
+              />
+              <ul
+                class="mt-4 space-y-2 text-sm text-slate-600 list-disc list-inside"
+              >
+                <li>
+                  <strong>Kapan Aktif?</strong> Tekan switch ASR saat akan
+                  melewati area basah, setelah penyiraman, atau berpotensi
+                  selip.
+                </li>
+                <li>
+                  <strong>Keuntungan:</strong> Memberikan traksi optimal dan
+                  aman karena tidak aktif saat setir dibelokkan.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Step 4: Teknik Pengereman -->
+          <div class="relative flex timeline-item">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center text-lg font-bold z-10 shadow-md"
+            >
+              4
+            </div>
+            <div class="ml-6 w-full">
+              <h4
+                class="text-lg font-semibold text-slate-900 flex items-center"
+              >
+                <i class="fas fa-car-burst mr-3 text-orange-500"></i>Teknik
+                Pengereman
+              </h4>
+              <p class="text-sm text-slate-500 mt-1 mb-4">
+                Gunakan *retarder brake* untuk mengurangi kecepatan secara
+                manual.
+              </p>
+              <img
+                src="https://images.unsplash.com/photo-1563728923483-258481425e47?q=80&w=1024&auto=format&fit=crop"
+                alt="Kontrol Pengereman"
+                class="w-full rounded-lg shadow-md my-4 h-64 object-cover zoom-hover"
+              />
+              <div
+                class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg"
+              >
+                <h5 class="font-semibold text-orange-800">
+                  Cara Pengoperasian yang Benar:
+                </h5>
+                <ul
+                  class="mt-2 space-y-2 text-sm text-slate-600 list-disc list-inside"
+                >
+                  <li>
+                    Penggunaan *retarder brake* **tidak boleh dikocok** agar oli
+                    pendingin rem tidak cepat panas.
+                  </li>
+                  <li>
+                    Saat menggunakan *retarder*, pertahankan RPM mesin minimal
+                    di **1800 RPM**.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Teknik Mengemudi Efisien -->
+          <div class="relative flex timeline-item">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-yellow-500 text-white rounded-full flex items-center justify-center text-lg font-bold z-10 shadow-md"
+            >
+              5
+            </div>
+            <div class="ml-6 w-full">
+              <h4
+                class="text-lg font-semibold text-slate-900 flex items-center"
+              >
+                <i class="fas fa-gear mr-3 text-yellow-500"></i>Teknik Mengemudi
+                Lanjutan
+              </h4>
+              <p class="text-sm text-slate-500 mt-1 mb-4">
+                Kebiasaan kecil yang berdampak besar pada penghematan.
+              </p>
+
+              <!-- Gear Shifting Section -->
+              <div class="p-4 rounded-lg bg-slate-50 border mb-4">
+                <h5 class="font-semibold">Gear Shifting</h5>
+                <p class="text-sm text-slate-600 mb-4">
+                  Saat *hunting speed* (transmisi otomatis mencari gear), segera
+                  turunkan tuas ke gear terendah dari angka yang terlihat di
+                  display.
+                </p>
+                <img
+                  src="https://i.imgur.com/jDR2gZH.png"
+                  alt="Ilustrasi Gear Shifting"
+                  class="w-full rounded-lg shadow-md my-2 zoom-hover"
+                />
+              </div>
+
+              <div class="space-y-4">
+                <div
+                  class="p-4 rounded-lg bg-slate-50 border flex items-center gap-4 hover:shadow-md transition-shadow"
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1626276435942-183a7c6a999a?q=80&w=200&auto=format&fit=crop"
+                    class="w-16 h-16 rounded-md object-cover flex-shrink-0"
+                    alt="Dumping Cerdas"
+                  />
+                  <div>
+                    <h5 class="font-semibold">Dumping Cerdas</h5>
+                    <p class="text-sm text-slate-600">
+                      Lakukan pada 1800 RPM, bukan maksimal, untuk hemat BBM
+                      hingga 45%.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="p-4 rounded-lg bg-slate-50 border flex items-center gap-4 hover:shadow-md transition-shadow"
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1571343729227-6f414e919e1c?q=80&w=200&auto=format&fit=crop"
+                    class="w-16 h-16 rounded-md object-cover flex-shrink-0"
+                    alt="Coasting"
+                  />
+                  <div>
+                    <h5 class="font-semibold">Drive with Coasting</h5>
+                    <p class="text-sm text-slate-600">
+                      Manfaatkan momentum di jalan datar.
+                      <strong class="text-red-600"
+                        >Jangan lakukan di turunan!</strong
+                      >
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="p-4 rounded-lg bg-slate-50 border flex items-center gap-4 hover:shadow-md transition-shadow"
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1599578702844-351192b1b333?q=80&w=200&auto=format&fit=crop"
+                    class="w-16 h-16 rounded-md object-cover flex-shrink-0"
+                    alt="Idle"
+                  />
+                  <div>
+                    <h5 class="font-semibold">Hindari Idle Berlebih</h5>
+                    <p class="text-sm text-slate-600">
+                      Matikan mesin jika unit berhenti lebih dari 5 menit.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6: Pemeriksaan Harian -->
+          <div class="relative flex timeline-item">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-cyan-500 text-white rounded-full flex items-center justify-center text-lg font-bold z-10 shadow-md"
+            >
+              6
+            </div>
+            <div class="ml-6 w-full">
+              <h4
+                class="text-lg font-semibold text-slate-900 flex items-center"
+              >
+                <i class="fas fa-clipboard-check mr-3 text-cyan-500"></i
+                >Pemeriksaan Harian (P2H)
+              </h4>
+              <p class="text-sm text-slate-500 mt-1 mb-4">
+                Pemeriksaan rutin sebelum start engine sangat penting.
+              </p>
+              <img
+                src="https://images.unsplash.com/photo-1621431525288-7a5b3a3a4b4c?q=80&w=1024&auto=format&fit=crop"
+                alt="Pemeriksaan Harian Unit"
+                class="w-full rounded-lg shadow-md my-4 h-64 object-cover zoom-hover"
+              />
+              <ul
+                class="mt-4 space-y-2 text-sm text-slate-600 list-disc list-inside"
+              >
+                <li>
+                  <strong>Air Cleaner:</strong> Bersihkan jika indikator debu
+                  merah. Saringan tersumbat menaikkan konsumsi BBM sekitar 3%.
+                </li>
+                <li>
+                  <strong>Sistem Bahan Bakar:</strong> Buang endapan air di
+                  *water separator*, kuras tangki secara berkala, dan periksa
+                  kebocoran.
+                </li>
+                <li>
+                  <strong>Level Oli:</strong> Periksa level oli engine dan
+                  hidrolik.
+                </li>
+                <li>
+                  <strong>Kebocoran:</strong> Periksa kebocoran pada seluruh
+                  komponen unit.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Step 7: Rangkuman -->
+          <div class="relative flex timeline-item">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center text-lg font-bold z-10 shadow-md"
+            >
+              7
+            </div>
+            <div class="ml-6 w-full">
+              <h4
+                class="text-lg font-semibold text-slate-900 flex items-center"
+              >
+                <i class="fas fa-exclamation-triangle mr-3 text-red-500"></i
+                >Aturan Emas & Rambu Keselamatan
+              </h4>
+              <p class="text-sm text-slate-500 mt-1 mb-4">
+                Patuhi selalu peraturan dan rambu di sepanjang Hauling Road.
+              </p>
+              <img
+                src="https://images.unsplash.com/photo-1559052252-1c650143e4d5?q=80&w=1024&auto=format&fit=crop"
+                alt="Rambu Keselamatan"
+                class="w-full rounded-lg shadow-md my-4 h-64 object-cover zoom-hover"
+              />
+              <div
+                class="mt-4 bg-yellow-100 border-l-4 border-yellow-400 p-4 text-yellow-800 rounded-r-lg"
+              >
+                <p class="font-bold">
+                  Selalu patuhi semua peraturan dan rambu yang ada. Keselamatan
+                  dan efisiensi adalah prioritas utama.
+                </p>
+              </div>
+              <div
+                class="mt-4 bg-blue-100 border border-blue-200 p-4 rounded-lg text-center"
+              >
+                <p class="text-blue-800 font-semibold">
+                  Penguasaan teknik ini berpengaruh pada evaluasi kinerja dan
+                  jenjang karier Anda.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol Kembali Bawah -->
+        <div class="mt-12 pt-6 border-t border-gray-200 text-center">
+          <button
+            onclick="history.back()"
+            class="bg-slate-600 text-white hover:bg-slate-700 px-6 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            <i class="fas fa-arrow-left mr-2"></i>Kembali ke Halaman Sebelumnya
+          </button>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Script untuk animasi saat scroll
+      document.addEventListener("DOMContentLoaded", () => {
+        const timelineItems = document.querySelectorAll(".timeline-item");
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          {
+            threshold: 0.1, // Muncul saat 10% elemen terlihat
+          }
+        );
+
+        timelineItems.forEach((item) => {
+          observer.observe(item);
+        });
+      });
+    </script>
+  </body>
+</html>

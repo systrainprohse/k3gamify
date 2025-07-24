@@ -34,7 +34,7 @@
         transition: max-height 0.5s ease-out;
       }
       .step-content.open {
-        max-height: 3500px; /* Increased max-height for forms */
+        max-height: 5000px; /* Increased max-height for forms and content */
         transition: max-height 1.5s ease-in;
       }
       @keyframes spin {
@@ -111,7 +111,7 @@
         position: absolute;
         inset: 0;
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 20px;
         padding: 20px;
         pointer-events: none;
@@ -120,11 +120,12 @@
       }
       .watermark-item {
         color: #000;
-        opacity: 0.12; /* Opasitas dinaikkan agar lebih terlihat */
-        font-size: 18px; /* Ukuran font diperbesar */
+        opacity: 0.1;
+        font-size: 16px; /* Ukuran font disesuaikan */
         font-weight: bold;
         transform: rotate(-30deg);
         white-space: nowrap;
+        text-align: center;
       }
       @keyframes blink {
         50% {
@@ -136,40 +137,49 @@
         animation: blink 1s linear infinite;
       }
       /* Carousel Styles */
-      .carousel-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
       .carousel-track-container {
         overflow: hidden;
         width: 100%;
+        cursor: grab;
       }
       .carousel-track {
         display: flex;
-        transition: transform 0.5s ease-in-out;
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10+ */
+        user-select: none; /* Standard syntax */
+      }
+      .carousel-track.active {
+        cursor: grabbing;
       }
       .carousel-card {
         flex: 0 0 100%;
         width: 100%;
         box-sizing: border-box;
       }
-      .carousel-button {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 10;
+      /* Responsive font size for inputs and selects */
+      input,
+      select {
+        font-size: 1rem; /* 16px */
+      }
+      @media (max-width: 768px) {
+        input,
+        select {
+          font-size: 1rem; /* Ensure font size is at least 16px on mobile to avoid zoom */
+        }
       }
     </style>
   </head>
   <body class="bg-gray-100">
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
       <div class="text-center mb-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+        <!-- FONT: Judul utama dibuat lebih kecil di mobile -->
+        <h1 class="text-xl sm:text-3xl md:text-4xl font-bold text-gray-800">
           Sistem Ujian SIMPER
         </h1>
-        <p class="text-gray-600 mt-2">PT. Ganda Alam Makmur</p>
+        <!-- FONT: Sub-judul dibuat lebih kecil di mobile -->
+        <p class="text-sm md:text-lg text-gray-600 mt-2">
+          PT. Ganda Alam Makmur
+        </p>
         <div
           id="online-status"
           class="mt-2 text-sm font-semibold rounded-full px-3 py-1 inline-block"
@@ -178,7 +188,7 @@
         <div class="mt-4">
           <a
             href="training_center.html"
-            class="text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+            class="text-xs md:text-sm text-blue-600 hover:text-blue-800 hover:underline font-semibold"
           >
             &larr; Kembali ke Halaman Utama
           </a>
@@ -187,9 +197,13 @@
 
       <div id="app-container" class="space-y-4">
         <!-- Langkah 0: Panduan Pengerjaan -->
-        <div id="step-0" class="step-card bg-white p-6 rounded-xl shadow-md">
+        <div
+          id="step-0"
+          class="step-card bg-white p-4 md:p-6 rounded-xl shadow-md"
+        >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <!-- FONT: Judul langkah dibuat lebih kecil di mobile -->
+            <h2 class="text-base md:text-xl font-bold text-gray-700">
               Langkah 0: Panduan Pengerjaan Ujian
             </h2>
             <span id="step-0-status" class="text-sm font-semibold text-red-500"
@@ -198,20 +212,22 @@
           </div>
           <div id="step-0-content" class="step-content pt-4">
             <div class="w-full bg-white rounded-2xl p-2 md:p-6">
-              <div class="text-center mb-12">
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">
+              <div class="text-center mb-8 md:mb-12">
+                <!-- FONT: Judul panduan dibuat lebih kecil di mobile -->
+                <h1 class="text-xl sm:text-3xl font-extrabold text-gray-800">
                   Panduan Pengerjaan Ujian SIMPER Online
                 </h1>
-                <p class="text-lg text-gray-600 mt-2">
+                <!-- FONT: Paragraf panduan dibuat lebih kecil di mobile -->
+                <p class="text-sm md:text-lg text-gray-600 mt-2">
                   Ikuti langkah-langkah berikut untuk menyelesaikan ujian Anda.
                 </p>
               </div>
-              <div class="space-y-10">
+              <div class="space-y-8">
                 <!-- Step 1 Guide -->
-                <div class="flex items-start space-x-6">
+                <div class="flex items-start space-x-4">
                   <div class="flex flex-col items-center">
                     <div
-                      class="flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full text-2xl font-bold shadow-md"
+                      class="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-green-500 text-white rounded-full text-xl md:text-2xl font-bold shadow-md"
                     >
                       1
                     </div>
@@ -221,7 +237,7 @@
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-green-500 mr-3"
+                        class="h-5 w-5 md:h-8 md:w-8 text-green-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -233,21 +249,23 @@
                           d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <!-- FONT: Judul sub-langkah dibuat lebih kecil di mobile -->
+                      <h2 class="text-lg md:text-2xl font-bold text-gray-800">
                         Pilih Kategori SIMPER
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <!-- FONT: Paragraf sub-langkah dibuat lebih kecil di mobile -->
+                    <p class="text-xs md:text-base text-gray-600 mt-2">
                       Pilih kategori dan model unit yang akan Anda ajukan
                       (misal: LV, Bus, Alat Berat).
                     </p>
                   </div>
                 </div>
                 <!-- Step 2 Guide -->
-                <div class="flex items-start space-x-6">
+                <div class="flex items-start space-x-4">
                   <div class="flex flex-col items-center">
                     <div
-                      class="flex items-center justify-center w-16 h-16 bg-blue-500 text-white rounded-full text-2xl font-bold shadow-md"
+                      class="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-blue-500 text-white rounded-full text-xl md:text-2xl font-bold shadow-md"
                     >
                       2
                     </div>
@@ -257,7 +275,7 @@
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-blue-500 mr-3"
+                        class="h-5 w-5 md:h-8 md:w-8 text-blue-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -269,21 +287,21 @@
                           d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <h2 class="text-lg md:text-2xl font-bold text-gray-800">
                         Isi Informasi Diri
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <p class="text-xs md:text-base text-gray-600 mt-2">
                       Lengkapi data diri Anda dengan benar untuk melanjutkan
                       proses ujian.
                     </p>
                   </div>
                 </div>
                 <!-- Step 3 Guide -->
-                <div class="flex items-start space-x-6">
+                <div class="flex items-start space-x-4">
                   <div class="flex flex-col items-center">
                     <div
-                      class="flex items-center justify-center w-16 h-16 bg-purple-500 text-white rounded-full text-2xl font-bold shadow-md"
+                      class="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-purple-500 text-white rounded-full text-xl md:text-2xl font-bold shadow-md"
                     >
                       3
                     </div>
@@ -293,7 +311,7 @@
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-purple-500 mr-3"
+                        class="h-5 w-5 md:h-8 md:w-8 text-purple-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -305,28 +323,28 @@
                           d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <h2 class="text-lg md:text-2xl font-bold text-gray-800">
                         Kerjakan Ujian Teori
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <p class="text-xs md:text-base text-gray-600 mt-2">
                       Jawab semua pertanyaan ujian teori dengan teliti.
                       Perhatikan batas waktu yang diberikan.
                     </p>
                   </div>
                 </div>
                 <!-- Step 4 Guide -->
-                <div class="flex items-start space-x-6">
+                <div class="flex items-start space-x-4">
                   <div
-                    class="flex items-center justify-center w-16 h-16 bg-red-500 text-white rounded-full text-2xl font-bold shadow-md"
+                    class="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-red-500 text-white rounded-full text-xl md:text-2xl font-bold shadow-md"
                   >
                     4
                   </div>
-                  <div class="flex-1 pt-2 ml-6">
+                  <div class="flex-1 pt-2 ml-4">
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-red-500 mr-3"
+                        class="h-5 w-5 md:h-8 md:w-8 text-red-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -338,11 +356,11 @@
                           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <h2 class="text-lg md:text-2xl font-bold text-gray-800">
                         Lihat Hasil & Kartu SIMPER
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <p class="text-xs md:text-base text-gray-600 mt-2">
                       Jika lulus, Anda dapat melihat dan mengunduh kartu SIMPER
                       sementara.
                     </p>
@@ -350,17 +368,19 @@
                 </div>
               </div>
               <div class="mt-12 pt-8 border-t border-gray-200">
-                <h3 class="text-xl font-bold text-center text-gray-800">
+                <h3
+                  class="text-base md:text-xl font-bold text-center text-gray-800"
+                >
                   Catatan Penting
                 </h3>
-                <div class="mt-4 grid md:grid-cols-2 gap-6 text-center">
+                <div class="mt-4 grid md:grid-cols-2 gap-4 text-center">
                   <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
                     <h4
-                      class="font-semibold text-red-700 flex items-center justify-center"
+                      class="font-semibold text-red-700 flex items-center justify-center text-xs md:text-base"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6 mr-2"
+                        class="h-5 w-5 md:h-6 md:w-6 mr-2"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -373,18 +393,18 @@
                         /></svg
                       >Jika Tidak Lulus
                     </h4>
-                    <p class="text-red-600 text-sm mt-1">
+                    <p class="text-red-600 text-xs mt-1">
                       Anda harus mengulang ujian sesuai dengan jadwal yang
                       ditentukan oleh pengawas.
                     </p>
                   </div>
                   <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
                     <h4
-                      class="font-semibold text-blue-700 flex items-center justify-center"
+                      class="font-semibold text-blue-700 flex items-center justify-center text-xs md:text-base"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6 mr-2"
+                        class="h-5 w-5 md:h-6 md:w-6 mr-2"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -397,7 +417,7 @@
                         /></svg
                       >Koneksi Internet
                     </h4>
-                    <p class="text-blue-600 text-sm mt-1">
+                    <p class="text-blue-600 text-xs mt-1">
                       Jika koneksi terputus, data Anda aman dan akan diunggah
                       otomatis saat kembali online.
                     </p>
@@ -407,11 +427,11 @@
                   class="mt-6 bg-yellow-50 border border-yellow-300 p-4 rounded-lg text-center"
                 >
                   <h4
-                    class="font-bold text-yellow-800 flex items-center justify-center"
+                    class="font-bold text-yellow-800 flex items-center justify-center text-xs md:text-base"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      class="h-6 w-6 mr-2"
+                      class="h-5 w-5 md:h-6 md:w-6 mr-2"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -424,7 +444,7 @@
                       /></svg
                     >PERINGATAN KERAHASIAAN
                   </h4>
-                  <p class="text-yellow-700 text-sm mt-2">
+                  <p class="text-yellow-700 text-xs mt-2">
                     Dilarang keras mengambil tangkapan layar (screenshot) soal
                     maupun jawaban. Pelanggaran akan dikenakan sanksi.
                   </p>
@@ -438,14 +458,16 @@
                   id="guide-checkbox"
                   class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
                 />
-                <span class="ml-3 text-gray-700 font-medium"
+                <!-- FONT: Teks checkbox dibuat lebih kecil di mobile -->
+                <span
+                  class="ml-3 text-xs md:text-base text-gray-700 font-medium"
                   >Saya telah membaca dan memahami panduan pengerjaan di
                   atas.</span
                 >
               </label>
               <button
                 id="start-process-btn"
-                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-lg"
+                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm md:text-lg"
                 disabled
               >
                 Lanjutkan ke Pemilihan Unit
@@ -457,10 +479,10 @@
         <!-- Langkah 1: Pilih Kategori SIMPER (Carousel) -->
         <div
           id="step-1"
-          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+          class="step-card bg-white p-4 md:p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-base md:text-xl font-bold text-gray-700">
               Langkah 1: Pilih Kategori SIMPER
             </h2>
             <span id="step-1-status" class="text-sm font-semibold text-red-500"
@@ -468,51 +490,53 @@
             >
           </div>
           <div id="step-1-content" class="step-content pt-4">
-            <div class="carousel-container">
-              <!-- Tombol Navigasi Carousel -->
+            <!-- Konten Carousel -->
+            <div class="carousel-track-container">
+              <div id="carousel-track" class="carousel-track">
+                <!-- Kartu Carousel akan di-generate oleh JavaScript -->
+              </div>
+            </div>
+
+            <!-- Tombol Navigasi Carousel di Bawah -->
+            <div class="mt-4 flex justify-center items-center space-x-4">
               <button
                 id="prev-carousel-btn"
-                class="carousel-button left-0 ml-[-16px] bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
+                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold p-2 rounded-full transition-colors disabled:opacity-50"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6 text-gray-600"
+                  class="h-5 w-5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  stroke-width="2"
                 >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    stroke-width="2"
                     d="M15 19l-7-7 7-7"
                   />
                 </svg>
               </button>
-
-              <!-- Konten Carousel -->
-              <div class="carousel-track-container">
-                <div id="carousel-track" class="carousel-track">
-                  <!-- Kartu Carousel akan di-generate oleh JavaScript -->
-                </div>
-              </div>
-
-              <!-- Tombol Navigasi Carousel -->
+              <span
+                id="carousel-indicator"
+                class="text-sm text-gray-600"
+              ></span>
               <button
                 id="next-carousel-btn"
-                class="carousel-button right-0 mr-[-16px] bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
+                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold p-2 rounded-full transition-colors disabled:opacity-50"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6 text-gray-600"
+                  class="h-5 w-5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  stroke-width="2"
                 >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    stroke-width="2"
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
@@ -524,10 +548,10 @@
         <!-- Langkah 2: Data Diri -->
         <div
           id="step-2"
-          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+          class="step-card bg-white p-4 md:p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-base md:text-xl font-bold text-gray-700">
               Langkah 2: Informasi Peserta Ujian
             </h2>
             <span id="step-2-status" class="text-sm font-semibold text-red-500"
@@ -543,7 +567,7 @@
                 class="hidden"
               />
               <div>
-                <label for="nik" class="block text-sm font-medium text-gray-700"
+                <label for="nik" class="block text-xs font-medium text-gray-700"
                   >NIK KTP</label
                 >
                 <input
@@ -557,7 +581,7 @@
               <div>
                 <label
                   for="nama"
-                  class="block text-sm font-medium text-gray-700"
+                  class="block text-xs font-medium text-gray-700"
                   >Nama Lengkap</label
                 >
                 <input
@@ -571,7 +595,7 @@
               <div>
                 <label
                   for="email"
-                  class="block text-sm font-medium text-gray-700"
+                  class="block text-xs font-medium text-gray-700"
                   >Email</label
                 >
                 <input
@@ -585,7 +609,7 @@
               <div>
                 <label
                   for="whatsapp"
-                  class="block text-sm font-medium text-gray-700"
+                  class="block text-xs font-medium text-gray-700"
                   >No. WhatsApp</label
                 >
                 <input
@@ -599,7 +623,7 @@
               <div>
                 <label
                   for="perusahaan-select"
-                  class="block text-sm font-medium text-gray-700"
+                  class="block text-xs font-medium text-gray-700"
                   >Perusahaan</label
                 >
                 <select
@@ -645,7 +669,7 @@
               <div id="perusahaan-lainnya-container" class="hidden">
                 <label
                   for="perusahaan-lainnya"
-                  class="block text-sm font-medium text-gray-700"
+                  class="block text-xs font-medium text-gray-700"
                   >Nama Perusahaan Lainnya</label
                 >
                 <input
@@ -658,7 +682,7 @@
               <div>
                 <label
                   for="jabatan"
-                  class="block text-sm font-medium text-gray-700"
+                  class="block text-xs font-medium text-gray-700"
                   >Jabatan</label
                 >
                 <select
@@ -682,7 +706,7 @@
               </div>
               <button
                 type="submit"
-                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm md:text-lg"
               >
                 Simpan & Lanjutkan
               </button>
@@ -693,10 +717,10 @@
         <!-- Langkah 3: Ujian Teori Umum -->
         <div
           id="step-3"
-          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+          class="step-card bg-white p-4 md:p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-base md:text-xl font-bold text-gray-700">
               Langkah 3: Ujian Teori - Peraturan Umum
             </h2>
             <span id="step-3-status" class="text-sm font-semibold text-red-500"
@@ -704,14 +728,14 @@
             >
           </div>
           <div id="step-3-content" class="step-content pt-4 text-center">
-            <p class="text-gray-600 mb-4">
+            <p class="text-xs md:text-base text-gray-600 mb-4">
               Anda akan mengerjakan ujian mengenai peraturan umum lalu lintas &
               keselamatan.
             </p>
             <p id="general-quiz-error" class="hidden text-red-500"></p>
             <button
               id="start-general-quiz-btn"
-              class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+              class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-colors text-xs md:text-base"
             >
               Mulai Ujian Umum
             </button>
@@ -721,10 +745,10 @@
         <!-- Langkah 4: Ujian Teori Spesifik -->
         <div
           id="step-4"
-          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+          class="step-card bg-white p-4 md:p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-base md:text-xl font-bold text-gray-700">
               Langkah 4: Ujian Teori - Sesuai Unit
             </h2>
             <span id="step-4-status" class="text-sm font-semibold text-red-500"
@@ -732,14 +756,14 @@
             >
           </div>
           <div id="step-4-content" class="step-content pt-4 text-center">
-            <p class="text-gray-600 mb-4">
+            <p class="text-xs md:text-base text-gray-600 mb-4">
               Sekarang kerjakan ujian yang sesuai dengan kategori SIMPER yang
               Anda pilih.
             </p>
             <p id="specific-quiz-error" class="hidden text-red-500"></p>
             <button
               id="start-specific-quiz-btn"
-              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors text-xs md:text-base"
             >
               Mulai Ujian Spesifik
             </button>
@@ -749,10 +773,10 @@
         <!-- Langkah 5: Surat Pernyataan -->
         <div
           id="step-5"
-          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+          class="step-card bg-white p-4 md:p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-base md:text-xl font-bold text-gray-700">
               Langkah 5: Surat Pernyataan
             </h2>
             <span id="step-5-status" class="text-sm font-semibold text-red-500"
@@ -762,10 +786,10 @@
           <div id="step-5-content" class="step-content pt-4 space-y-8">
             <!-- SPDK Form -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+              <h3 class="text-sm md:text-lg font-semibold text-gray-800 mb-2">
                 1. Surat Pernyataan Kepatuhan
               </h3>
-              <p class="text-gray-600 mb-4">
+              <p class="text-xs md:text-base text-gray-600 mb-4">
                 Silakan isi dan tandatangani formulir pernyataan di bawah ini.
               </p>
               <iframe
@@ -780,17 +804,18 @@
                   id="spdk-checkbox"
                   class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
                 />
-                <span class="ml-3 text-gray-700 font-medium"
+                <span
+                  class="ml-3 text-xs md:text-base text-gray-700 font-medium"
                   >Saya telah menandatangani Surat Pernyataan.</span
                 >
               </label>
             </div>
             <!-- Checklist Form -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+              <h3 class="text-sm md:text-lg font-semibold text-gray-800 mb-2">
                 2. Checklist Kelengkapan Dokumen
               </h3>
-              <p class="text-gray-600 mb-4">
+              <p class="text-xs md:text-base text-gray-600 mb-4">
                 Lengkapi formulir checklist kelengkapan dokumen berikut.
               </p>
               <iframe
@@ -805,14 +830,15 @@
                   id="checklist-checkbox"
                   class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
                 />
-                <span class="ml-3 text-gray-700 font-medium"
+                <span
+                  class="ml-3 text-xs md:text-base text-gray-700 font-medium"
                   >Saya telah mengisi Checklist Kelengkapan Dokumen.</span
                 >
               </label>
             </div>
             <button
               id="finish-checklist-btn"
-              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm md:text-lg"
               disabled
             >
               Selesai & Terbitkan Kartu SIMPER
@@ -823,19 +849,19 @@
 
       <div
         id="completion-screen"
-        class="hidden bg-white p-8 rounded-xl shadow-md text-center mt-6 relative"
+        class="hidden bg-white p-4 md:p-8 rounded-xl shadow-md text-center mt-6 relative"
       ></div>
 
       <div class="text-center mt-8">
         <button
           id="reset-btn"
-          class="text-sm text-gray-500 hover:text-gray-700 hover:underline"
+          class="text-xs text-gray-500 hover:text-gray-700 hover:underline"
         >
           Ulangi Proses dari Awal
         </button>
         <a
           href="index.html"
-          class="mt-4 inline-block text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          class="mt-4 inline-block text-xs text-blue-600 hover:text-blue-800 hover:underline"
           >Kembali ke Halaman Utama</a
         >
       </div>
@@ -849,18 +875,20 @@
       id="confirmation-modal"
       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
     >
-      <div class="bg-white rounded-lg p-8 shadow-xl text-center">
-        <p id="modal-text" class="text-lg font-medium mb-6"></p>
+      <div
+        class="bg-white rounded-lg p-6 md:p-8 shadow-xl text-center max-w-sm w-full"
+      >
+        <p id="modal-text" class="text-sm md:text-lg font-medium mb-6"></p>
         <div class="flex justify-center space-x-4">
           <button
             id="modal-cancel"
-            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg"
+            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg text-xs md:text-base"
           >
             Batal
           </button>
           <button
             id="modal-confirm"
-            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg"
+            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg text-xs md:text-base"
           >
             Ya
           </button>
@@ -871,12 +899,12 @@
     <!-- Kuis Modal -->
     <div
       id="quiz-modal"
-      class="hidden fixed inset-0 bg-gray-100 z-40 p-4 overflow-y-auto"
+      class="hidden fixed inset-0 bg-gray-100 z-40 p-2 sm:p-4 overflow-y-auto"
     >
       <div
-        class="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden my-8"
+        class="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden my-4 md:my-8"
       >
-        <div class="p-8 relative">
+        <div class="p-4 md:p-8 relative">
           <div class="watermark"></div>
           <!-- Bagian Materi (Video) - Dihilangkan untuk ujian -->
           <div
@@ -889,14 +917,14 @@
             <div class="flex justify-between items-center mb-4">
               <span
                 id="progress-text"
-                class="text-base font-medium text-blue-700"
+                class="text-xs md:text-base font-medium text-blue-700"
               ></span>
               <div
                 id="quiz-timer"
-                class="text-xl font-bold text-gray-800"
+                class="text-base md:text-xl font-bold text-gray-800"
               ></div>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2-5 mb-6">
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
               <div
                 id="progress-bar"
                 class="bg-blue-600 h-2.5 rounded-full"
@@ -913,13 +941,13 @@
           >
             <button
               id="prev-button"
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 md:px-6 rounded-lg transition-colors text-xs md:text-base"
             >
               Sebelumnya
             </button>
             <button
               id="next-button"
-              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 md:px-6 rounded-lg transition-colors text-xs md:text-base"
             >
               Selanjutnya
             </button>
@@ -975,6 +1003,7 @@
           track: document.getElementById("carousel-track"),
           prevBtn: document.getElementById("prev-carousel-btn"),
           nextBtn: document.getElementById("next-carousel-btn"),
+          indicator: document.getElementById("carousel-indicator"),
         },
         loader: {
           container: document.getElementById("fullscreen-loader"),
@@ -1024,7 +1053,7 @@
             "Isuzu ELF",
             "BUS (angkutan karyawan)",
           ],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>`,
         },
         {
           kelompok: "Dump Truck (DT)",
@@ -1035,55 +1064,55 @@
             "Volvo (12 Roda)",
             "Mercedes-Benz",
           ],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-1.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5 1.5-.67 1.5-1.5 1.5zM15 12H3V6h12v6z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-1.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5 1.5-.67 1.5-1.5 1.5zM15 12H3V6h12v6z"/></svg>`,
         },
         {
           kelompok: "Excavator",
           value: "excavator",
           models: ["Umum / Sesuai Spesifikasi"],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.36 10.36L18 9l-2.25 3-1.75-1-3.16 4.31L17 21.47V22h-2v-1.26l-6-8.18-2.58 2.38L5 13.47l1.36-1.36L5 10.74 3.64 12.1 2.22 10.68l1.41-1.41L2.22 7.85 3.64 6.44l1.41 1.41L6.47 6.44l1.36 1.36L6.41 9.22l2.58-2.38L10.36 9l6 8.18V18h1.26l2.1-2.1c.19-.19.3-.44.3-.71s-.11-.52-.29-.7l-1.07-1.06l2.83-2.83c.38-.38.38-1 0-1.41z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.36 10.36L18 9l-2.25 3-1.75-1-3.16 4.31L17 21.47V22h-2v-1.26l-6-8.18-2.58 2.38L5 13.47l1.36-1.36L5 10.74 3.64 12.1 2.22 10.68l1.41-1.41L2.22 7.85 3.64 6.44l1.41 1.41L6.47 6.44l1.36 1.36L6.41 9.22l2.58-2.38L10.36 9l6 8.18V18h1.26l2.1-2.1c.19-.19.3-.44.3-.71s-.11-.52-.29-.7l-1.07-1.06l2.83-2.83c.38-.38.38-1 0-1.41z"/></svg>`,
         },
         {
           kelompok: "Wheel Loader",
           value: "wheel_loader",
           models: ["Umum / Sesuai Spesifikasi"],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 10.59l-8-8C13.04 2.22 12.53 2 12 2H4c-1.1 0-2 .9-2 2v8c0 .53.22 1.04.59 1.41l8 8c.36.36.86.59 1.41.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.05-.59-1.42zM13 20.01L5 12.01V4h7v1L8 9v2h4l3 3v6.01zM7.5 8C6.67 8 6 7.33 6 6.5S6.67 5 7.5 5 9 5.67 9 6.5 8.33 8 7.5 8z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 10.59l-8-8C13.04 2.22 12.53 2 12 2H4c-1.1 0-2 .9-2 2v8c0 .53.22 1.04.59 1.41l8 8c.36.36.86.59 1.41.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.05-.59-1.42zM13 20.01L5 12.01V4h7v1L8 9v2h4l3 3v6.01zM7.5 8C6.67 8 6 7.33 6 6.5S6.67 5 7.5 5 9 5.67 9 6.5 8.33 8 7.5 8z"/></svg>`,
         },
         {
           kelompok: "Dozer",
           value: "dozer",
           models: ["Bulldozer / Perata tanah"],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 18V6H4.78l-2-3.5L1.38 4l3.2 5.5A2.5 2.5 0 017 11h13v2H7.22l-.33.58L5.78 16H22v2H4.78l-.5-1H22zM5 18c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm14 0c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 18V6H4.78l-2-3.5L1.38 4l3.2 5.5A2.5 2.5 0 017 11h13v2H7.22l-.33.58L5.78 16H22v2H4.78l-.5-1H22zM5 18c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm14 0c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`,
         },
         {
           kelompok: "Motor Grader",
           value: "motor_grader",
           models: ["Umum / Sesuai Spesifikasi"],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 13l2.5-2.5L1 8l1.42-1.42L5.24 9.4l2.83-2.83L6.66 5.15 8.07 3.73 11.5 7.16l2.83-2.83-1.41-1.42L14.34 1.5l3.54 3.54-1.42 1.42-2.83-2.83-2.83 2.83 2.83 2.83L22 6.34l-1.42 1.42L18.05 5.23l-2.83 2.83 2.83 2.83L22 7.76l-1.42 1.42-2.5-2.5-2.83 2.83L18.08 12l1.42 1.42L17.07 15.85l-1.42-1.42-2.83 2.83 2.83 2.83 2.5-2.5 1.42 1.42L18.07 23.5l-3.54-3.54 1.42-1.42 2.83 2.83 2.83-2.83-2.83-2.83-4.24-4.24-2.83-2.83-2.83 2.83L4.93 18.07l-1.42 1.42L1 17.07l2.5-2.5L1 12v1z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 13l2.5-2.5L1 8l1.42-1.42L5.24 9.4l2.83-2.83L6.66 5.15 8.07 3.73 11.5 7.16l2.83-2.83-1.41-1.42L14.34 1.5l3.54 3.54-1.42 1.42-2.83-2.83-2.83 2.83 2.83 2.83L22 6.34l-1.42 1.42L18.05 5.23l-2.83 2.83 2.83 2.83L22 7.76l-1.42 1.42-2.5-2.5-2.83 2.83L18.08 12l1.42 1.42L17.07 15.85l-1.42-1.42-2.83 2.83 2.83 2.83 2.5-2.5 1.42 1.42L18.07 23.5l-3.54-3.54 1.42-1.42 2.83 2.83 2.83-2.83-2.83-2.83-4.24-4.24-2.83-2.83-2.83 2.83L4.93 18.07l-1.42 1.42L1 17.07l2.5-2.5L1 12v1z"/></svg>`,
         },
         {
           kelompok: "Forklift",
           value: "forklift",
           models: ["Unit pengangkat barang"],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 13v5c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1h3c.55 0 1 .45 1 1zm-1 0h-3v5h3v-5zM9.61 3.26L8.15 2.58C7.59 2.34 7 2.79 7 3.4v13.2c0 .41-.25.78-.63.93L4 18.69V21h1v-1.45c.48-.18.8-.63.8-1.15V4.42l1.22.51-1.93 8.3c-.2.86.33 1.71 1.2 1.94l1.52.41c.41.11.83-.17.94-.59l2.8-10.36c.21-.78-.25-1.61-1.03-1.82zM14 17.11V3.4c0-.61-.59-1.06-1.15-.82l-1.46.68c-.78.36-1.21 1.23-1.03 2.01l2.8 10.36c.11.41.52.69.94.58l.48-.13c.86-.23 1.4-1.08 1.2-1.94l-.58-2.03z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 13v5c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1h3c.55 0 1 .45 1 1zm-1 0h-3v5h3v-5zM9.61 3.26L8.15 2.58C7.59 2.34 7 2.79 7 3.4v13.2c0 .41-.25.78-.63.93L4 18.69V21h1v-1.45c.48-.18.8-.63.8-1.15V4.42l1.22.51-1.93 8.3c-.2.86.33 1.71 1.2 1.94l1.52.41c.41.11.83-.17.94-.59l2.8-10.36c.21-.78-.25-1.61-1.03-1.82zM14 17.11V3.4c0-.61-.59-1.06-1.15-.82l-1.46.68c-.78.36-1.21 1.23-1.03 2.01l2.8 10.36c.11.41.52.69.94.58l.48-.13c.86-.23 1.4-1.08 1.2-1.94l-.58-2.03z"/></svg>`,
         },
         {
           kelompok: "Water Truck",
           value: "water_truck",
           models: ["Penyemprot air"],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-1.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5 1.5-.67 1.5-1.5 1.5zM15 12H3V6h12v6zm-5-3c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-1.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5 1.5-.67 1.5-1.5 1.5zM15 12H3V6h12v6zm-5-3c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`,
         },
         {
           kelompok: "ANFO Truck",
           value: "anfo_truck",
           models: ["Pengangkut bahan peledak"],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-8.5-2h-1v-2h1v2zm2 0h-1v-2h1v2zm-2 2h-1V6h1v2zm2 0h-1V6h1v2zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-1.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5 1.5-.67 1.5-1.5 1.5zM15 12H3V4h12v8z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-8.5-2h-1v-2h1v2zm2 0h-1v-2h1v2zm-2 2h-1V6h1v2zm2 0h-1V6h1v2zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-1.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5 1.5-.67 1.5-1.5 1.5zM15 12H3V4h12v8z"/></svg>`,
         },
         {
           kelompok: "Drilling Machine",
           value: "drilling_machine",
           models: ["Rig pengeboran"],
-          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 5.5c0 1.93-1.57 3.5-3.5 3.5s-3.5-1.57-3.5-3.5S11.07 2 13 2s3.5 1.57 3.5 3.5zm-1.85 2.85c.38.38.38 1.02 0 1.41l-7.07 7.07c-.38.38-1.02.38-1.41 0l-1.41-1.41c-.38-.38-.38-1.02 0-1.41l7.07-7.07c.38-.38 1.02-.38 1.41 0l1.41 1.41zM18 12c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm-1 8h-2v-2h2v2zm0-3h-2v-2h2v2z"/></svg>`,
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-16 md:w-16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 5.5c0 1.93-1.57 3.5-3.5 3.5s-3.5-1.57-3.5-3.5S11.07 2 13 2s3.5 1.57 3.5 3.5zm-1.85 2.85c.38.38.38 1.02 0 1.41l-7.07 7.07c-.38.38-1.02.38-1.41 0l-1.41-1.41c-.38-.38-.38-1.02 0-1.41l7.07-7.07c.38-.38 1.02-.38 1.41 0l1.41 1.41zM18 12c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm-1 8h-2v-2h2v2zm0-3h-2v-2h2v2z"/></svg>`,
         },
       ];
 
@@ -1100,20 +1129,20 @@
         dom.carousel.track.innerHTML = "";
         simperCategories.forEach((category) => {
           const card = document.createElement("div");
-          card.className = "carousel-card p-4";
+          card.className = "carousel-card p-2 md:p-4";
           card.innerHTML = `
-                <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg p-6 text-center border h-full flex flex-col">
+                <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg p-4 md:p-6 text-center border h-full flex flex-col">
                     <div class="text-blue-600 mx-auto mb-4">
                         ${category.icon}
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">${
+                    <h3 class="text-base md:text-2xl font-bold text-gray-800 mb-4">${
                       category.kelompok
                     }</h3>
-                    <div class="space-y-3 flex-grow">
+                    <div class="space-y-2 md:space-y-3 flex-grow">
                         ${category.models
                           .map(
                             (model) => `
-                            <button data-group-value="${category.value}" data-model-value="${model}" class="select-simper-model-btn w-full bg-white hover:bg-blue-50 border border-gray-300 text-blue-800 font-semibold py-2 px-4 rounded-lg transition-colors">
+                            <button data-group-value="${category.value}" data-model-value="${model}" class="select-simper-model-btn w-full bg-white hover:bg-blue-50 border border-gray-300 text-blue-800 font-semibold py-2 px-4 rounded-lg transition-colors text-xs md:text-base">
                                 ${model}
                             </button>
                         `
@@ -1128,21 +1157,37 @@
         setTimeout(updateCarousel, 0);
       }
 
+      // --- Carousel Drag/Swipe Variables ---
+      let isDown = false;
+      let startX;
+      let walk;
+
       function updateCarousel() {
         const track = dom.carousel.track;
         if (!track.firstChild) return;
         const cardWidth = track.firstChild.offsetWidth;
+        track.style.transition = "transform 0.5s ease-in-out"; // Re-enable transition for snapping
         track.style.transform = `translateX(-${
           state.carouselIndex * cardWidth
         }px)`;
+
+        // Update button states and indicator
+        dom.carousel.prevBtn.disabled = state.carouselIndex === 0;
+        dom.carousel.nextBtn.disabled =
+          state.carouselIndex === simperCategories.length - 1;
+        if (dom.carousel.indicator) {
+          dom.carousel.indicator.textContent = `${state.carouselIndex + 1} / ${
+            simperCategories.length
+          }`;
+        }
       }
 
       function handleCarouselNav(direction) {
         const numCards = simperCategories.length;
         if (direction === "next") {
-          state.carouselIndex = (state.carouselIndex + 1) % numCards;
+          state.carouselIndex = Math.min(state.carouselIndex + 1, numCards - 1);
         } else {
-          state.carouselIndex = (state.carouselIndex - 1 + numCards) % numCards;
+          state.carouselIndex = Math.max(state.carouselIndex - 1, 0);
         }
         updateCarousel();
       }
@@ -1238,6 +1283,48 @@
         }
       }
 
+      // --- Carousel Drag/Swipe Handlers ---
+      function handleDragStart(e) {
+        isDown = true;
+        dom.carousel.track.classList.add("active");
+        startX =
+          (e.pageX || e.touches[0].pageX) - dom.carousel.track.offsetLeft;
+        walk = 0; // Reset walk distance
+      }
+
+      function handleDragEnd(e) {
+        if (!isDown) return;
+        isDown = false;
+        dom.carousel.track.classList.remove("active");
+
+        // Snap logic
+        const threshold = 80; // Minimum drag distance in pixels to trigger a slide change
+        if (walk < -threshold) {
+          handleCarouselNav("next");
+        } else if (walk > threshold) {
+          handleCarouselNav("prev");
+        } else {
+          // Not dragged far enough, snap back
+          updateCarousel();
+        }
+      }
+
+      function handleDragMove(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        const x =
+          (e.pageX || e.touches[0].pageX) - dom.carousel.track.offsetLeft;
+        walk = x - startX;
+
+        // Real-time drag visual feedback
+        const cardWidth = dom.carousel.track.firstChild.offsetWidth;
+        const baseTranslate = -state.carouselIndex * cardWidth;
+        dom.carousel.track.style.transform = `translateX(${
+          baseTranslate + walk
+        }px)`;
+        dom.carousel.track.style.transition = "none"; // Disable transition during drag for instant feedback
+      }
+
       function addEventListeners() {
         window.addEventListener("online", checkOnlineStatus);
         window.addEventListener("offline", checkOnlineStatus);
@@ -1259,6 +1346,7 @@
 
         dom.userInfoForm.addEventListener("submit", handleUserInfoSubmit);
 
+        // --- New Carousel Event Listeners ---
         dom.carousel.prevBtn.addEventListener("click", () =>
           handleCarouselNav("prev")
         );
@@ -1266,13 +1354,35 @@
           handleCarouselNav("next")
         );
 
-        dom.carousel.track.addEventListener("click", (e) => {
-          if (e.target.classList.contains("select-simper-model-btn")) {
-            const groupValue = e.target.dataset.groupValue;
-            const modelValue = e.target.dataset.modelValue;
-            handleSelectSimperModel(groupValue, modelValue);
-          }
+        const track = dom.carousel.track;
+        track.addEventListener("mousedown", handleDragStart);
+        track.addEventListener("touchstart", handleDragStart, {
+          passive: true,
         });
+
+        track.addEventListener("mouseleave", handleDragEnd);
+        track.addEventListener("mouseup", handleDragEnd);
+        track.addEventListener("touchend", handleDragEnd);
+
+        track.addEventListener("mousemove", handleDragMove);
+        track.addEventListener("touchmove", handleDragMove, { passive: true });
+
+        dom.carousel.track.addEventListener(
+          "click",
+          (e) => {
+            // Prevent button clicks during a drag
+            if (Math.abs(walk) > 10) {
+              e.preventDefault();
+            }
+            const button = e.target.closest(".select-simper-model-btn");
+            if (button) {
+              const groupValue = button.dataset.groupValue;
+              const modelValue = button.dataset.modelValue;
+              handleSelectSimperModel(groupValue, modelValue);
+            }
+          },
+          true
+        ); // Use capture phase to intercept clicks
 
         dom.startGeneralQuizBtn.addEventListener("click", (e) =>
           handleStartQuiz(e, "general")
@@ -1550,20 +1660,20 @@
         }
 
         dom.quiz.container.innerHTML = `
-            <h2 class="text-xl font-semibold mb-2">
+            <h2 class="text-base md:text-xl font-semibold mb-2">
                 <span class="font-bold">Pertanyaan ${
                   currentQuestionIndex + 1
                 } dari ${material.questions.length}:</span>
             </h2>
-            <p class="text-lg mb-4">${q.pertanyaan}</p>
+            <p class="text-sm md:text-lg mb-4">${q.pertanyaan}</p>
             ${imageHtml}
-            <div class="space-y-4">
+            <div class="space-y-3 md:space-y-4">
                 ${options
                   .map(
                     (option, i) => `
-                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 transition-all">
+                    <label class="flex items-center p-3 md:p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 transition-all">
                         <input type="radio" name="question${q.id_soal}" value="${option}" class="h-5 w-5 text-blue-600">
-                        <span class="ml-4 text-md">${option}</span>
+                        <span class="ml-4 text-xs md:text-base">${option}</span>
                     </label>
                 `
                   )
@@ -1780,11 +1890,11 @@
           showCertificateScreen();
           return;
         } else {
-          content = `<h2 class="text-2xl font-bold text-red-600">Mohon Maaf, Anda Belum Lulus</h2>
-                           <p class="mt-4 text-gray-700">Skor Akhir Anda adalah <strong>${state.quizData.finalScore.toFixed(
-                             2
-                           )}</strong>, sedangkan nilai kelulusan minimal adalah <strong>${PASSING_SCORE}</strong>.</p>
-                           <p class="mt-2 text-gray-600">Silakan hubungi pengawas untuk jadwal ujian ulang.</p>`;
+          content = `<h2 class="text-lg md:text-2xl font-bold text-red-600">Mohon Maaf, Anda Belum Lulus</h2>
+                          <p class="mt-4 text-xs md:text-base text-gray-700">Skor Akhir Anda adalah <strong>${state.quizData.finalScore.toFixed(
+                            2
+                          )}</strong>, sedangkan nilai kelulusan minimal adalah <strong>${PASSING_SCORE}</strong>.</p>
+                          <p class="mt-2 text-xs md:text-base text-gray-600">Silakan hubungi pengawas untuk jadwal ujian ulang.</p>`;
           localStorage.removeItem("simperAppState");
         }
 
@@ -1804,34 +1914,34 @@
         const inductionText =
           state.userData.simperModel || state.userData.inductionType;
 
-        const content = `<div class="border-4 border-green-500 rounded-lg p-6 bg-green-50 text-left space-y-3 relative">
-                                 <div class="watermark"></div>
-                                 <h2 class="text-2xl font-bold text-green-700 text-center mb-4">🎉 Selamat! Anda Lulus Ujian SIMPER 🎉</h2>
-                                 <div class="flex flex-col md:flex-row gap-4 items-center">
-                                     <div class="flex-1 space-y-2">
-                                         <p><span class="font-semibold w-32 inline-block">Nama</span>: ${
-                                           state.userData.nama
-                                         }</p>
-                                         <p><span class="font-semibold w-32 inline-block">Perusahaan</span>: ${
-                                           state.userData.perusahaan
-                                         }</p>
-                                         <p><span class="font-semibold w-32 inline-block">Kategori SIMPER</span>: ${inductionText}</p>
-                                         <p><span class="font-semibold w-32 inline-block">Jam Ujian</span>: ${formattedTime} WITA</p>
-                                         <p><span class="font-semibold w-32 inline-block">Skor Akhir</span>: <strong>${state.quizData.finalScore.toFixed(
-                                           2
-                                         )}</strong></p>
-                                     </div>
-                                     <div class="p-2 bg-white border rounded-lg">
-                                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=SIMPER,NIK:${
-                                           state.userData.nik
-                                         },Nama:${
+        const content = `<div class="border-4 border-green-500 rounded-lg p-4 md:p-6 bg-green-50 text-left space-y-3 relative">
+                                  <div class="watermark"></div>
+                                  <h2 class="text-lg md:text-2xl font-bold text-green-700 text-center mb-4">🎉 Selamat! Anda Lulus Ujian SIMPER 🎉</h2>
+                                  <div class="flex flex-col md:flex-row gap-4 items-center">
+                                      <div class="flex-1 space-y-2 text-xs md:text-base">
+                                          <p><span class="font-semibold w-28 md:w-32 inline-block">Nama</span>: ${
+                                            state.userData.nama
+                                          }</p>
+                                          <p><span class="font-semibold w-28 md:w-32 inline-block">Perusahaan</span>: ${
+                                            state.userData.perusahaan
+                                          }</p>
+                                          <p><span class="font-semibold w-28 md:w-32 inline-block">Kategori SIMPER</span>: ${inductionText}</p>
+                                          <p><span class="font-semibold w-28 md:w-32 inline-block">Jam Ujian</span>: ${formattedTime} WITA</p>
+                                          <p><span class="font-semibold w-28 md:w-32 inline-block">Skor Akhir</span>: <strong>${state.quizData.finalScore.toFixed(
+                                            2
+                                          )}</strong></p>
+                                      </div>
+                                      <div class="p-2 bg-white border rounded-lg">
+                                          <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=SIMPER,NIK:${
+                                            state.userData.nik
+                                          },Nama:${
           state.userData.nama
         }" alt="QR Code" class="mx-auto">
-                                     </div>
-                                 </div>
+                                      </div>
+                                  </div>
                                 </div>
-                               <p class="mt-6 font-semibold text-center text-gray-700">Kartu ini adalah bukti kelulusan sementara. Silakan hubungi departemen terkait untuk penerbitan kartu fisik.</p>
-                               <button id="download-pdf-btn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Unduh Kartu SIMPER (PDF)</button>`;
+                               <p class="mt-6 font-semibold text-center text-gray-700 text-xs md:text-base">Kartu ini adalah bukti kelulusan sementara. Silakan hubungi departemen terkait untuk penerbitan kartu fisik.</p>
+                               <button id="download-pdf-btn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-sm md:text-lg">Unduh Kartu SIMPER (PDF)</button>`;
 
         dom.completionScreen.innerHTML = content;
 

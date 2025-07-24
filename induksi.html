@@ -34,7 +34,7 @@
         transition: max-height 0.5s ease-out;
       }
       .step-content.open {
-        max-height: 3500px; /* Increased max-height for forms */
+        max-height: 4000px; /* Increased max-height for forms */
         transition: max-height 1.5s ease-in;
       }
       @keyframes spin {
@@ -121,7 +121,7 @@
       .watermark-item {
         color: #000;
         opacity: 0.12; /* Opasitas dinaikkan agar lebih terlihat */
-        font-size: 18px; /* Ukuran font diperbesar */
+        font-size: 16px; /* Ukuran font diperkecil */
         font-weight: bold;
         transform: rotate(-30deg);
         white-space: nowrap;
@@ -140,10 +140,10 @@
   <body class="bg-gray-100">
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
       <div class="text-center mb-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
           Sistem Induksi Keselamatan
         </h1>
-        <p class="text-gray-600 mt-2">PT. Ganda Alam Makmur</p>
+        <p class="text-sm text-gray-600 mt-2">PT. Ganda Alam Makmur</p>
         <div
           id="online-status"
           class="mt-2 text-sm font-semibold rounded-full px-3 py-1 inline-block"
@@ -163,8 +163,8 @@
         <!-- Langkah 0: Panduan Pengerjaan -->
         <div id="step-0" class="step-card bg-white p-6 rounded-xl shadow-md">
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
-              Langkah 0: Panduan Pengerjaan
+            <h2 class="text-lg font-bold text-gray-700">
+              Langkah 0: Panduan & Persetujuan
             </h2>
             <span id="step-0-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
@@ -173,10 +173,10 @@
           <div id="step-0-content" class="step-content pt-4">
             <div class="w-full bg-white rounded-2xl p-2 md:p-6">
               <div class="text-center mb-12">
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800">
                   Panduan Pengerjaan Induksi Online
                 </h1>
-                <p class="text-lg text-gray-600 mt-2">
+                <p class="text-base text-gray-600 mt-2">
                   ikuti 5 langkah mudah untuk mendapatkan sertifikat Anda.
                 </p>
               </div>
@@ -184,17 +184,17 @@
                 <div class="flex items-start space-x-6">
                   <div class="flex flex-col items-center">
                     <div
-                      class="flex items-center justify-center w-16 h-16 bg-blue-500 text-white rounded-full text-2xl font-bold shadow-md"
+                      class="flex items-center justify-center w-12 h-12 bg-blue-500 text-white rounded-full text-xl font-bold shadow-md"
                     >
                       1
                     </div>
                     <div class="w-1 h-24 bg-blue-200 mt-2"></div>
                   </div>
-                  <div class="flex-1 pt-2">
+                  <div class="flex-1 pt-1">
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-blue-500 mr-3"
+                        class="h-7 w-7 text-blue-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -206,15 +206,15 @@
                           d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <h2 class="text-xl font-bold text-gray-800">
                         Isi Informasi Diri
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <p class="text-sm text-gray-600 mt-2">
                       Lengkapi data Anda dengan benar untuk memulai proses.
                     </p>
                     <ul
-                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700 text-sm"
                     >
                       <li>Lengkapi formulir NIK, Nama, Email, Jabatan, dll.</li>
                       <li>
@@ -233,17 +233,17 @@
                 <div class="flex items-start space-x-6">
                   <div class="flex flex-col items-center">
                     <div
-                      class="flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full text-2xl font-bold shadow-md"
+                      class="flex items-center justify-center w-12 h-12 bg-green-500 text-white rounded-full text-xl font-bold shadow-md"
                     >
                       2
                     </div>
                     <div class="w-1 h-24 bg-green-200 mt-2"></div>
                   </div>
-                  <div class="flex-1 pt-2">
+                  <div class="flex-1 pt-1">
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-green-500 mr-3"
+                        class="h-7 w-7 text-green-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -255,15 +255,15 @@
                           d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <h2 class="text-xl font-bold text-gray-800">
                         Absensi & Pilih Induksi
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <p class="text-sm text-gray-600 mt-2">
                       Catat kehadiran Anda dan pilih jenis induksi yang sesuai.
                     </p>
                     <ul
-                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700 text-sm"
                     >
                       <li>Klik tombol "Lakukan Absensi".</li>
                       <li>
@@ -276,17 +276,17 @@
                 <div class="flex items-start space-x-6">
                   <div class="flex flex-col items-center">
                     <div
-                      class="flex items-center justify-center w-16 h-16 bg-purple-500 text-white rounded-full text-2xl font-bold shadow-md"
+                      class="flex items-center justify-center w-12 h-12 bg-purple-500 text-white rounded-full text-xl font-bold shadow-md"
                     >
                       3
                     </div>
                     <div class="w-1 h-24 bg-purple-200 mt-2"></div>
                   </div>
-                  <div class="flex-1 pt-2">
+                  <div class="flex-1 pt-1">
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-purple-500 mr-3"
+                        class="h-7 w-7 text-purple-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -298,15 +298,15 @@
                           d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <h2 class="text-xl font-bold text-gray-800">
                         Kerjakan Kuis
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <p class="text-sm text-gray-600 mt-2">
                       Fokus pada materi dan jawab semua pertanyaan.
                     </p>
                     <ul
-                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700 text-sm"
                     >
                       <li>Tonton video materi yang ditampilkan.</li>
                       <li>
@@ -323,17 +323,17 @@
                 <div class="flex items-start space-x-6">
                   <div class="flex flex-col items-center">
                     <div
-                      class="flex items-center justify-center w-16 h-16 bg-yellow-500 text-white rounded-full text-2xl font-bold shadow-md"
+                      class="flex items-center justify-center w-12 h-12 bg-yellow-500 text-white rounded-full text-xl font-bold shadow-md"
                     >
                       4
                     </div>
                     <div class="w-1 h-24 bg-yellow-200 mt-2"></div>
                   </div>
-                  <div class="flex-1 pt-2">
+                  <div class="flex-1 pt-1">
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-yellow-500 mr-3"
+                        class="h-7 w-7 text-yellow-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -345,15 +345,15 @@
                           d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <h2 class="text-xl font-bold text-gray-800">
                         TTD & Checklist
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <p class="text-sm text-gray-600 mt-2">
                       Langkah akhir administrasi jika Anda lulus Post-Test.
                     </p>
                     <ul
-                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700 text-sm"
                     >
                       <li>
                         Isi formulir SPDK dan Checklist Induksi yang
@@ -368,15 +368,15 @@
                 </div>
                 <div class="flex items-start space-x-6">
                   <div
-                    class="flex items-center justify-center w-16 h-16 bg-red-500 text-white rounded-full text-2xl font-bold shadow-md"
+                    class="flex items-center justify-center w-12 h-12 bg-red-500 text-white rounded-full text-xl font-bold shadow-md"
                   >
                     5
                   </div>
-                  <div class="flex-1 pt-2 ml-6">
+                  <div class="flex-1 pt-1 ml-6">
                     <div class="flex items-center mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-red-500 mr-3"
+                        class="h-7 w-7 text-red-500 mr-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -388,15 +388,15 @@
                           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
                         />
                       </svg>
-                      <h2 class="text-2xl font-bold text-gray-800">
+                      <h2 class="text-xl font-bold text-gray-800">
                         Dapatkan Sertifikat
                       </h2>
                     </div>
-                    <p class="text-gray-600 mt-2">
+                    <p class="text-sm text-gray-600 mt-2">
                       Simpan bukti kelulusan Anda.
                     </p>
                     <ul
-                      class="list-disc list-inside mt-4 space-y-2 text-gray-700"
+                      class="list-disc list-inside mt-4 space-y-2 text-gray-700 text-sm"
                     >
                       <li>
                         Lihat kartu induksi digital Anda yang berisi QR Code.
@@ -413,7 +413,7 @@
                 </div>
               </div>
               <div class="mt-12 pt-8 border-t border-gray-200">
-                <h3 class="text-xl font-bold text-center text-gray-800">
+                <h3 class="text-lg font-bold text-center text-gray-800">
                   Catatan Penting
                 </h3>
                 <div class="mt-4 grid md:grid-cols-2 gap-6 text-center">
@@ -502,14 +502,14 @@
                   id="guide-checkbox"
                   class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
                 />
-                <span class="ml-3 text-gray-700 font-medium"
+                <span class="ml-3 text-gray-700 font-medium text-sm"
                   >Saya telah membaca dan memahami panduan pengerjaan di
                   atas.</span
                 >
               </label>
               <button
                 id="start-process-btn"
-                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-lg"
+                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-base"
                 disabled
               >
                 Lanjutkan ke Pengisian Data
@@ -524,7 +524,7 @@
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-lg font-bold text-gray-700">
               Langkah 1: Informasi Peserta
             </h2>
             <span id="step-1-status" class="text-sm font-semibold text-red-500"
@@ -693,7 +693,7 @@
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">Langkah 2: Absensi</h2>
+            <h2 class="text-lg font-bold text-gray-700">Langkah 2: Absensi</h2>
             <span id="step-2-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
             >
@@ -717,7 +717,7 @@
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-lg font-bold text-gray-700">
               Langkah 3: Pilih Jenis Induksi
             </h2>
             <span id="step-3-status" class="text-sm font-semibold text-red-500"
@@ -766,7 +766,7 @@
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-lg font-bold text-gray-700">
               Langkah 4: Pilih Jenis Tes
             </h2>
             <span id="step-4-status" class="text-sm font-semibold text-red-500"
@@ -818,7 +818,7 @@
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-lg font-bold text-gray-700">
               Langkah 5: Kuis Umum
             </h2>
             <span id="step-5-status" class="text-sm font-semibold text-red-500"
@@ -846,7 +846,7 @@
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-lg font-bold text-gray-700">
               Langkah 6: Kuis Spesifik
             </h2>
             <span id="step-6-status" class="text-sm font-semibold text-red-500"
@@ -873,7 +873,7 @@
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-700">
+            <h2 class="text-lg font-bold text-gray-700">
               Langkah 7: TTD & Checklist
             </h2>
             <span id="step-7-status" class="text-sm font-semibold text-red-500"
@@ -1005,14 +1005,14 @@
               <div>
                 <h2
                   id="material-title"
-                  class="text-2xl font-bold text-gray-800"
+                  class="text-xl font-bold text-gray-800"
                 ></h2>
                 <p id="material-progress" class="text-sm text-gray-500"></p>
               </div>
               <div class="flex items-center">
                 <div
                   id="quiz-timer"
-                  class="text-xl font-bold text-gray-800 mr-4"
+                  class="text-lg font-bold text-gray-800 mr-4"
                 ></div>
                 <button
                   id="open-video-btn"
@@ -1033,7 +1033,7 @@
                   id="video-watched-checkbox"
                   class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
                 />
-                <span class="ml-3 text-gray-700 font-medium"
+                <span class="ml-3 text-gray-700 font-medium text-sm"
                   >Saya telah menonton dan memahami materi video.</span
                 >
               </label>
@@ -1728,7 +1728,7 @@
                     (option, i) => `
                     <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 transition-all">
                         <input type="radio" name="question${q.id_soal}" value="${option}" class="h-5 w-5 text-blue-600">
-                        <span class="ml-4 text-md">${option}</span>
+                        <span class="ml-4 text-sm">${option}</span>
                     </label>
                 `
                   )

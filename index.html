@@ -54,6 +54,7 @@
         justify-content: center;
         align-items: center;
         height: 100%;
+        font-size: 14px; /* Base font size adjustment */
       }
 
       /* === MOBILE FRAME WRAPPER === */
@@ -154,13 +155,13 @@
       }
       .form-container .logo {
         font-weight: bold;
-        font-size: 48px;
+        font-size: 40px;
         color: var(--primary-color);
         margin-bottom: 16px;
         animation: fadeInUp 0.5s ease-out;
       }
       .form-container h2 {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 600;
         color: var(--text-color);
         margin-bottom: 8px;
@@ -168,7 +169,7 @@
         animation-fill-mode: both;
       }
       .form-container p {
-        font-size: 16px;
+        font-size: 14px;
         color: var(--text-color-light);
         margin-bottom: 40px;
         animation: fadeInUp 0.5s ease-out 0.2s;
@@ -216,17 +217,17 @@
       }
       .login-choice-btn .btn-text h4 {
         margin: 0 0 4px 0;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
       }
       .login-choice-btn .btn-text p {
         margin: 0;
-        font-size: 14px;
+        font-size: 12px;
         color: var(--text-color-light);
       }
       .register-link {
         margin-top: 24px;
-        font-size: 14px;
+        font-size: 12px;
         color: var(--text-color-light);
         animation: fadeInUp 0.5s ease-out 0.6s;
         animation-fill-mode: both;
@@ -271,7 +272,7 @@
         padding: 12px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        font-size: 16px;
+        font-size: 14px;
       }
       .register-form button {
         padding: 14px;
@@ -279,7 +280,7 @@
         color: white;
         border: none;
         border-radius: 8px;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
         cursor: pointer;
         margin-top: 16px;
@@ -321,7 +322,7 @@
       }
       .app-header .logo {
         font-weight: bold;
-        font-size: 24px;
+        font-size: 22px;
         color: var(--gamitas-green);
       }
       .profile-dropdown {
@@ -388,13 +389,13 @@
         flex-shrink: 0;
       }
       .user-profile .greeting p {
-        margin: 0 0 4px 0;
-        font-size: 14px;
+        margin: 0 0 2px 0;
+        font-size: 13px;
         color: var(--text-color-light);
       }
       .user-profile .greeting h2 {
         margin: 0;
-        font-size: clamp(22px, 5vw, 24px);
+        font-size: clamp(18px, 5vw, 20px);
         font-weight: 600;
       }
 
@@ -417,6 +418,9 @@
         cursor: pointer;
         transition: all 0.3s ease;
         white-space: nowrap;
+      }
+      .main-tabs .tab:not(.active):hover {
+        background-color: #d0d0d0;
       }
       .main-tabs .tab.active {
         background-color: var(--tab-active-bg);
@@ -467,14 +471,14 @@
         border-radius: 20px;
       }
       .carousel-slide .card-title {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         opacity: 0.8;
         margin: 0 0 8px 0;
         text-transform: uppercase;
       }
       .carousel-slide .card-content {
-        font-size: 20px;
+        font-size: 16px;
         font-weight: bold;
         line-height: 1.4;
       }
@@ -529,10 +533,10 @@
       }
       .section-title h2 {
         margin: 0;
-        font-size: 18px;
+        font-size: 16px;
       }
       .section-title a {
-        font-size: 14px;
+        font-size: 13px;
         color: var(--primary-color);
         text-decoration: none;
       }
@@ -575,7 +579,7 @@
       }
       .feature-card p {
         margin: 0;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 500;
       }
 
@@ -607,7 +611,7 @@
         align-items: center;
         text-decoration: none;
         color: var(--text-color-light);
-        font-size: 11px;
+        font-size: 10px;
         padding: 4px 2px;
         position: relative;
         text-align: center;
@@ -646,7 +650,7 @@
         padding: 16px;
       }
       .page-title {
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 600;
         margin-bottom: 24px;
       }
@@ -791,7 +795,7 @@
         color: white;
         text-decoration: none;
         font-weight: 600;
-        font-size: 18px;
+        font-size: 16px;
         border-radius: 12px;
         transition: background-color 0.3s, transform 0.3s;
         width: 100%;
@@ -858,28 +862,80 @@
       }
       .emergency-item .contact-info h3 {
         margin: 0 0 4px 0;
-        font-size: 16px;
+        font-size: 15px;
       }
       .emergency-item .contact-info p {
         margin: 0;
-        font-size: 18px;
+        font-size: 17px;
         font-weight: 600;
         color: var(--primary-color);
       }
+      .emergency-item .action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
       .emergency-item .call-btn {
-        padding: 10px 20px;
+        padding: 10px 15px; /* Adjust padding */
         background-color: #4caf50;
         color: white;
         text-decoration: none;
         border-radius: 8px;
         font-weight: 600;
+        font-size: 14px;
         transition: background-color 0.2s;
+      }
+      .emergency-item .whatsapp-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background-color: #25d366;
+        border-radius: 50%;
+        transition: background-color 0.2s;
+      }
+      .emergency-item .whatsapp-btn svg {
+        width: 24px;
+        height: 24px;
+        fill: white;
       }
       .emergency-item .call-btn:hover {
         background-color: #45a049;
       }
+      .emergency-item .whatsapp-btn:hover {
+        background-color: #1da851;
+      }
 
       /* === FILOSOFI PAGE === */
+      .filosofi-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .filosofi-tab-btn {
+        padding: 10px 20px;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text-color-light);
+        border-bottom: 3px solid transparent;
+        transition: color 0.3s, border-color 0.3s;
+      }
+      .filosofi-tab-btn.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+      }
+      .filosofi-tab-content {
+        display: none;
+      }
+      .filosofi-tab-content.active {
+        display: block;
+      }
       .filosofi-content {
         text-align: center;
         perspective: 1000px;
@@ -887,7 +943,6 @@
       .filosofi-content img {
         max-width: 150px;
         margin-bottom: 24px;
-        animation: spin3d 15s linear infinite;
       }
       .filosofi-section {
         background-color: var(--card-bg);
@@ -901,6 +956,7 @@
         cursor: pointer;
         position: relative;
         z-index: 1;
+        font-size: 14px;
       }
       .filosofi-section.zoomed {
         transform: scale(1.05);
@@ -1541,7 +1597,20 @@
                     <h3>ERT (Emergency Response Team)</h3>
                     <p>0821-1667-7991</p>
                   </div>
-                  <a href="tel:082116677991" class="call-btn">Panggil</a>
+                  <div class="action-buttons">
+                    <a href="tel:082116677991" class="call-btn">Panggil</a>
+                    <a
+                      href="https://wa.me/6282116677991?text=emergency%20emergency%20emergency"
+                      target="_blank"
+                      class="whatsapp-btn"
+                    >
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M16.75,13.96C17.09,14.3,17.4,14.65,17.6,15C17.81,15.35,17.91,15.74,17.8,16.13C17.64,16.67,17.07,17.1,16.56,17.26C16.04,17.42,15.5,17.39,15,17.25C14.5,17.11,13.33,16.67,12.2,15.63C10.73,14.26,9.8,12.6,9.71,12.48C9.62,12.36,9.1,11.7,9.1,11C9.1,10.3,9.6,9.79,9.76,9.63C9.91,9.47,10.08,9.4,10.26,9.4C10.45,9.4,10.6,9.4,10.74,9.4C10.88,9.4,11.03,9.4,11.16,9.81C11.31,10.22,11.79,11.5,11.85,11.61C11.9,11.71,11.9,11.85,11.81,12C11.72,12.14,11.67,12.19,11.56,12.3C11.45,12.42,11.34,12.53,11.23,12.65C11.12,12.77,11.01,12.88,11.12,13.04C11.24,13.19,11.76,13.95,12.6,14.78C13.63,15.78,14.45,16.13,14.65,16.26C14.85,16.38,15.01,16.34,15.13,16.21C15.25,16.08,15.3,15.93,15.39,15.78C15.48,15.63,15.77,15.17,16.18,14.73C16.59,14.29,16.71,14.15,16.75,14.15C16.79,14.15,16.83,14.15,16.87,14.15C16.91,14.15,16.95,14.15,16.98,14.15L16.75,13.96M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22C13.81,22 15.5,21.54 16.91,20.69L20.5,22L19.31,18.41C20.42,16.89 21,15.08 21,13.13C21,7.57 17,3.13 12,3.13A9.87,9.87 0 0,0 2.2,12C2.2,16.92 6.08,20.8 11,20.8C11.33,20.8 11.67,20.77 12,20.72L12,2Z"
+                        />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
                 <div class="emergency-item" style="animation-delay: 0.2s">
                   <div class="icon-wrapper" style="background-color: #1e88e5">
@@ -1566,7 +1635,20 @@
                     <h3>Klinik</h3>
                     <p>0813-1661-5353</p>
                   </div>
-                  <a href="tel:081316615353" class="call-btn">Panggil</a>
+                  <div class="action-buttons">
+                    <a href="tel:081316615353" class="call-btn">Panggil</a>
+                    <a
+                      href="https://wa.me/6281316615353?text=butuh%20medis"
+                      target="_blank"
+                      class="whatsapp-btn"
+                    >
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M16.75,13.96C17.09,14.3,17.4,14.65,17.6,15C17.81,15.35,17.91,15.74,17.8,16.13C17.64,16.67,17.07,17.1,16.56,17.26C16.04,17.42,15.5,17.39,15,17.25C14.5,17.11,13.33,16.67,12.2,15.63C10.73,14.26,9.8,12.6,9.71,12.48C9.62,12.36,9.1,11.7,9.1,11C9.1,10.3,9.6,9.79,9.76,9.63C9.91,9.47,10.08,9.4,10.26,9.4C10.45,9.4,10.6,9.4,10.74,9.4C10.88,9.4,11.03,9.4,11.16,9.81C11.31,10.22,11.79,11.5,11.85,11.61C11.9,11.71,11.9,11.85,11.81,12C11.72,12.14,11.67,12.19,11.56,12.3C11.45,12.42,11.34,12.53,11.23,12.65C11.12,12.77,11.01,12.88,11.12,13.04C11.24,13.19,11.76,13.95,12.6,14.78C13.63,15.78,14.45,16.13,14.65,16.26C14.85,16.38,15.01,16.34,15.13,16.21C15.25,16.08,15.3,15.93,15.39,15.78C15.48,15.63,15.77,15.17,16.18,14.73C16.59,14.29,16.71,14.15,16.75,14.15C16.79,14.15,16.83,14.15,16.87,14.15C16.91,14.15,16.95,14.15,16.98,14.15L16.75,13.96M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22C13.81,22 15.5,21.54 16.91,20.69L20.5,22L19.31,18.41C20.42,16.89 21,15.08 21,13.13C21,7.57 17,3.13 12,3.13A9.87,9.87 0 0,0 2.2,12C2.2,16.92 6.08,20.8 11,20.8C11.33,20.8 11.67,20.77 12,20.72L12,2Z"
+                        />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
                 <div class="emergency-item" style="animation-delay: 0.3s">
                   <div class="icon-wrapper" style="background-color: #43a047">
@@ -1651,98 +1733,175 @@
           <div id="page-filosofi" class="page">
             <main class="page-content">
               <h1 class="page-title">Filosofi & Visi Misi</h1>
-              <div class="filosofi-content">
-                <img src="assets/logo.png" alt="Logo GAMITAS" />
-                <div class="filosofi-section">
-                  <h3>Filosofi Logo</h3>
-                  <ul>
-                    <li>
-                      <strong>Perisai:</strong> melambangkan perlindungan,
-                      struktur, dan komitmen terhadap keselamatan kerja.
-                    </li>
-                    <li>
-                      <strong>Bumi & Crescent:</strong> mencerminkan jangkauan
-                      global, inklusivitas, dan visi masa depan.
-                    </li>
-                    <li>
-                      <strong>Buku Terbuka:</strong> simbol transfer ilmu,
-                      edukasi berbasis kompetensi, dan pembelajaran
-                      berkelanjutan.
-                    </li>
-                    <li>
-                      <strong>Alat Berat (Excavator & Dump Truck):</strong>
-                      representasi langsung dari sektor pertambangan batubara
-                      yang menjadi fokus pelatihan.
-                    </li>
-                    <li>
-                      <strong>Warna Hijau:</strong> harapan, pertumbuhan, dan
-                      keberlanjutan dalam praktik K3 dan industri.
-                    </li>
-                    <li>
-                      <strong>Warna Emas:</strong> prestise, nilai
-                      profesionalisme tinggi, dan kualitas pelatihan Gamitas.
-                    </li>
-                    <li>
-                      <strong
-                        >Tulisan “GAMITAS Training System & Promotion”:</strong
-                      >
-                      identitas utama yang menghubungkan sistem keselamatan,
-                      pelatihan, dan kampanye K3 dalam satu kesatuan
-                      terintegrasi.
-                    </li>
-                  </ul>
+              <div class="filosofi-tabs">
+                <button
+                  class="filosofi-tab-btn active"
+                  onclick="showFilosofiTab('gamitas', this)"
+                >
+                  GAMITAS
+                </button>
+                <button
+                  class="filosofi-tab-btn"
+                  onclick="showFilosofiTab('tc', this)"
+                >
+                  Training Center
+                </button>
+              </div>
+
+              <div id="filosofi-gamitas" class="filosofi-tab-content active">
+                <div class="filosofi-content">
+                  <img src="assets/logo.png" alt="Logo GAMITAS" />
+                  <div class="filosofi-section">
+                    <h3>Filosofi Logo</h3>
+                    <ul>
+                      <li>
+                        <strong>Perisai:</strong> melambangkan perlindungan,
+                        struktur, dan komitmen terhadap keselamatan kerja.
+                      </li>
+                      <li>
+                        <strong>Bumi & Crescent:</strong> mencerminkan jangkauan
+                        global, inklusivitas, dan visi masa depan.
+                      </li>
+                      <li>
+                        <strong>Buku Terbuka:</strong> simbol transfer ilmu,
+                        edukasi berbasis kompetensi, dan pembelajaran
+                        berkelanjutan.
+                      </li>
+                      <li>
+                        <strong>Alat Berat (Excavator & Dump Truck):</strong>
+                        representasi langsung dari sektor pertambangan batubara
+                        yang menjadi fokus pelatihan.
+                      </li>
+                      <li>
+                        <strong>Warna Hijau:</strong> harapan, pertumbuhan, dan
+                        keberlanjutan dalam praktik K3 dan industri.
+                      </li>
+                      <li>
+                        <strong>Warna Emas:</strong> prestise, nilai
+                        profesionalisme tinggi, dan kualitas pelatihan Gamitas.
+                      </li>
+                      <li>
+                        <strong
+                          >Tulisan “GAMITAS Training System &
+                          Promotion”:</strong
+                        >
+                        identitas utama yang menghubungkan sistem keselamatan,
+                        pelatihan, dan kampanye K3 dalam satu kesatuan
+                        terintegrasi.
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="filosofi-section">
+                    <h3>🎯 Visi</h3>
+                    <p>
+                      Mengembangkan sistem keselamatan kerja yang adaptif dan
+                      berbasis teknologi serta perilaku, lalu memperluas
+                      dampaknya melalui pelatihan terstruktur dan promosi budaya
+                      K3 di sektor pertambangan batubara.
+                    </p>
+                  </div>
+                  <div class="filosofi-section">
+                    <h3>🚀 Misi</h3>
+                    <ul>
+                      <li>Membangun sistem safety yang terintegrasi.</li>
+                      <li>
+                        Menyusun metode pengawasan, analisis risiko, dan
+                        pelaporan berbasis data untuk menciptakan lingkungan
+                        kerja yang proaktif terhadap bahaya.
+                      </li>
+                      <li>
+                        Memanfaatkan teknologi digital dalam pengelolaan
+                        keselamatan.
+                      </li>
+                      <li>
+                        Menggunakan sensor, analitik, dan platform berbasis
+                        cloud untuk pemantauan dan respon K3 secara real-time.
+                      </li>
+                      <li>
+                        Menerapkan pendekatan Behavior-Based Safety (BBS).
+                      </li>
+                      <li>
+                        Mengobservasi, mengevaluasi, dan membentuk perilaku
+                        kerja yang aman melalui coaching, simulasi, dan
+                        pelatihan berkelanjutan.
+                      </li>
+                      <li>
+                        Menyediakan pelatihan dan sertifikasi berbasis standar
+                        nasional.
+                      </li>
+                      <li>
+                        Mengacu pada SKKNI, SKKK, dan SMKP Minerba untuk
+                        memastikan pelatihan sesuai regulasi dan kebutuhan
+                        industri.
+                      </li>
+                      <li>
+                        Meningkatkan kesadaran K3 melalui media promosi dan
+                        branding edukatif.
+                      </li>
+                      <li>
+                        Mengemas materi pelatihan dan promosi dalam bentuk
+                        visual kreatif, konten digital, dan kampanye keselamatan
+                        yang mudah diakses oleh berbagai kalangan pekerja
+                        tambang.
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-                <div class="filosofi-section">
-                  <h3>🎯 Visi</h3>
-                  <p>
-                    Mengembangkan sistem keselamatan kerja yang adaptif dan
-                    berbasis teknologi serta perilaku, lalu memperluas dampaknya
-                    melalui pelatihan terstruktur dan promosi budaya K3 di
-                    sektor pertambangan batubara.
-                  </p>
-                </div>
-                <div class="filosofi-section">
-                  <h3>🚀 Misi</h3>
-                  <ul>
-                    <li>Membangun sistem safety yang terintegrasi.</li>
-                    <li>
-                      Menyusun metode pengawasan, analisis risiko, dan pelaporan
-                      berbasis data untuk menciptakan lingkungan kerja yang
-                      proaktif terhadap bahaya.
-                    </li>
-                    <li>
-                      Memanfaatkan teknologi digital dalam pengelolaan
-                      keselamatan.
-                    </li>
-                    <li>
-                      Menggunakan sensor, analitik, dan platform berbasis cloud
-                      untuk pemantauan dan respon K3 secara real-time.
-                    </li>
-                    <li>Menerapkan pendekatan Behavior-Based Safety (BBS).</li>
-                    <li>
-                      Mengobservasi, mengevaluasi, dan membentuk perilaku kerja
-                      yang aman melalui coaching, simulasi, dan pelatihan
-                      berkelanjutan.
-                    </li>
-                    <li>
-                      Menyediakan pelatihan dan sertifikasi berbasis standar
-                      nasional.
-                    </li>
-                    <li>
-                      Mengacu pada SKKNI, SKKK, dan SMKP Minerba untuk
-                      memastikan pelatihan sesuai regulasi dan kebutuhan
-                      industri.
-                    </li>
-                    <li>
-                      Meningkatkan kesadaran K3 melalui media promosi dan
-                      branding edukatif.
-                    </li>
-                    <li>
-                      Mengemas materi pelatihan dan promosi dalam bentuk visual
-                      kreatif, konten digital, dan kampanye keselamatan yang
-                      mudah diakses oleh berbagai kalangan pekerja tambang.
-                    </li>
-                  </ul>
+              </div>
+
+              <div id="filosofi-tc" class="filosofi-tab-content">
+                <div class="filosofi-content">
+                  <img src="assets/logo_tc.png" alt="Logo Training Center" />
+                  <div class="filosofi-section">
+                    <h3>Filosofi Logo TRAINING CENTER</h3>
+                    <ul>
+                      <li>
+                        <strong>Lingkaran Emas dan Biru Tua:</strong> Lingkaran
+                        melambangkan kontinuitas pembelajaran dan kesatuan tim.
+                        Warna emas menggambarkan keunggulan, pencapaian, dan
+                        aspirasi tinggi, sedangkan biru tua mencerminkan
+                        kredibilitas, stabilitas, dan komitmen profesional.
+                      </li>
+                      <li>
+                        <strong>Cincin Luar:</strong> Teks “TRAINING CENTER” dan
+                        “PT GANDA ALAM MAKMUR” di cincin luar menunjukkan fokus
+                        pada pendidikan berkelanjutan dan ikatan kuat antara
+                        perusahaan dengan semua pemangku kepentingan.
+                      </li>
+                      <li>
+                        <strong>Perisai:</strong> Bagian tengah berbentuk
+                        perisai menjadi simbol perlindungan pengetahuan dan
+                        keselamatan kerja.
+                      </li>
+                      <li>
+                        <strong>Empat Kuadran Simbol:</strong>
+                        <ul style="padding-left: 20px; list-style: disc">
+                          <li>
+                            Buku Terbuka: Melambangkan sumber ilmu dan akses
+                            terbuka ke informasi.
+                          </li>
+                          <li>
+                            Roda Gigi dengan Palang Medis: Menggambarkan sinergi
+                            teknologi dan kesehatan kerja.
+                          </li>
+                          <li>
+                            Roda Gigi Tunggal: Simbol inovasi teknik dan
+                            efisiensi operasional.
+                          </li>
+                          <li>
+                            Helm Keselamatan: Menegaskan prioritas utama:
+                            keselamatan.
+                          </li>
+                        </ul>
+                      </li>
+                      <li>
+                        <strong>Sinergi Elemen dan Misi:</strong> Logo ini
+                        menegaskan misi TRAINING CENTER: mencetak tenaga ahli
+                        yang berpengetahuan luas, handal secara teknis, peduli
+                        keselamatan, dan berdaya saing tinggi.
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </main>
@@ -1993,6 +2152,13 @@
         if (pageId === "page-kartudigital") initDigitalCard();
         if (pageId === "page-kompetensi" && !kompetensiInitialized)
           initKompetensiPage();
+        if (pageId === "page-filosofi") {
+          // Set the default tab to 'gamitas' when the page is shown
+          showFilosofiTab(
+            "gamitas",
+            document.querySelector(".filosofi-tab-btn")
+          );
+        }
 
         updateFooterNav(pageId);
         document.querySelector(".scrollable-content").scrollTo(0, 0);
@@ -2388,6 +2554,18 @@
         document.getElementById("results").innerHTML = "";
         document.getElementById("loading").style.display = "none";
         localStorage.removeItem("lastSearchKompetensi");
+      }
+
+      function showFilosofiTab(tabId, clickedButton) {
+        document
+          .querySelectorAll(".filosofi-tab-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document
+          .querySelectorAll(".filosofi-tab-content")
+          .forEach((content) => content.classList.remove("active"));
+
+        clickedButton.classList.add("active");
+        document.getElementById("filosofi-" + tabId).classList.add("active");
       }
     </script>
   </body>

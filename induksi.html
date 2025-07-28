@@ -1093,9 +1093,9 @@
       const WEB_APP_URL =
         "https://script.google.com/macros/s/AKfycbyEzbJT_-0i3_4mx4fDAo4R0MFWPYNHrAGTguaYkZorQ8tfoZYi0hukvFqSeC2ayg/exec";
       const TALLY_SPDK_URL =
-        "https://tally.so/embed/wv6yz0?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
+        "https://tally.so/embed/wz5W7M?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
       const TALLY_CHECKLIST_URL =
-        "https://tally.so/embed/mDOdMR?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
+        "https://tally.so/embed/3XPO4L?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
       const PASSING_SCORE = 75; // Nilai Kelulusan Minimal (contoh: 75)
       // -------------------------
 
@@ -1256,6 +1256,11 @@
 
         if (state.userData.inductionType)
           dom.inductionTypeSelect.value = state.userData.inductionType;
+
+        // Pastikan form Tally dimuat jika pengguna berada di atau setelah Langkah 7
+        if (state.currentStep >= 7) {
+          loadTallyForms();
+        }
       }
 
       function saveState() {
@@ -1265,12 +1270,20 @@
       function loadState() {
         const savedState = localStorage.getItem("inductionAppState");
         if (savedState) {
-          const parsedState = JSON.parse(savedState);
-          // Ensure remedialCount exists, default to 0 if not
-          state = {
-            ...parsedState,
-            remedialCount: parsedState.remedialCount || 0,
-          };
+          try {
+            const parsedState = JSON.parse(savedState);
+            // Ensure remedialCount exists, default to 0 if not
+            state = {
+              ...parsedState,
+              remedialCount: parsedState.remedialCount || 0,
+            };
+          } catch (error) {
+            console.error(
+              "Gagal memuat state dari localStorage, mereset state:",
+              error
+            );
+            localStorage.removeItem("inductionAppState");
+          }
         }
       }
 
@@ -1288,12 +1301,11 @@
 
       function advanceStep(step) {
         state.currentStep = step;
-        saveState();
-        updateUI();
-
         if (step === 7) {
           loadTallyForms();
         }
+        saveState();
+        updateUI();
       }
 
       function addEventListeners() {
@@ -1600,7 +1612,9 @@
         };
         const cleanup = () => {
           dom.modal.confirmBtn.removeEventListener("click", confirmHandler);
-          dom.modal.cancelBtn.removeEventListener("click", cancelHandler);
+          if (onCancel) {
+            dom.modal.cancelBtn.removeEventListener("click", cancelHandler);
+          }
         };
 
         dom.modal.confirmBtn.addEventListener("click", confirmHandler);
@@ -1639,7 +1653,8 @@
         if (!watermarkContainer) return;
         watermarkContainer.innerHTML = "";
         const watermarkText = `${state.userData.nama} - ${state.userData.perusahaan}`;
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 15; i++) {
+          // Mengurangi jumlah watermark
           const item = document.createElement("div");
           item.className = "watermark-item";
           item.textContent = watermarkText;
@@ -2072,7 +2087,8 @@
         const watermarkContainer =
           dom.completionScreen.querySelector(".watermark");
         const watermarkText = `${state.userData.nama} - ${state.userData.perusahaan}`;
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 15; i++) {
+          // Mengurangi jumlah watermark
           const item = document.createElement("div");
           item.className = "watermark-item";
           item.textContent = watermarkText;
@@ -2285,12 +2301,25 @@
       // --- MISC HELPERS ---
 
       function loadTallyForms() {
-        const { nik, nama, perusahaan } = state.userData;
+        // Cek apakah src sudah mengandung URL Tally untuk mencegah reload yang tidak perlu
+        if (dom.spdkFrame.src.includes("tally.so")) {
+          return;
+        }
+
+        const { nik, nama, perusahaan, jabatan } = state.userData;
+        // Pastikan data pengguna ada sebelum membuat URL
+        if (!nik || !nama || !perusahaan) {
+          console.error(
+            "Data pengguna tidak lengkap untuk memuat formulir Tally."
+          );
+          return;
+        }
+
         const queryParams = `?nik=${encodeURIComponent(
           nik
         )}&nama=${encodeURIComponent(nama)}&perusahaan=${encodeURIComponent(
           perusahaan
-        )}`;
+        )}&jabatan=${encodeURIComponent(jabatan || "")}`;
 
         dom.spdkFrame.src = TALLY_SPDK_URL + queryParams;
         dom.checklistFrame.src = TALLY_CHECKLIST_URL + queryParams;

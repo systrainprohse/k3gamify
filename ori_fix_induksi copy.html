@@ -111,8 +111,11 @@
         position: absolute;
         inset: 0;
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
+        grid-template-columns: repeat(
+          2,
+          1fr
+        ); /* Mengurangi kolom untuk mengurangi frekuensi */
+        gap: 80px; /* Menambah jarak antar item */
         padding: 20px;
         pointer-events: none;
         overflow: hidden;
@@ -120,7 +123,7 @@
       }
       .watermark-item {
         color: #000;
-        opacity: 0.12; /* Opasitas dinaikkan agar lebih terlihat */
+        opacity: 0.06; /* Membuat lebih transparan */
         font-size: 16px; /* Ukuran font diperkecil */
         font-weight: bold;
         transform: rotate(-30deg);
@@ -1156,6 +1159,7 @@
         currentStep: 0,
         isOnline: navigator.onLine,
         userData: {},
+        remedialCount: 0,
         quizData: {
           allAnswers: {},
           allQuestions: [],
@@ -1260,7 +1264,14 @@
 
       function loadState() {
         const savedState = localStorage.getItem("inductionAppState");
-        if (savedState) state = JSON.parse(savedState);
+        if (savedState) {
+          const parsedState = JSON.parse(savedState);
+          // Ensure remedialCount exists, default to 0 if not
+          state = {
+            ...parsedState,
+            remedialCount: parsedState.remedialCount || 0,
+          };
+        }
       }
 
       function resetState() {
@@ -1495,9 +1506,20 @@
           if (quizType === "general") {
             payload = { tipe_induksi: "umum", jabatan_id: "all" };
           } else {
+            const inductionType = state.userData.inductionType;
+            let jabatanId = state.userData.jabatan;
+
+            // Jika tipe induksi adalah temporary atau visitor, selalu gunakan 'all' untuk jabatan_id
+            if (
+              inductionType === "temporary" ||
+              inductionType === "induksi_visitor"
+            ) {
+              jabatanId = "all";
+            }
+
             payload = {
-              tipe_induksi: state.userData.inductionType,
-              jabatan_id: state.userData.jabatan,
+              tipe_induksi: inductionType,
+              jabatan_id: jabatanId,
             };
           }
 
@@ -1950,12 +1972,22 @@
                       <button onclick="location.reload()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Selesaikan Sesi</button>`;
           localStorage.removeItem("inductionAppState");
         } else if (state.quizData.finalScore < PASSING_SCORE) {
+          let remedialWarning = "";
+          if (state.remedialCount >= 2) {
+            remedialWarning = `<div class="mt-4 p-3 bg-yellow-100 border border-yellow-300 text-yellow-800 text-sm rounded-lg">
+                  <strong>Peringatan:</strong> Anda telah gagal 3 kali. Jika remidi berikutnya masih gagal, Anda diwajibkan menghubungi PIC untuk induksi tatap muka via Zoom dengan tim HSE PT. GAM.
+              </div>`;
+          }
+
           content = `<h2 class="text-2xl font-bold text-red-600">Mohon Maaf, Anda Belum Lulus</h2>
                       <p class="mt-4 text-gray-700">Skor Akhir Anda adalah <strong>${state.quizData.finalScore.toFixed(
                         2
                       )}</strong>, sedangkan nilai kelulusan minimal adalah <strong>${PASSING_SCORE}</strong>.</p>
-                      <p class="mt-2 text-gray-600">Anda dapat mengulang proses dari awal atau tetap melanjutkan ke tahap TTD & Checklist dengan persetujuan pengawas.</p>
-                      <button id="continue-anyway-btn" class="mt-6 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Tetap Lanjutkan</button>`;
+                      <p class="mt-2 text-gray-600">Silakan pilih salah satu opsi di bawah ini.</p>
+                      <button id="remedial-btn" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Jawab Ulang (Remidi)</button>
+                      ${remedialWarning}
+                      <button id="continue-anyway-btn" class="mt-4 text-sm text-gray-500 hover:underline">Tetap Lanjutkan dengan persetujuan pengawas</button>
+                      `;
         } else {
           showCertificateScreen();
           return;
@@ -1969,6 +2001,26 @@
             dom.completionScreen.classList.add("hidden");
             dom.appContainer.classList.remove("hidden");
             advanceStep(7);
+          });
+        }
+
+        const remedialButton = document.getElementById("remedial-btn");
+        if (remedialButton) {
+          remedialButton.addEventListener("click", () => {
+            state.remedialCount++;
+            state.quizData.allAnswers = {};
+            state.quizData.allQuestions = [];
+            saveState();
+
+            dom.completionScreen.classList.add("hidden");
+            dom.appContainer.classList.remove("hidden");
+
+            const type = state.userData.inductionType;
+            if (type === "induksi_visitor" || type === "temporary") {
+              advanceStep(6);
+            } else {
+              advanceStep(5);
+            }
           });
         }
       }

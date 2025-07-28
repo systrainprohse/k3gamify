@@ -6,16 +6,9 @@
     <title>GAMITAS - Aplikasi Keselamatan Terpadu</title>
 
     <link rel="manifest" href="" />
-    <link
-      rel="icon"
-      href="https://cdn-icons-png.flaticon.com/512/3468/3468379.png"
-      type="image/png"
-    />
+    <link rel="icon" href="assets/fav_icon.png" type="image/png" />
     <meta name="theme-color" content="#ffffff" />
-    <link
-      rel="apple-touch-icon"
-      href="https://cdn-icons-png.flaticon.com/512/3468/3468379.png"
-    />
+    <link rel="apple-touch-icon" href="assets/fav_icon.png" />
 
     <link
       href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
@@ -1610,7 +1603,7 @@
                   Pendaftaran Induksi
                 </a>
                 <a
-                  href="induksi.html"
+                  href="kode_akses.html"
                   target="_self"
                   class="action-btn primary"
                 >
@@ -2092,13 +2085,13 @@
           theme_color: "#ffffff",
           icons: [
             {
-              src: "https://i.imgur.com/m7xleK9.png",
+              src: "assets/fav_icon.png",
               sizes: "192x192",
               type: "image/png",
               purpose: "any maskable",
             },
             {
-              src: "https://i.imgur.com/m7xleK9.png",
+              src: "assets/fav_icon.png",
               sizes: "512x512",
               type: "image/png",
               purpose: "any maskable",
@@ -2278,8 +2271,7 @@
           appContainer.style.animation = "fadeIn 0.5s";
 
           updateUserUI(userType);
-
-          initCarousel();
+          showPage("page-home");
         }, 500);
       }
 
@@ -2332,9 +2324,7 @@
 
         // Splash Screen Logic
         setTimeout(() => {
-          const synth = new Tone.Synth().toDestination();
           splashScreen.classList.add("show-verified");
-          synth.triggerAttackRelease("C5", "8n", Tone.now() + 0.5);
 
           setTimeout(() => {
             splashScreen.style.opacity = "0";

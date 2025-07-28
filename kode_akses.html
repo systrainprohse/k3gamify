@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifikasi Kode Akses</title>
+    <!-- Memuat Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Menggunakan font Inter untuk tampilan yang lebih modern */
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      /* Style untuk loading spinner */
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 4px solid #3498db;
+        width: 24px;
+        height: 24px;
+        animation: spin 2s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+      <div class="text-center">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+          Verifikasi Kode Akses
+        </h1>
+        <p class="text-gray-600 mb-6">
+          Kode akses adalah kode yang dikirimkan setelah melakukan pendaftaran
+          melalui nomor WhatsApp
+          <strong class="text-gray-700">082223089790 "k3gamify"</strong>.
+        </p>
+      </div>
+
+      <!-- Form untuk memasukkan kode akses -->
+      <form id="access-form">
+        <div class="mb-4">
+          <label
+            for="access-code"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Kode Akses</label
+          >
+          <input
+            type="text"
+            id="access-code"
+            name="access-code"
+            placeholder="Masukkan kode Anda di sini"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+          />
+        </div>
+
+        <!-- Tombol Submit -->
+        <button
+          type="submit"
+          id="submit-button"
+          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 flex items-center justify-center"
+        >
+          <span id="button-text">Masuk</span>
+          <div id="loader" class="loader hidden ml-3"></div>
+        </button>
+      </form>
+
+      <!-- Pesan error atau sukses -->
+      <div id="message" class="mt-4 text-center text-sm font-medium"></div>
+    </div>
+
+    <script>
+      // URL untuk mengambil data dari Google Sheet dalam format CSV
+      // Pastikan sheet "kode_akses" sudah di-publish ke web sebagai CSV
+      const sheetUrl =
+        "https://docs.google.com/spreadsheets/d/1tuTh3lLiPYAUOJwCTpvsag6jqt9TZXuieSjI2Q1T42A/gviz/tq?tqx=out:csv&sheet=kode_akses";
+
+      // Mengambil elemen dari DOM
+      const form = document.getElementById("access-form");
+      const accessCodeInput = document.getElementById("access-code");
+      const messageDiv = document.getElementById("message");
+      const submitButton = document.getElementById("submit-button");
+      const buttonText = document.getElementById("button-text");
+      const loader = document.getElementById("loader");
+
+      /**
+       * Fungsi untuk memformat tanggal menjadi YYYY-MM-DD agar sesuai dengan format di Google Sheet.
+       * @param {Date} date - Objek tanggal
+       * @returns {string} - Tanggal yang sudah diformat (contoh: 2025-07-28)
+       */
+      function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // Bulan dimulai dari 0
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      /**
+       * Fungsi untuk menangani proses submit form
+       * @param {Event} event - Event submit
+       */
+      async function handleFormSubmit(event) {
+        event.preventDefault(); // Mencegah form dari reload halaman
+
+        // Menampilkan loading spinner dan menonaktifkan tombol
+        loader.classList.remove("hidden");
+        buttonText.textContent = "Memverifikasi...";
+        submitButton.disabled = true;
+        accessCodeInput.disabled = true;
+        messageDiv.textContent = "";
+        messageDiv.className = "mt-4 text-center text-sm font-medium";
+
+        const enteredCode = accessCodeInput.value.trim();
+        const todayDateStr = formatDate(new Date());
+
+        try {
+          // Mengambil data dari Google Sheet
+          const response = await fetch(sheetUrl);
+          if (!response.ok) {
+            throw new Error("Gagal mengambil data dari spreadsheet.");
+          }
+          const csvText = await response.text();
+
+          // Memastikan ada teks untuk diproses
+          if (!csvText || csvText.trim() === "") {
+            throw new Error("Tidak ada data yang diterima dari spreadsheet.");
+          }
+
+          // Memproses data CSV
+          const rows = csvText.trim().split("\n").slice(1); // slice(1) untuk melewati header
+          let validCodeForToday = null;
+
+          for (const row of rows) {
+            if (!row.trim()) continue; // Lewati baris kosong
+
+            // Menyederhanakan cara memisahkan kolom, dengan asumsi tidak ada koma di dalam data
+            const columns = row
+              .split(",")
+              .map((col) => col.trim().replace(/^"|"$/g, ""));
+
+            if (columns.length > 2) {
+              const dateFromSheet = columns[1]; // Kolom tanggal
+              const codeFromSheet = columns[2]; // Kolom kode_akses
+
+              if (dateFromSheet === todayDateStr) {
+                validCodeForToday = codeFromSheet;
+                break;
+              }
+            }
+          }
+
+          // Memeriksa kode
+          if (validCodeForToday) {
+            if (enteredCode === validCodeForToday) {
+              messageDiv.textContent = "Kode benar! Mengarahkan...";
+              messageDiv.classList.add("text-green-600");
+              setTimeout(() => {
+                window.location.href = "induksi.html";
+              }, 1000);
+            } else {
+              throw new Error("Kode akses yang Anda masukkan salah.");
+            }
+          } else {
+            throw new Error("Tidak ada kode akses yang valid untuk hari ini.");
+          }
+        } catch (error) {
+          // Menampilkan pesan error
+          messageDiv.textContent = error.message;
+          messageDiv.classList.add("text-red-600");
+
+          // Mengembalikan tombol ke state semula
+          loader.classList.add("hidden");
+          buttonText.textContent = "Masuk";
+          submitButton.disabled = false;
+          accessCodeInput.disabled = false;
+        }
+      }
+
+      // Menambahkan event listener ke form
+      if (form) {
+        form.addEventListener("submit", handleFormSubmit);
+      }
+    </script>
+  </body>
+</html>

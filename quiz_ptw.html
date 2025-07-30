@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Induksi Izin Kerja Khusus</title>
+    <link rel="icon" href="https://i.imgur.com/2sQd5Xy.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk membuat PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f0f4f8; /* Softer background color */
+      }
+      .step-card {
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: 1px solid #e2e8f0;
+      }
+      .step-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .locked {
+        opacity: 0.6;
+        pointer-events: none;
+        filter: grayscale(80%);
+      }
+      .step-header {
+        cursor: pointer;
+      }
+      .step-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.7s ease-in-out;
+      }
+      .step-content.open {
+        max-height: 3500px;
+        transition: max-height 1s ease-in-out;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-left-color: #ffffff;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      /* Anti-Screenshot/Print Styles */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #print-message,
+        #print-message * {
+          visibility: visible;
+        }
+        #print-message {
+          position: fixed;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 24px;
+          font-weight: bold;
+          color: black;
+        }
+      }
+      .watermark {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 80px;
+        padding: 20px;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 1;
+      }
+      .watermark-item {
+        color: #000;
+        opacity: 0.04;
+        font-size: 16px;
+        font-weight: bold;
+        transform: rotate(-30deg);
+        white-space: nowrap;
+      }
+      /* Confetti Animation */
+      .confetti-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 999;
+      }
+      .confetti {
+        position: absolute;
+        width: 10px;
+        height: 20px;
+        opacity: 0.9;
+        animation: fall 5s linear forwards;
+      }
+      @keyframes fall {
+        to {
+          transform: translateY(110vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+      /* Custom input styles */
+      .custom-input {
+        background-color: #f8fafc;
+        border: 1px solid #cbd5e1;
+        transition: all 0.3s;
+      }
+      .custom-input:focus {
+        border-color: #2563eb;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      }
+      .main-btn {
+        background: linear-gradient(to right, #1d4ed8, #3b82f6);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11),
+          0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      .main-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1),
+          0 3px 6px rgba(0, 0, 0, 0.08);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl relative">
+      <!-- Tombol Admin Login -->
+      <button
+        id="admin-login-btn"
+        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </button>
+
+      <div class="text-center mb-10 pt-8">
+        <h1
+          class="text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight"
+        >
+          Sistem Induksi Izin Kerja Khusus
+        </h1>
+        <p class="text-md text-gray-500 mt-2">PT. Ganda Alam Makmur</p>
+        <div
+          id="online-status"
+          class="mt-4 text-sm font-semibold rounded-full px-3 py-1 inline-block"
+        ></div>
+        <div class="mt-4">
+          <a
+            href="index.html"
+            class="text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+          >
+            &larr; Kembali ke Halaman Utama
+          </a>
+        </div>
+      </div>
+
+      <div id="app-container" class="space-y-6">
+        <!-- Langkah 0: Panduan Pengerjaan -->
+        <div id="step-0" class="step-card bg-white p-6 rounded-xl shadow-md">
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-800">
+              Langkah 0: Panduan & Persetujuan
+            </h2>
+            <span id="step-0-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-0-content" class="step-content pt-6">
+            <div class="w-full bg-white rounded-2xl">
+              <div class="text-center mb-12">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800">
+                  Panduan Pengerjaan Induksi Izin Kerja Khusus
+                </h1>
+                <p class="text-base text-gray-600 mt-2">
+                  Ikuti 3 langkah mudah untuk mendapatkan sertifikat Anda.
+                </p>
+              </div>
+              <div class="space-y-10">
+                <!-- Step 1 Guide -->
+                <div class="flex items-start space-x-6">
+                  <div class="flex flex-col items-center">
+                    <div
+                      class="flex items-center justify-center w-12 h-12 bg-blue-500 text-white rounded-full text-xl font-bold shadow-lg"
+                    >
+                      1
+                    </div>
+                    <div class="w-1 h-24 bg-blue-200 mt-2"></div>
+                  </div>
+                  <div class="flex-1 pt-1">
+                    <div class="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-7 w-7 text-blue-500 mr-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                      <h2 class="text-xl font-bold text-gray-800">
+                        Isi Data & Pilih Izin Kerja
+                      </h2>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">
+                      Lengkapi data Anda dan pilih jenis Izin Kerja Khusus yang
+                      sesuai untuk memulai proses.
+                    </p>
+                  </div>
+                </div>
+                <!-- Step 2 Guide -->
+                <div class="flex items-start space-x-6">
+                  <div class="flex flex-col items-center">
+                    <div
+                      class="flex items-center justify-center w-12 h-12 bg-purple-500 text-white rounded-full text-xl font-bold shadow-lg"
+                    >
+                      2
+                    </div>
+                    <div class="w-1 h-24 bg-purple-200 mt-2"></div>
+                  </div>
+                  <div class="flex-1 pt-1">
+                    <div class="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-7 w-7 text-purple-500 mr-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <h2 class="text-xl font-bold text-gray-800">
+                        Kerjakan Kuis
+                      </h2>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">
+                      Fokus pada materi dan jawab semua pertanyaan untuk
+                      melanjutkan.
+                    </p>
+                  </div>
+                </div>
+                <!-- Step 3 Guide -->
+                <div class="flex items-start space-x-6">
+                  <div
+                    class="flex items-center justify-center w-12 h-12 bg-red-500 text-white rounded-full text-xl font-bold shadow-lg"
+                  >
+                    3
+                  </div>
+                  <div class="flex-1 pt-1 ml-6">
+                    <div class="flex items-center mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-7 w-7 text-red-500 mr-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                        />
+                      </svg>
+                      <h2 class="text-xl font-bold text-gray-800">
+                        Dapatkan Sertifikat
+                      </h2>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">
+                      Jika lulus, Anda akan langsung menerima sertifikat
+                      digital.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-12 pt-8 border-t border-gray-200">
+                <h3 class="text-lg font-bold text-center text-gray-800">
+                  Catatan Penting
+                </h3>
+                <div class="mt-4 grid md:grid-cols-2 gap-6 text-center">
+                  <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                    <h4
+                      class="font-semibold text-red-700 flex items-center justify-center"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-6 w-6 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                      </svg>
+                      Jika Tidak Lulus
+                    </h4>
+                    <p class="text-red-600 text-sm mt-1">
+                      Anda akan diberi pilihan untuk mengulang (remidi).
+                    </p>
+                  </div>
+                  <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <h4
+                      class="font-semibold text-blue-700 flex items-center justify-center"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-6 w-6 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071a10 10 0 0114.142 0M1.394 9.393a15 15 0 0121.212 0"
+                        />
+                      </svg>
+                      Koneksi Internet
+                    </h4>
+                    <p class="text-blue-600 text-sm mt-1">
+                      Jika koneksi terputus, data Anda aman dan akan diunggah
+                      otomatis saat kembali online.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="mt-6 bg-yellow-50 border border-yellow-300 p-4 rounded-lg text-center"
+                >
+                  <h4
+                    class="font-bold text-yellow-800 flex items-center justify-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-6 w-6 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    PERINGATAN KERAHASIAAN
+                  </h4>
+                  <p class="text-yellow-700 text-sm mt-2">
+                    Dilarang keras mengambil tangkapan layar (screenshot) soal
+                    maupun jawaban. Jika terbukti melakukan pelanggaran, akan
+                    diberikan sanksi SP1 dari tim PT GAM.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-8 pt-6 border-t">
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="guide-checkbox"
+                  class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="ml-3 text-gray-700 font-medium text-sm">
+                  Saya telah membaca dan memahami panduan pengerjaan di atas.
+                </span>
+              </label>
+              <button
+                id="start-process-btn"
+                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-base"
+                disabled
+              >
+                Lanjutkan ke Pengisian Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Langkah 1: Data Diri -->
+        <div id="step-1" class="step-card bg-white p-6 rounded-xl shadow-md">
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-800">
+              Langkah 1: Informasi Peserta
+            </h2>
+            <span id="step-1-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-1-content" class="step-content pt-6">
+            <form id="user-info-form" class="space-y-4">
+              <input
+                type="text"
+                id="timestamp"
+                name="timestamp"
+                class="hidden"
+              />
+              <div>
+                <label
+                  for="nik"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                  >NIK KTP</label
+                >
+                <input
+                  type="text"
+                  id="nik"
+                  name="nik"
+                  required
+                  class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+                />
+              </div>
+              <div>
+                <label
+                  for="nama"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                  >Nama Lengkap</label
+                >
+                <input
+                  type="text"
+                  id="nama"
+                  name="nama"
+                  required
+                  class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+                />
+              </div>
+              <div>
+                <label
+                  for="email"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                  >Email</label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+                />
+              </div>
+              <div>
+                <label
+                  for="whatsapp"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                  >No. WhatsApp</label
+                >
+                <input
+                  type="tel"
+                  id="whatsapp"
+                  name="whatsapp"
+                  required
+                  class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+                />
+              </div>
+              <div>
+                <label
+                  for="perusahaan-select"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                  >Perusahaan</label
+                >
+                <select
+                  id="perusahaan-select"
+                  name="perusahaan-select"
+                  required
+                  class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+                >
+                  <option value="" disabled selected>Pilih Perusahaan</option>
+                  <option value="PT. GAM">PT. GAM</option>
+                  <option value="PT. KRI">PT. KRI</option>
+                  <option value="PT. SUM">PT. SUM</option>
+                  <option value="PT. DAUN BUAH">PT. DAUN BUAH</option>
+                  <option value="Lainnya">Lainnya...</option>
+                </select>
+              </div>
+              <div id="perusahaan-lainnya-container" class="hidden">
+                <label
+                  for="perusahaan-lainnya"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                  >Nama Perusahaan Lainnya</label
+                >
+                <input
+                  type="text"
+                  id="perusahaan-lainnya"
+                  name="perusahaan-lainnya"
+                  class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+                />
+              </div>
+              <button
+                type="submit"
+                class="w-full main-btn text-white font-bold py-3 px-4 rounded-lg"
+              >
+                Simpan & Lanjutkan
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Langkah 2: Pilih Jenis Izin Kerja -->
+        <div
+          id="step-2"
+          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+        >
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-800">
+              Langkah 2: Pilih Jenis Izin Kerja
+            </h2>
+            <span id="step-2-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-2-content" class="step-content pt-6">
+            <p class="text-gray-600 mb-4">
+              Pilih jenis izin kerja khusus yang akan Anda ajukan.
+            </p>
+            <select
+              id="permit-type"
+              class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+            >
+              <option value="" disabled selected>Pilih Tipe Izin Kerja</option>
+              <option value="penggalian">IJIN KERJA PENGGALIAN</option>
+              <option value="peledakan">
+                IZIN KERJA PELEDAKAN (BLASTING PERMIT)
+              </option>
+              <option value="terpencil">IZIN KERJA PEKERJAAN TERPENCIL</option>
+              <option value="radioaktif">IZIN KERJA RADIOAKTIF</option>
+              <option value="isolasi">IZIN KERJA ISOLASI</option>
+              <option value="dinding_galian">IZIN KERJA DINDING GALIAN</option>
+              <option value="kelistrikan">KELISTRIKAN</option>
+              <option value="ruang_terbatas">CONFINED SPACE</option>
+              <option value="ketinggian">KETINGGIAN</option>
+              <option value="dekat_air">DIDEKAT AIR</option>
+              <option value="kerja_panas">HOT WORK</option>
+            </select>
+            <button
+              id="select-permit-btn"
+              class="mt-4 w-full main-btn text-white font-bold py-3 px-4 rounded-lg"
+            >
+              Lanjutkan ke Kuis
+            </button>
+          </div>
+        </div>
+
+        <!-- Langkah 3: Kuis -->
+        <div
+          id="step-3"
+          class="step-card bg-white p-6 rounded-xl shadow-md locked"
+        >
+          <div class="step-header flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-800">
+              Langkah 3: Kuis Izin Kerja
+            </h2>
+            <span id="step-3-status" class="text-sm font-semibold text-red-500"
+              >Terkunci</span
+            >
+          </div>
+          <div id="step-3-content" class="step-content pt-6 text-center">
+            <p class="text-gray-600 mb-4">
+              Anda wajib menyelesaikan kuis untuk dapat melanjutkan.
+            </p>
+            <p id="quiz-error" class="hidden text-red-500"></p>
+            <button
+              id="start-quiz-btn"
+              class="main-btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg"
+            >
+              Mulai Kuis
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="completion-screen"
+        class="hidden bg-white p-8 rounded-xl shadow-lg text-center mt-6 relative"
+      ></div>
+
+      <div class="text-center mt-12">
+        <button
+          id="reset-btn"
+          class="text-sm text-gray-500 hover:text-gray-700 hover:underline"
+        >
+          Ulangi Proses dari Awal
+        </button>
+      </div>
+    </div>
+
+    <!-- Hidden div for print message -->
+    <div id="print-message" class="hidden">Tindakan ini tidak diizinkan.</div>
+
+    <!-- Modal Konfirmasi -->
+    <div
+      id="confirmation-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white rounded-lg p-8 shadow-xl text-center max-w-sm">
+        <p id="modal-text" class="text-lg font-medium mb-6"></p>
+        <div class="flex justify-center space-x-4">
+          <button
+            id="modal-cancel"
+            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg"
+          >
+            Batal
+          </button>
+          <button
+            id="modal-confirm"
+            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg"
+          >
+            Ya
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Admin Login -->
+    <div
+      id="admin-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white rounded-lg p-8 shadow-xl w-full max-w-sm">
+        <h3 class="text-lg font-bold text-center mb-4">Login Admin</h3>
+        <form id="admin-login-form">
+          <label
+            for="admin-password"
+            class="block text-sm font-medium text-gray-700"
+            >Password</label
+          >
+          <input
+            type="password"
+            id="admin-password"
+            name="admin-password"
+            required
+            class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+          />
+          <p id="admin-error" class="text-red-500 text-sm mt-2 hidden">
+            Password salah.
+          </p>
+          <div class="flex justify-end space-x-4 mt-6">
+            <button
+              type="button"
+              id="admin-cancel-btn"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              class="main-btn text-white font-bold py-2 px-6 rounded-lg"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Admin Quiz Settings -->
+    <div
+      id="admin-quiz-settings-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white rounded-lg p-8 shadow-xl w-full max-w-md">
+        <h3 class="text-lg font-bold text-center mb-6">
+          Pengaturan Kuis Admin
+        </h3>
+        <form id="admin-quiz-settings-form" class="space-y-4">
+          <div>
+            <label
+              for="admin-permit-type"
+              class="block text-sm font-medium text-gray-700"
+              >Jenis Izin Kerja</label
+            >
+            <select
+              id="admin-permit-type"
+              name="admin-permit-type"
+              required
+              class="custom-input mt-1 block w-full px-3 py-2 rounded-md shadow-sm"
+            >
+              <!-- Options will be populated by JS -->
+            </select>
+          </div>
+          <div class="flex justify-end space-x-4 pt-4">
+            <button
+              type="button"
+              id="admin-quiz-settings-cancel-btn"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              class="main-btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg"
+            >
+              Mulai Kuis
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Kuis Modal -->
+    <div
+      id="quiz-modal"
+      class="hidden fixed inset-0 bg-gray-100 z-40 p-4 overflow-y-auto"
+    >
+      <div
+        class="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-2xl my-8 flex h-[90vh]"
+      >
+        <div
+          id="quiz-nav-sidebar"
+          class="w-1/4 bg-gray-50 border-r overflow-y-auto flex-shrink-0"
+        >
+          <h3 class="text-lg font-bold p-4 border-b sticky top-0 bg-gray-50">
+            Materi Izin Kerja
+          </h3>
+          <ul id="quiz-nav-list" class="p-2 space-y-1"></ul>
+        </div>
+        <div class="w-3/4 p-8 relative overflow-y-auto">
+          <div class="watermark"></div>
+          <div id="quiz-material-section" class="mb-6 pb-6 border-b">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h2
+                  id="material-title"
+                  class="text-xl font-bold text-gray-800"
+                ></h2>
+                <p id="material-progress" class="text-sm text-gray-500"></p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button
+                  id="back-to-steps-btn"
+                  class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition"
+                >
+                  Kembali
+                </button>
+              </div>
+            </div>
+            <div
+              id="video-container"
+              class="aspect-video bg-black rounded-lg mb-4"
+            ></div>
+            <div class="flex items-center justify-between">
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="video-watched-checkbox"
+                  class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="ml-3 text-gray-700 font-medium text-sm"
+                  >Saya telah menonton dan memahami materi video.</span
+                >
+              </label>
+            </div>
+          </div>
+          <div id="quiz-question-section" class="hidden">
+            <div class="flex justify-between mb-1">
+              <span
+                id="progress-text"
+                class="text-base font-medium text-blue-700"
+              ></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+              <div
+                id="progress-bar"
+                class="bg-blue-600 h-2.5 rounded-full"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div id="quiz-container"></div>
+          </div>
+          <div
+            id="navigation-buttons"
+            class="mt-8 pt-6 border-t border-gray-200 flex justify-between items-center"
+          >
+            <button
+              id="prev-button"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors"
+            >
+              Sebelumnya
+            </button>
+            <button
+              id="next-button"
+              class="main-btn text-white font-bold py-2 px-6 rounded-lg transition-colors"
+            >
+              Selanjutnya
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fullscreen Loader -->
+    <div
+      id="fullscreen-loader"
+      class="hidden fixed inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center z-[100]"
+    >
+      <div class="spinner"></div>
+      <p id="loader-text" class="text-white text-lg mt-4 font-semibold">
+        Memuat...
+      </p>
+    </div>
+
+    <script>
+      // --- KONFIGURASI WAJIB ---
+      const WEB_APP_URL =
+        "https://script.google.com/macros/s/AKfycbxZVqgB6IUZgcp6BS5uJcAL01cdFf8OIYeFjyH7cHDGZYhU0V1kszv5HqtU2PRZ0TJF/exec";
+      const PASSING_SCORE = 75; // Nilai Kelulusan Minimal
+      const ADMIN_PASSWORD = "gamhse2024"; // Password untuk mode admin
+      // -------------------------
+
+      // Inisialisasi jsPDF
+      const { jsPDF } = window.jspdf;
+
+      const dom = {
+        appContainer: document.getElementById("app-container"),
+        onlineStatus: document.getElementById("online-status"),
+        completionScreen: document.getElementById("completion-screen"),
+        allSteps: document.querySelectorAll(".step-card"),
+        resetButton: document.getElementById("reset-btn"),
+        userInfoForm: document.getElementById("user-info-form"),
+        permitTypeSelect: document.getElementById("permit-type"),
+        selectPermitBtn: document.getElementById("select-permit-btn"),
+        guideCheckbox: document.getElementById("guide-checkbox"),
+        startProcessBtn: document.getElementById("start-process-btn"),
+        startQuizBtn: document.getElementById("start-quiz-btn"),
+        loader: {
+          container: document.getElementById("fullscreen-loader"),
+          text: document.getElementById("loader-text"),
+        },
+        quiz: {
+          modal: document.getElementById("quiz-modal"),
+          navList: document.getElementById("quiz-nav-list"),
+          backToStepsBtn: document.getElementById("back-to-steps-btn"),
+          materialSection: document.getElementById("quiz-material-section"),
+          materialTitle: document.getElementById("material-title"),
+          materialProgress: document.getElementById("material-progress"),
+          videoContainer: document.getElementById("video-container"),
+          videoWatchedCheckbox: document.getElementById(
+            "video-watched-checkbox"
+          ),
+          questionSection: document.getElementById("quiz-question-section"),
+          progressText: document.getElementById("progress-text"),
+          progressBar: document.getElementById("progress-bar"),
+          container: document.getElementById("quiz-container"),
+          nextBtn: document.getElementById("next-button"),
+          prevBtn: document.getElementById("prev-button"),
+        },
+        modal: {
+          container: document.getElementById("confirmation-modal"),
+          text: document.getElementById("modal-text"),
+          confirmBtn: document.getElementById("modal-confirm"),
+          cancelBtn: document.getElementById("modal-cancel"),
+        },
+        admin: {
+          loginBtn: document.getElementById("admin-login-btn"),
+          modal: document.getElementById("admin-modal"),
+          form: document.getElementById("admin-login-form"),
+          passwordInput: document.getElementById("admin-password"),
+          errorMsg: document.getElementById("admin-error"),
+          cancelBtn: document.getElementById("admin-cancel-btn"),
+          quizSettingsModal: document.getElementById(
+            "admin-quiz-settings-modal"
+          ),
+          quizSettingsForm: document.getElementById("admin-quiz-settings-form"),
+          quizSettingsCancelBtn: document.getElementById(
+            "admin-quiz-settings-cancel-btn"
+          ),
+        },
+      };
+
+      let state = {
+        currentStep: 0,
+        isOnline: navigator.onLine,
+        isAdminMode: false,
+        userData: {},
+        remedialCount: 0,
+        quizData: {
+          allAnswers: {},
+          allQuestions: [],
+          currentMaterials: [],
+          currentTotalQuestions: 0,
+          finalScore: 0,
+        },
+      };
+
+      const permitTypeMap = {
+        penggalian: "IJIN KERJA PENGGALIAN",
+        peledakan: "IZIN KERJA PELEDAKAN (BLASTING PERMIT)",
+        terpencil: "IZIN KERJA PEKERJAAN TERPENCIL",
+        radioaktif: "IZIN KERJA RADIOAKTIF",
+        isolasi: "IZIN KERJA ISOLASI",
+        dinding_galian: "IZIN KERJA DINDING GALIAN",
+        kelistrikan: "KELISTRIKAN",
+        ruang_terbatas: "CONFINED SPACE",
+        ketinggian: "KETINGGIAN",
+        dekat_air: "DIDEKAT AIR",
+        kerja_panas: "HOT WORK",
+      };
+
+      function initApp() {
+        loadState();
+        loadCachedUserInfo();
+        checkOnlineStatus();
+        addEventListeners();
+        updateUI();
+      }
+
+      function updateUI() {
+        const isAdmin = state.isAdminMode;
+
+        dom.allSteps.forEach((step, index) => {
+          const content = step.querySelector(".step-content");
+          const statusEl = document.getElementById(`step-${index}-status`);
+
+          if (isAdmin) {
+            step.classList.remove("locked");
+            if (statusEl) {
+              statusEl.textContent = "Admin Access";
+              statusEl.className = "text-sm font-semibold text-purple-500";
+            }
+            content.classList.remove("open");
+          } else {
+            if (index < state.currentStep) {
+              step.classList.remove("locked");
+              if (statusEl) {
+                statusEl.textContent = "Selesai";
+                statusEl.className = "text-sm font-semibold text-green-500";
+              }
+              content.classList.remove("open");
+            } else if (index === state.currentStep) {
+              step.classList.remove("locked");
+              if (statusEl) {
+                statusEl.textContent = "Berlangsung";
+                statusEl.className = "text-sm font-semibold text-blue-500";
+              }
+              content.classList.add("open");
+            } else {
+              step.classList.add("locked");
+              content.classList.remove("open");
+              if (statusEl) {
+                statusEl.textContent = "Terkunci";
+                statusEl.className = "text-sm font-semibold text-red-500";
+              }
+            }
+          }
+        });
+
+        // Pre-fill user data if available
+        for (const key in state.userData) {
+          const el = dom.userInfoForm.elements[key];
+          if (el && key !== "perusahaan") {
+            el.value = state.userData[key];
+          }
+        }
+
+        if (state.userData.perusahaan) {
+          const perusahaanSelect =
+            dom.userInfoForm.elements["perusahaan-select"];
+          const isStandard = [...perusahaanSelect.options].some(
+            (opt) => opt.value === state.userData.perusahaan
+          );
+          if (isStandard) {
+            perusahaanSelect.value = state.userData.perusahaan;
+          } else {
+            perusahaanSelect.value = "Lainnya";
+            document
+              .getElementById("perusahaan-lainnya-container")
+              .classList.remove("hidden");
+            document.getElementById("perusahaan-lainnya").value =
+              state.userData.perusahaan;
+          }
+        }
+
+        if (state.userData.permitType)
+          dom.permitTypeSelect.value = state.userData.permitType;
+      }
+
+      function saveState() {
+        localStorage.setItem("permitWorkAppState", JSON.stringify(state));
+      }
+
+      function loadState() {
+        const savedState = localStorage.getItem("permitWorkAppState");
+        if (savedState) {
+          try {
+            const parsedState = JSON.parse(savedState);
+            state = {
+              ...parsedState,
+              remedialCount: parsedState.remedialCount || 0,
+            };
+          } catch (error) {
+            console.error("Gagal memuat state, mereset state:", error);
+            localStorage.removeItem("permitWorkAppState");
+          }
+        }
+      }
+
+      function resetState() {
+        showModal(
+          "Apakah Anda yakin ingin memulai sesi baru? Progres saat ini akan hilang.",
+          () => {
+            localStorage.removeItem("permitWorkAppState");
+            localStorage.removeItem("offlineQueue");
+            location.reload();
+          },
+          "Ya, Mulai Baru"
+        );
+      }
+
+      function advanceStep(step) {
+        state.currentStep = step;
+        saveState();
+        updateUI();
+      }
+
+      function addEventListeners() {
+        window.addEventListener("online", checkOnlineStatus);
+        window.addEventListener("offline", checkOnlineStatus);
+        dom.resetButton.addEventListener("click", resetState);
+
+        document.querySelectorAll(".step-header").forEach((header) => {
+          header.addEventListener("click", () => {
+            if (!header.parentElement.classList.contains("locked")) {
+              const currentOpenStep =
+                document.querySelector(".step-content.open");
+              if (
+                currentOpenStep &&
+                currentOpenStep !== header.nextElementSibling
+              ) {
+                currentOpenStep.classList.remove("open");
+              }
+              header.nextElementSibling.classList.toggle("open");
+            }
+          });
+        });
+
+        dom.guideCheckbox.addEventListener("change", () => {
+          dom.startProcessBtn.disabled = !dom.guideCheckbox.checked;
+        });
+        dom.startProcessBtn.addEventListener("click", () => advanceStep(1));
+
+        dom.userInfoForm.addEventListener("submit", handleUserInfoSubmit);
+        dom.selectPermitBtn.addEventListener("click", handleSelectPermit);
+        dom.startQuizBtn.addEventListener("click", handleStartQuiz);
+
+        const perusahaanSelect = document.getElementById("perusahaan-select");
+        const perusahaanLainnyaContainer = document.getElementById(
+          "perusahaan-lainnya-container"
+        );
+        const perusahaanLainnyaInput =
+          document.getElementById("perusahaan-lainnya");
+
+        perusahaanSelect.addEventListener("change", (e) => {
+          if (e.target.value === "Lainnya") {
+            perusahaanLainnyaContainer.classList.remove("hidden");
+            perusahaanLainnyaInput.required = true;
+          } else {
+            perusahaanLainnyaContainer.classList.add("hidden");
+            perusahaanLainnyaInput.required = false;
+            perusahaanLainnyaInput.value = "";
+          }
+        });
+
+        // Admin Listeners
+        dom.admin.loginBtn.addEventListener("click", () =>
+          dom.admin.modal.classList.remove("hidden")
+        );
+        dom.admin.cancelBtn.addEventListener("click", () =>
+          dom.admin.modal.classList.add("hidden")
+        );
+        dom.admin.form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (dom.admin.passwordInput.value === ADMIN_PASSWORD) {
+            state.isAdminMode = true;
+            dom.admin.modal.classList.add("hidden");
+            dom.admin.form.reset();
+            updateUI();
+          } else {
+            dom.admin.errorMsg.classList.remove("hidden");
+          }
+        });
+
+        dom.admin.quizSettingsCancelBtn.addEventListener("click", () =>
+          dom.admin.quizSettingsModal.classList.add("hidden")
+        );
+        dom.admin.quizSettingsForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const settings = Object.fromEntries(formData.entries());
+          state.userData.permitType = settings["admin-permit-type"];
+          dom.admin.quizSettingsModal.classList.add("hidden");
+          fetchAndLaunchQuiz();
+        });
+
+        dom.quiz.backToStepsBtn.addEventListener("click", () => {
+          dom.quiz.modal.classList.add("hidden");
+        });
+      }
+
+      async function handleUserInfoSubmit(e) {
+        e.preventDefault();
+        showLoader("Menyimpan data peserta...");
+        try {
+          const formData = new FormData(e.target);
+          state.userData = Object.fromEntries(formData.entries());
+
+          const perusahaanPilihan = formData.get("perusahaan-select");
+          if (perusahaanPilihan === "Lainnya") {
+            state.userData.perusahaan = formData.get("perusahaan-lainnya");
+          } else {
+            state.userData.perusahaan = perusahaanPilihan;
+          }
+          delete state.userData["perusahaan-select"];
+          delete state.userData["perusahaan-lainnya"];
+
+          state.userData.timestamp = new Date().toISOString();
+
+          localStorage.setItem(
+            "cachedUserInfo",
+            JSON.stringify(state.userData)
+          );
+
+          await postDataWithOfflineQueue({
+            action: "saveDataDiri", // This action can be generic
+            payload: state.userData,
+          });
+          advanceStep(2); // Advance to Step 2 (Select Permit)
+        } catch (error) {
+          console.error("Gagal menyimpan data diri:", error);
+          showAlert(`Terjadi kesalahan: ${error.message}`);
+        } finally {
+          hideLoader();
+        }
+      }
+
+      function handleSelectPermit() {
+        const type = dom.permitTypeSelect.value;
+        if (!type) {
+          showAlert("Silakan pilih tipe izin kerja.");
+          return;
+        }
+        state.userData.permitType = type;
+        advanceStep(3); // Advance to Step 3 (Quiz)
+      }
+
+      function populateAdminQuizSettingsModal() {
+        const permitSelect = document.getElementById("admin-permit-type");
+        permitSelect.innerHTML = ""; // Clear existing options
+        const originalPermitSelect = document.getElementById("permit-type");
+        originalPermitSelect.querySelectorAll("option").forEach((opt) => {
+          if (opt.value) {
+            // Skip the disabled "Pilih Tipe..."
+            permitSelect.add(opt.cloneNode(true));
+          }
+        });
+      }
+
+      function handleStartQuiz() {
+        if (state.isAdminMode) {
+          populateAdminQuizSettingsModal();
+          dom.admin.quizSettingsModal.classList.remove("hidden");
+        } else {
+          fetchAndLaunchQuiz();
+        }
+      }
+
+      async function fetchAndLaunchQuiz() {
+        showLoader("Memuat soal kuis...");
+        const errorEl = document.getElementById("quiz-error");
+        errorEl.classList.add("hidden");
+
+        state.quizData.allAnswers = {};
+        state.quizData.allQuestions = [];
+
+        try {
+          const payload = {
+            tipe_izin_kerja: state.userData.permitType,
+            sheetName: "SOAL_PTW", // Mengambil soal dari sheet SOAL_PTW
+          };
+          const materials = await postDataWithOfflineQueue({
+            action: "getSoalIzinKerja",
+            payload: payload,
+          });
+
+          if (!materials || materials.length === 0)
+            throw new Error(
+              "Tidak ada materi/soal yang ditemukan untuk izin kerja ini."
+            );
+
+          let currentTotalQuestions = 0;
+          materials.forEach((m) => {
+            if (m.questions && Array.isArray(m.questions)) {
+              currentTotalQuestions += m.questions.length;
+              state.quizData.allQuestions.push(...m.questions);
+            }
+          });
+
+          if (currentTotalQuestions === 0)
+            throw new Error(
+              "Materi ditemukan, tetapi tidak ada soal di dalamnya."
+            );
+
+          state.quizData.currentMaterials = materials;
+          state.quizData.currentTotalQuestions = currentTotalQuestions;
+
+          saveState();
+          launchQuizModal();
+        } catch (error) {
+          console.error(`Gagal memuat kuis:`, error);
+          errorEl.textContent = `Gagal memuat soal. Pesan: ${error.message}`;
+          errorEl.classList.remove("hidden");
+        } finally {
+          hideLoader();
+        }
+      }
+
+      function showAlert(text, onOk = () => {}) {
+        showModal(text, onOk, "OK", null);
+      }
+
+      function showModal(
+        text,
+        onConfirm,
+        confirmText = "Ya",
+        onCancel = () => {},
+        cancelText = "Batal"
+      ) {
+        dom.modal.text.textContent = text;
+        dom.modal.confirmBtn.textContent = confirmText;
+        dom.modal.cancelBtn.style.display = onCancel ? "inline-block" : "none";
+        dom.modal.container.classList.remove("hidden");
+
+        const confirmHandler = () => {
+          onConfirm();
+          hideModal();
+          cleanup();
+        };
+        const cancelHandler = () => {
+          if (onCancel) onCancel();
+          hideModal();
+          cleanup();
+        };
+        const cleanup = () => {
+          dom.modal.confirmBtn.removeEventListener("click", confirmHandler);
+          if (onCancel)
+            dom.modal.cancelBtn.removeEventListener("click", cancelHandler);
+        };
+
+        dom.modal.confirmBtn.addEventListener("click", confirmHandler, {
+          once: true,
+        });
+        if (onCancel)
+          dom.modal.cancelBtn.addEventListener("click", cancelHandler, {
+            once: true,
+          });
+      }
+
+      function hideModal() {
+        dom.modal.container.classList.add("hidden");
+      }
+
+      function showLoader(message = "Memuat...") {
+        dom.loader.text.textContent = message;
+        dom.loader.container.classList.remove("hidden");
+      }
+
+      function hideLoader() {
+        dom.loader.container.classList.add("hidden");
+      }
+
+      function launchQuizModal() {
+        state.quizData.currentMaterialIndex = 0;
+        state.quizData.currentQuestionIndex = 0;
+        dom.quiz.modal.classList.remove("hidden");
+        dom.quiz.nextBtn.onclick = handleQuizNext;
+        dom.quiz.prevBtn.onclick = handleQuizPrev;
+        populateQuizNavigation();
+        populateQuizWatermark();
+        displayCurrentMaterial();
+      }
+
+      function populateQuizNavigation() {
+        const { currentMaterials } = state.quizData;
+        dom.quiz.navList.innerHTML = "";
+        currentMaterials.forEach((material, index) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<button data-index="${index}" class="nav-item w-full text-left p-3 rounded-md text-sm text-gray-700 hover:bg-gray-200 transition">${
+            index + 1
+          }. ${material.materi_judul}</button>`;
+          dom.quiz.navList.appendChild(li);
+        });
+        dom.quiz.navList.querySelectorAll(".nav-item").forEach((item) => {
+          item.addEventListener("click", (e) => {
+            const index = parseInt(e.currentTarget.dataset.index, 10);
+            state.quizData.currentMaterialIndex = index;
+            state.quizData.currentQuestionIndex = 0;
+            displayCurrentMaterial();
+          });
+        });
+      }
+
+      function updateQuizNavigation() {
+        const { currentMaterialIndex } = state.quizData;
+        dom.quiz.navList
+          .querySelectorAll(".nav-item")
+          .forEach((item, index) => {
+            item.classList.toggle(
+              "bg-indigo-100",
+              index === currentMaterialIndex
+            );
+            item.classList.toggle(
+              "text-indigo-800",
+              index === currentMaterialIndex
+            );
+            item.classList.toggle(
+              "font-semibold",
+              index === currentMaterialIndex
+            );
+          });
+      }
+
+      function populateQuizWatermark() {
+        const watermarkContainer = dom.quiz.modal.querySelector(".watermark");
+        if (!watermarkContainer) return;
+        watermarkContainer.innerHTML = "";
+        const watermarkText = state.isAdminMode
+          ? "ADMIN MODE"
+          : `${state.userData.nama} - ${state.userData.perusahaan}`;
+        for (let i = 0; i < 15; i++) {
+          const item = document.createElement("div");
+          item.className = "watermark-item";
+          item.textContent = watermarkText;
+          watermarkContainer.appendChild(item);
+        }
+      }
+
+      function displayCurrentMaterial() {
+        const { currentMaterials, currentMaterialIndex } = state.quizData;
+        const material = currentMaterials[currentMaterialIndex];
+
+        dom.quiz.questionSection.classList.add("hidden");
+        dom.quiz.videoWatchedCheckbox.checked = false;
+        dom.quiz.videoWatchedCheckbox.disabled = false;
+        dom.quiz.materialTitle.textContent = material.materi_judul;
+        dom.quiz.materialProgress.textContent = `Materi ${
+          currentMaterialIndex + 1
+        } dari ${currentMaterials.length}`;
+        loadVideo(material.video_url);
+        dom.quiz.videoWatchedCheckbox.onchange = (e) => {
+          if (e.target.checked) {
+            dom.quiz.questionSection.classList.remove("hidden");
+            e.target.disabled = true;
+            displayCurrentQuestion();
+          }
+        };
+        updateQuizNavigation();
+        updateNavigationButtons();
+      }
+
+      function loadVideo(videoUrl) {
+        if (videoUrl && videoUrl.trim() !== "") {
+          const videoId =
+            videoUrl.split("v=")[1]?.split("&")[0] || videoUrl.split("/").pop();
+          dom.quiz.videoContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        } else {
+          dom.quiz.videoContainer.innerHTML = `<div class="w-full h-full bg-gray-200 flex items-center justify-center"><p class="text-gray-500">Tidak ada video untuk materi ini.</p></div>`;
+          dom.quiz.videoWatchedCheckbox.checked = true;
+          dom.quiz.videoWatchedCheckbox.dispatchEvent(new Event("change"));
+        }
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function displayCurrentQuestion() {
+        const { currentMaterials, currentMaterialIndex, currentQuestionIndex } =
+          state.quizData;
+        const material = currentMaterials[currentMaterialIndex];
+        const q = material.questions[currentQuestionIndex];
+
+        let options = [
+          q.pilihan_a,
+          q.pilihan_b,
+          q.pilihan_c,
+          q.pilihan_d,
+        ].filter((opt) => opt && String(opt).trim() !== "");
+        options = shuffleArray(options);
+
+        let imageHtml = q.gambar
+          ? `<img src="${q.gambar}" alt="Gambar Soal" class="my-4 rounded-lg max-w-full h-auto mx-auto border">`
+          : "";
+
+        dom.quiz.container.innerHTML = `
+          <h2 class="text-xl font-semibold mb-2">
+            <span class="font-bold">Pertanyaan ${
+              currentQuestionIndex + 1
+            } dari ${material.questions.length}:</span>
+          </h2>
+          <p class="text-lg mb-4">${q.pertanyaan}</p>
+          ${imageHtml}
+          <div class="space-y-4">
+            ${options
+              .map(
+                (option) => `
+              <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 transition-all">
+                <input type="radio" name="question${q.id_soal}" value="${option}" class="h-5 w-5 text-blue-600">
+                <span class="ml-4 text-sm">${option}</span>
+              </label>
+            `
+              )
+              .join("")}
+          </div>`;
+
+        const savedAnswer = state.quizData.allAnswers[q.id_soal];
+        if (savedAnswer) {
+          const radio = dom.quiz.container.querySelector(
+            `input[value="${savedAnswer}"]`
+          );
+          if (radio) radio.checked = true;
+        }
+
+        updateQuizProgress();
+        updateNavigationButtons();
+      }
+
+      function updateQuizProgress() {
+        const totalQuestions = state.quizData.currentTotalQuestions;
+        let questionNumber = 1;
+        for (let i = 0; i < state.quizData.currentMaterialIndex; i++) {
+          questionNumber += state.quizData.currentMaterials[i].questions.length;
+        }
+        questionNumber += state.quizData.currentQuestionIndex;
+        const progress =
+          totalQuestions > 0 ? (questionNumber / totalQuestions) * 100 : 0;
+        dom.quiz.progressBar.style.width = `${progress}%`;
+        dom.quiz.progressText.textContent = `Soal ${questionNumber} dari ${totalQuestions}`;
+      }
+
+      function updateNavigationButtons() {
+        const { currentMaterials, currentMaterialIndex, currentQuestionIndex } =
+          state.quizData;
+        const isFirst =
+          currentMaterialIndex === 0 && currentQuestionIndex === 0;
+        dom.quiz.prevBtn.disabled = isFirst;
+        const isLast =
+          currentMaterialIndex === currentMaterials.length - 1 &&
+          currentQuestionIndex ===
+            currentMaterials[currentMaterialIndex].questions.length - 1;
+        dom.quiz.nextBtn.textContent = isLast ? "Selesai" : "Selanjutnya";
+      }
+
+      function handleQuizNext() {
+        const { currentMaterials, currentMaterialIndex, currentQuestionIndex } =
+          state.quizData;
+        const q =
+          currentMaterials[currentMaterialIndex].questions[
+            currentQuestionIndex
+          ];
+        const selected = document.querySelector(
+          `input[name="question${q.id_soal}"]:checked`
+        );
+
+        if (!dom.quiz.videoWatchedCheckbox.checked) {
+          showAlert("Harap tonton video dan centang kotak konfirmasi.");
+          return;
+        }
+        if (!selected) {
+          showAlert("Harap pilih satu jawaban.");
+          return;
+        }
+        state.quizData.allAnswers[q.id_soal] = selected.value;
+
+        const isLastInMaterial =
+          currentQuestionIndex ===
+          currentMaterials[currentMaterialIndex].questions.length - 1;
+        if (!isLastInMaterial) {
+          state.quizData.currentQuestionIndex++;
+          displayCurrentQuestion();
+        } else {
+          const isLastMaterial =
+            currentMaterialIndex === currentMaterials.length - 1;
+          if (!isLastMaterial) {
+            state.quizData.currentMaterialIndex++;
+            state.quizData.currentQuestionIndex = 0;
+            displayCurrentMaterial();
+          } else {
+            finishQuiz();
+          }
+        }
+        saveState();
+      }
+
+      function handleQuizPrev() {
+        const { currentMaterialIndex, currentQuestionIndex } = state.quizData;
+        if (currentQuestionIndex > 0) {
+          state.quizData.currentQuestionIndex--;
+          displayCurrentQuestion();
+        } else if (currentMaterialIndex > 0) {
+          state.quizData.currentMaterialIndex--;
+          const prevMaterial =
+            state.quizData.currentMaterials[
+              state.quizData.currentMaterialIndex
+            ];
+          state.quizData.currentQuestionIndex =
+            prevMaterial.questions.length - 1;
+          displayCurrentMaterial();
+        }
+        saveState();
+      }
+
+      async function finishQuiz() {
+        dom.quiz.modal.classList.add("hidden");
+        calculateFinalScore();
+
+        if (state.isAdminMode) {
+          showAlert(
+            `Kuis Admin Selesai. Skor: ${state.quizData.finalScore.toFixed(2)}`
+          );
+          return;
+        }
+
+        showLoader("Menyimpan hasil akhir...");
+        try {
+          const payload = {
+            ...state.userData,
+            skor: state.quizData.finalScore,
+            tipe_izin_kerja: state.userData.permitType,
+            detail_jawaban: JSON.stringify(state.quizData.allAnswers),
+          };
+          await postDataWithOfflineQueue({
+            action: "saveJawabanIzinKerja",
+            payload: payload,
+          });
+          showFinalScreen();
+        } catch (error) {
+          console.error("Gagal menyimpan jawaban:", error);
+          showAlert(`Gagal menyimpan jawaban: ${error.message}`);
+        } finally {
+          hideLoader();
+        }
+      }
+
+      function calculateFinalScore() {
+        let correct = 0;
+        const total = state.quizData.allQuestions.length;
+        if (total === 0) {
+          state.quizData.finalScore = 0;
+          return;
+        }
+        state.quizData.allQuestions.forEach((q) => {
+          const userAnswer = state.quizData.allAnswers[q.id_soal];
+          if (
+            userAnswer &&
+            String(userAnswer).trim() === String(q.kunci_jawaban).trim()
+          ) {
+            correct++;
+          }
+        });
+        state.quizData.finalScore = (correct / total) * 100;
+      }
+
+      function triggerConfetti() {
+        const container = document.createElement("div");
+        container.className = "confetti-container";
+        dom.completionScreen.appendChild(container);
+        const colors = [
+          "#f44336",
+          "#e91e63",
+          "#9c27b0",
+          "#673ab7",
+          "#2196f3",
+          "#4caf50",
+          "#ffeb3b",
+          "#ff9800",
+        ];
+        for (let i = 0; i < 100; i++) {
+          const confetti = document.createElement("div");
+          confetti.className = "confetti";
+          confetti.style.left = Math.random() * 100 + "vw";
+          confetti.style.top = Math.random() * -100 + "vh";
+          confetti.style.backgroundColor =
+            colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.animationDelay = Math.random() * 2 + "s";
+          container.appendChild(confetti);
+        }
+        setTimeout(() => container.remove(), 6000);
+      }
+
+      function showFinalScreen() {
+        dom.appContainer.classList.add("hidden");
+        dom.completionScreen.classList.remove("hidden");
+        let content = "";
+
+        if (state.quizData.finalScore < PASSING_SCORE) {
+          content = `<h2 class="text-2xl font-bold text-red-600">Mohon Maaf, Anda Belum Lulus</h2>
+            <p class="mt-4 text-gray-700">Skor Akhir Anda: <strong>${state.quizData.finalScore.toFixed(
+              2
+            )}</strong>. Nilai minimal: <strong>${PASSING_SCORE}</strong>.</p>
+            <p class="mt-2 text-gray-600">Silakan pilih untuk mengulang kuis (remidi).</p>
+            <button id="remedial-btn" class="mt-6 w-full main-btn text-white font-bold py-3 px-4 rounded-lg">Jawab Ulang (Remidi)</button>`;
+        } else {
+          showCertificateScreen();
+          return;
+        }
+
+        dom.completionScreen.innerHTML = content;
+
+        const remedialButton = document.getElementById("remedial-btn");
+        if (remedialButton) {
+          remedialButton.addEventListener("click", () => {
+            state.remedialCount++;
+            state.quizData.allAnswers = {};
+            state.quizData.allQuestions = [];
+            saveState();
+            dom.completionScreen.classList.add("hidden");
+            dom.appContainer.classList.remove("hidden");
+            advanceStep(3); // Kembali ke langkah kuis (sekarang langkah 3)
+          });
+        }
+      }
+
+      function showCertificateScreen() {
+        dom.appContainer.classList.add("hidden");
+        dom.completionScreen.classList.remove("hidden");
+
+        const date = new Date(state.userData.timestamp);
+        const formattedDate = date.toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+        const permitText =
+          permitTypeMap[state.userData.permitType] || state.userData.permitType;
+
+        const qrData = `Nama: ${state.userData.nama}\nNIK: ${state.userData.nik}\nPerusahaan: ${state.userData.perusahaan}\nIzin Kerja: ${permitText}\nTanggal: ${formattedDate}`;
+
+        const content = `<div class="border-4 border-green-500 rounded-lg p-6 bg-green-50 text-left space-y-3 relative">
+            <div class="watermark"></div>
+            <h2 class="text-2xl font-bold text-green-700 text-center mb-4">🎉 Selamat! Anda Lulus 🎉</h2>
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex-1 space-y-2">
+                    <p><span class="font-semibold w-32 inline-block">Nama</span>: ${
+                      state.userData.nama
+                    }</p>
+                    <p><span class="font-semibold w-32 inline-block">Perusahaan</span>: ${
+                      state.userData.perusahaan
+                    }</p>
+                    <p><span class="font-semibold w-32 inline-block">Jenis Izin Kerja</span>: ${permitText}</p>
+                    <p><span class="font-semibold w-32 inline-block">Tanggal</span>: ${formattedDate}</p>
+                    <p><span class="font-semibold w-32 inline-block">Skor Akhir</span>: <strong>${state.quizData.finalScore.toFixed(
+                      2
+                    )}</strong></p>
+                </div>
+                <div class="p-2 bg-white border rounded-lg">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
+                      qrData
+                    )}" alt="QR Code" class="mx-auto">
+                </div>
+            </div>
+          </div>
+          <p class="mt-6 font-semibold text-center text-gray-700">Sertifikat ini adalah bukti penyelesaian induksi Izin Kerja Khusus.</p>
+          <button id="download-pdf-btn" class="mt-4 w-full main-btn text-white font-bold py-3 px-4 rounded-lg">Unduh Sertifikat (PDF)</button>`;
+
+        dom.completionScreen.innerHTML = content;
+
+        const watermarkContainer =
+          dom.completionScreen.querySelector(".watermark");
+        const watermarkText = `${state.userData.nama} - ${state.userData.perusahaan}`;
+        for (let i = 0; i < 15; i++) {
+          const item = document.createElement("div");
+          item.className = "watermark-item";
+          item.textContent = watermarkText;
+          watermarkContainer.appendChild(item);
+        }
+
+        setTimeout(triggerConfetti, 100);
+
+        document
+          .getElementById("download-pdf-btn")
+          .addEventListener("click", generateCertificatePDF);
+        localStorage.removeItem("permitWorkAppState");
+      }
+
+      async function generateCertificatePDF() {
+        showLoader("Membuat sertifikat PDF...");
+        const doc = new jsPDF();
+        const { nama, perusahaan, nik, timestamp, permitType } = state.userData;
+        const permitText = permitTypeMap[permitType] || permitType;
+        const date = new Date(timestamp);
+        const formattedDate = date.toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+        const qrData = `Nama: ${nama}\nNIK: ${nik}\nPerusahaan: ${perusahaan}\nIzin Kerja: ${permitText}\nTanggal: ${formattedDate}`;
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.text("SERTIFIKAT INDUKSI IZIN KERJA KHUSUS", 105, 30, {
+          align: "center",
+        });
+        doc.setFontSize(14);
+        doc.text("PT. Ganda Alam Makmur", 105, 40, { align: "center" });
+        doc.setLineWidth(0.5);
+        doc.line(20, 45, 190, 45);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.text("Dengan ini menyatakan bahwa:", 105, 60, { align: "center" });
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text(nama, 105, 80, { align: "center" });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.text(`Dari perusahaan: ${perusahaan}`, 105, 90, {
+          align: "center",
+        });
+        doc.text("Telah berhasil menyelesaikan induksi untuk:", 105, 110, {
+          align: "center",
+        });
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text(permitText, 105, 120, { align: "center" });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.text(`Pada tanggal ${formattedDate}`, 105, 140, {
+          align: "center",
+        });
+        doc.text(`Dengan skor akhir:`, 105, 150, { align: "center" });
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.text(state.quizData.finalScore.toFixed(2), 105, 160, {
+          align: "center",
+        });
+
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+          qrData
+        )}`;
+        try {
+          const qrCodeDataUrl = await getImageDataUrl(qrCodeUrl);
+          doc.addImage(qrCodeDataUrl, "PNG", 85, 180, 40, 40);
+        } catch (error) {
+          console.error("Gagal memuat QR code untuk PDF:", error);
+          doc.text("[Gagal memuat QR Code]", 105, 200, { align: "center" });
+        }
+
+        doc.setFontSize(10);
+        doc.setTextColor(150);
+        doc.text(
+          "Sertifikat ini dibuat secara otomatis oleh sistem.",
+          105,
+          280,
+          { align: "center" }
+        );
+        doc.save(`Sertifikat_IzinKerja_${nama}.pdf`);
+        hideLoader();
+      }
+
+      function getImageDataUrl(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL("image/png"));
+          };
+          img.onerror = () =>
+            reject(new Error("Gagal memuat gambar dari URL: " + url));
+          img.src = url;
+        });
+      }
+
+      async function postDataWithOfflineQueue(request) {
+        if (state.isOnline) {
+          try {
+            const response = await fetch(WEB_APP_URL, {
+              method: "POST",
+              mode: "cors",
+              cache: "no-cache",
+              redirect: "follow",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify(request),
+            });
+            if (!response.ok)
+              throw new Error(`Server error: ${response.statusText}`);
+            const result = await response.json();
+            if (result.status !== "success")
+              throw new Error(result.message || "Unknown server error");
+            return result.data;
+          } catch (error) {
+            console.error("API call failed, saving to offline queue:", error);
+            if (request.action.startsWith("getSoal")) throw error;
+            addToOfflineQueue(request);
+          }
+        } else {
+          if (request.action.startsWith("getSoal"))
+            throw new Error("Tidak bisa memuat soal saat offline.");
+          addToOfflineQueue(request);
+        }
+      }
+
+      function addToOfflineQueue(request) {
+        const queue = JSON.parse(localStorage.getItem("offlineQueue") || "[]");
+        queue.push(request);
+        localStorage.setItem("offlineQueue", JSON.stringify(queue));
+        showAlert(
+          "Koneksi terputus. Data Anda disimpan dan akan dikirim saat kembali online."
+        );
+      }
+
+      async function syncOfflineData() {
+        const queue = JSON.parse(localStorage.getItem("offlineQueue") || "[]");
+        if (queue.length === 0) return;
+        showLoader(`Menyinkronkan ${queue.length} data...`);
+        const failedSync = [];
+        for (const request of queue) {
+          try {
+            await postDataWithOfflineQueue(request);
+          } catch (error) {
+            failedSync.push(request);
+          }
+        }
+        localStorage.setItem("offlineQueue", JSON.stringify(failedSync));
+        hideLoader();
+        if (failedSync.length === 0) {
+          showAlert("Semua data yang tersimpan berhasil diunggah.");
+        } else {
+          showAlert(
+            `Gagal mengunggah ${failedSync.length} data. Akan dicoba lagi nanti.`
+          );
+        }
+      }
+
+      function checkOnlineStatus() {
+        state.isOnline = navigator.onLine;
+        dom.onlineStatus.textContent = state.isOnline
+          ? "● Online"
+          : "● Offline";
+        dom.onlineStatus.className = `mt-2 text-sm font-semibold rounded-full px-3 py-1 inline-block ${
+          state.isOnline
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800"
+        }`;
+        if (state.isOnline) syncOfflineData();
+      }
+
+      function loadCachedUserInfo() {
+        if (state.currentStep > 0) return;
+        const cachedInfo = localStorage.getItem("cachedUserInfo");
+        if (cachedInfo) {
+          const userInfo = JSON.parse(cachedInfo);
+          dom.userInfoForm.elements["nik"].value = userInfo.nik || "";
+          dom.userInfoForm.elements["nama"].value = userInfo.nama || "";
+          dom.userInfoForm.elements["email"].value = userInfo.email || "";
+          dom.userInfoForm.elements["whatsapp"].value = userInfo.whatsapp || "";
+
+          const perusahaanSelect =
+            dom.userInfoForm.elements["perusahaan-select"];
+          const perusahaanLainnyaContainer = document.getElementById(
+            "perusahaan-lainnya-container"
+          );
+          const perusahaanLainnyaInput =
+            document.getElementById("perusahaan-lainnya");
+
+          const isStandardCompany = [...perusahaanSelect.options].some(
+            (opt) => opt.value === userInfo.perusahaan
+          );
+          if (isStandardCompany) {
+            perusahaanSelect.value = userInfo.perusahaan;
+          } else if (userInfo.perusahaan) {
+            perusahaanSelect.value = "Lainnya";
+            perusahaanLainnyaContainer.classList.remove("hidden");
+            perusahaanLainnyaInput.value = userInfo.perusahaan;
+          }
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", initApp);
+    </script>
+  </body>
+</html>

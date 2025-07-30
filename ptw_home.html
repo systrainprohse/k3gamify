@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Manajemen Keselamatan</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ffffff" />
+    <link
+      rel="manifest"
+      href="data:application/manifest+json;base64,ew0KICAibmFtZSI6ICJBcGxpa2FzaSBQZXJtaXQgdG8gV29yayIsDQogICJzaG9ydF9uYW1lIjogIlBUIFRvIFdvcmciLA0KICAiaWNvbnMiOiBbDQogICAgew0KICAgICAgInNyYyI6ICJodHRwczovL3BsYWNlaG9sZC5jby8xOTJ4MTkyLzBGRDYwQi9GRkZGRkY/dGV4dD1QV1ciLA0KICAgICAgInNpemVzIjogIjE5MngxOTIiLA0KICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIg0KICAgIH0sDQogICAgew0KICAgICAgInNyYyI6ICJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzBGRDYwQi9GRkZGRkY/dGV4dD1QV1ciLA0KICAgICAgInNpemVzIjogIjUxMng1MTIiLA0KICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIg0KICAgIH0NCiAgXSwNCiAgInN0YXJ0X3VybCI6ICIuIiwNCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsDQogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmN2ZhZmMiLA0KICAidGhlbWVfY29sb3IiOiAiI2ZmZmZmZiINCn0="
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f1f5f9; /* slate-100 */
+      }
+      .menu-background {
+        background-color: #e0f2fe; /* light blue background */
+      }
+      .menu-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .menu-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .map-container {
+        height: 400px;
+        width: 100%;
+        border-radius: 0.5rem;
+        z-index: 0;
+      }
+      #location-picker-map {
+        height: 250px;
+      }
+      #modal-map {
+        height: 200px;
+        width: 100%;
+        border-radius: 0.5rem;
+        z-index: 0;
+      }
+      .hidden {
+        display: none;
+      }
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border-left-color: #fff;
+        animation: spin 1s ease infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .sortable {
+        cursor: pointer;
+        user-select: none;
+      }
+      .sortable:hover {
+        background-color: #f9fafb;
+      }
+      .sortable::after {
+        font-size: 0.8em;
+        margin-left: 5px;
+      }
+      .sortable.asc::after {
+        content: " ▲";
+      }
+      .sortable.desc::after {
+        content: " ▼";
+      }
+      input:focus,
+      select:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        --tw-ring-color: #3b82f6; /* blue-500 */
+        box-shadow: 0 0 0 2px var(--tw-ring-color);
+      }
+      .highlight-row {
+        background-color: #eff6ff !important; /* blue-100 */
+        transition: background-color 0.3s ease;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100">
+    <!-- Main Menu View -->
+    <div
+      id="menu-view"
+      class="flex items-center justify-center min-h-screen menu-background"
+    >
+      <div class="text-center p-8">
+        <img
+          src="assets/logo.png"
+          alt="Logo Perusahaan"
+          class="mx-auto mb-8 h-10"
+          onerror="this.onerror=null;this.src='https://placehold.co/150x50/3b82f6/FFFFFF?text=LOGO';"
+        />
+        <h1 class="text-3xl font-semibold text-slate-800 mb-2">
+          Sistem Manajemen Keselamatan
+        </h1>
+        <p class="text-md text-slate-600 mb-10">
+          Silakan pilih menu di bawah untuk melanjutkan.
+        </p>
+        <div class="flex flex-col md:flex-row gap-6 justify-center">
+          <div
+            id="open-ptw-app-btn"
+            class="menu-card bg-white rounded-xl shadow-md p-6 w-full md:w-72 text-left cursor-pointer border border-slate-200 hover:border-blue-400"
+          >
+            <div
+              class="bg-blue-100 text-blue-600 rounded-lg h-12 w-12 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                ></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <h2 class="text-lg font-bold text-slate-800 mb-1">
+              Aplikasi Izin Kerja
+            </h2>
+            <p class="text-sm text-slate-500">
+              Masuk ke dashboard untuk mengajukan dan memonitor izin kerja
+              (PTW).
+            </p>
+          </div>
+          <a
+            href="quiz_ptw.html"
+            class="menu-card bg-white rounded-xl shadow-md p-6 w-full md:w-72 text-left border border-slate-200 hover:border-green-400"
+          >
+            <div
+              class="bg-green-100 text-green-600 rounded-lg h-12 w-12 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <h2 class="text-lg font-bold text-slate-800 mb-1">
+              Kuis Keselamatan
+            </h2>
+            <p class="text-sm text-slate-500">
+              Kerjakan kuis untuk menguji pemahaman Anda.
+            </p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PTW App View -->
+    <div id="app-view" class="hidden">
+      <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div
+          class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between"
+        >
+          <div class="flex items-center space-x-3">
+            <img
+              src="assets/logo.png"
+              alt="Logo Perusahaan"
+              class="h-8 w-auto"
+              onerror="this.onerror=null;this.src='https://placehold.co/40x40/3b82f6/FFFFFF?text=LOGO';"
+            />
+            <h1 class="text-xl font-semibold text-slate-900">
+              Aplikasi Permit to Work
+            </h1>
+          </div>
+          <button
+            id="back-to-menu-btn"
+            class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-4 rounded-lg text-sm transition-colors"
+          >
+            Kembali ke Menu
+          </button>
+        </div>
+      </header>
+
+      <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div id="loading-indicator" class="text-center py-10">
+          <p class="text-xl font-semibold text-slate-700">
+            Memuat Data Izin Kerja...
+          </p>
+        </div>
+        <div id="dashboard-view" class="hidden"><!-- Dashboard content --></div>
+        <div id="form-view" class="hidden"><!-- Form content --></div>
+      </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div
+      id="detail-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50"
+    >
+      <div
+        class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+      >
+        <div class="p-6 border-b flex justify-between items-center">
+          <h3 class="text-xl font-semibold text-slate-800">
+            Detail Izin Kerja
+          </h3>
+          <button
+            id="close-modal-btn"
+            class="text-slate-400 hover:text-slate-600 text-2xl leading-none"
+          >
+            &times;
+          </button>
+        </div>
+        <div id="modal-content" class="p-6 space-y-4 text-sm"></div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      // --- TEMPLATES ---
+      const dashboardHTML = `
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h1 class="text-3xl font-bold text-slate-800">Dashboard</h1>
+                <button id="new-permit-btn" class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>Izin Baru</span>
+                </button>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mb-6 border border-slate-200">
+                <h3 class="text-lg font-semibold mb-3 text-slate-700">Filter Data</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div><label for="filter-start-date" class="block text-sm font-medium text-slate-700">Tanggal Mulai</label><input type="date" id="filter-start-date" class="mt-1 block w-full p-2 border border-slate-300 rounded-md"></div>
+                    <div><label for="filter-end-date" class="block text-sm font-medium text-slate-700">Tanggal Selesai</label><input type="date" id="filter-end-date" class="mt-1 block w-full p-2 border border-slate-300 rounded-md"></div>
+                    <div><label for="filter-department" class="block text-sm font-medium text-slate-700">Departemen</label><select id="filter-department" class="mt-1 block w-full p-2 border border-slate-300 rounded-md bg-white"><option value="">Semua</option></select></div>
+                    <div><label class="block text-sm font-medium text-transparent">Reset</label><button id="reset-filters-btn" class="mt-1 w-full bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300">Reset Filter</button></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow-md border border-slate-200 flex items-center gap-4">
+                    <div class="bg-blue-100 text-blue-600 rounded-lg h-12 w-12 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
+                    <div><p class="text-sm text-slate-500">Izin Aktif</p><p id="active-permits-stat" class="text-2xl font-bold text-slate-800">0</p></div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md border border-slate-200 flex items-center gap-4">
+                    <div class="bg-indigo-100 text-indigo-600 rounded-lg h-12 w-12 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg></div>
+                    <div><p class="text-sm text-slate-500">Total Izin</p><p id="total-permits-stat" class="text-2xl font-bold text-slate-800">0</p></div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md border border-slate-200 flex items-center gap-4">
+                    <div class="bg-amber-100 text-amber-600 rounded-lg h-12 w-12 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                    <div><p class="text-sm text-slate-500">Jenis Pekerjaan</p><p id="permit-types-stat" class="text-2xl font-bold text-slate-800">0</p></div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md border border-slate-200">
+                    <div class="flex items-center gap-4">
+                         <div class="bg-green-100 text-green-600 rounded-lg h-12 w-12 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
+                         <div class="flex-grow"><h3 class="text-sm font-semibold text-slate-700">Lokasi Aktif</h3><div id="active-locations-list" class="text-sm text-slate-600 mt-1 max-h-12 overflow-y-auto"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md border border-slate-200 mb-6">
+                <h2 class="text-xl font-semibold mb-4 text-slate-700">Heatmap Lokasi Kerja</h2>
+                <div id="heatmap-container" class="map-container"></div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md border border-slate-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4"><h2 class="text-xl font-semibold text-slate-700">Data Izin Kerja</h2><input type="text" id="table-search" placeholder="Cari data..." class="p-2 border border-slate-300 rounded-md w-full sm:w-auto"></div>
+                <div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-200"><thead class="bg-slate-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider sortable" data-sort="no">No</th><th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider sortable" data-sort="doc_number">No. Dokumen</th><th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider sortable" data-sort="namaPengaju">Nama PIC</th><th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider sortable" data-sort="departement">Departemen</th><th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider sortable" data-sort="tanggal_mulai">Tgl Mulai</th></tr></thead><tbody id="permit-table-body" class="bg-white divide-y divide-slate-200"></tbody></table></div>
+            </div>`;
+
+      const formHTML = `
+            <div class="max-w-4xl mx-auto">
+                <div class="flex justify-between items-center mb-6"><h1 class="text-2xl sm:text-3xl font-bold text-slate-800">Formulir Izin Kerja</h1><button id="cancel-form-btn" class="flex items-center space-x-2 text-slate-600 hover:text-slate-900"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg><span class="hidden sm:inline">Tutup</span></button></div>
+                <form id="permit-form" class="bg-white p-6 sm:p-8 rounded-lg shadow-lg space-y-6 border border-slate-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="namaPengaju" class="block text-sm font-medium text-slate-700 mb-1">Nama Pengaju (PIC)</label><input type="text" id="namaPengaju" class="w-full p-2 border border-slate-300 rounded-md" required /></div>
+                        <div><label for="jabatanPic" class="block text-sm font-medium text-slate-700 mb-1">Jabatan PIC</label><input type="text" id="jabatanPic" class="w-full p-2 border border-slate-300 rounded-md" required /></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="perusahaan" class="block text-sm font-medium text-slate-700 mb-1">Perusahaan</label><input type="text" id="perusahaan" class="w-full p-2 border border-slate-300 rounded-md" required /></div>
+                        <div><label for="departement" class="block text-sm font-medium text-slate-700 mb-1">Departemen</label><input type="text" id="departement" class="w-full p-2 border border-slate-300 rounded-md" required /></div>
+                    </div>
+                    <div><label for="jenisPekerjaan" class="block text-sm font-medium text-slate-700 mb-1">Jenis Izin Kerja</label><select id="jenisPekerjaan" class="w-full p-2 border border-slate-300 rounded-md bg-white"><option>Pekerjaan Panas (Hot Work)</option><option>Bekerja di Ketinggian</option><option>Ruang Terbatas (Confined Space)</option><option>Pekerjaan Listrik</option><option>Penggalian (Excavation)</option></select></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="tanggal_mulai" class="block text-sm font-medium text-slate-700 mb-1">Tanggal Mulai</label><input type="date" id="tanggal_mulai" class="w-full p-2 border border-slate-300 rounded-md" required /></div>
+                        <div><label for="tanggal_selesai" class="block text-sm font-medium text-slate-700 mb-1">Tanggal Selesai</label><input type="date" id="tanggal_selesai" class="w-full p-2 border border-slate-300 rounded-md" required /></div>
+                    </div>
+                    <div><label for="deskripsi_ptw" class="block text-sm font-medium text-slate-700 mb-1">Deskripsi Pekerjaan</label><textarea id="deskripsi_ptw" rows="3" class="w-full p-2 border border-slate-300 rounded-md" required></textarea></div>
+                    <div><label for="no_wa" class="block text-sm font-medium text-slate-700 mb-1">No. WhatsApp</label><input type="tel" id="no_wa" class="w-full p-2 border border-slate-300 rounded-md" placeholder="Contoh: 628123456789" required /></div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Orang yang Terlibat</label>
+                        <div id="involved-people-container" class="space-y-2"><div class="flex items-center space-x-2"><input type="text" placeholder="Nama Orang #1" class="w-full p-2 border border-slate-300 rounded-md involved-person" required /></div></div>
+                        <button type="button" id="add-person-btn" class="mt-2 flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 font-medium"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>Tambah Orang</span></button>
+                    </div>
+                    <div><label class="block text-sm font-medium text-slate-700 mb-1">Lokasi Pekerjaan</label><p class="text-xs text-slate-500 mb-2">Klik pada peta untuk memilih lokasi.</p><div id="location-picker-map" class="map-container"></div><input type="hidden" id="pin_location" /><p id="selected-location-name" class="mt-2 text-sm text-slate-600 bg-slate-100 p-2 rounded-md hidden"></p></div>
+                    <div class="flex justify-end pt-4 space-x-3"><button type="submit" id="submit-btn" class="w-full sm:w-auto flex justify-center items-center px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 disabled:bg-slate-400"><span id="submit-text">Ajukan Izin</span><div id="submit-spinner" class="spinner hidden"></div></button></div>
+                </form>
+            </div>`;
+
+      // --- SCRIPT START ---
+      const SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbzOu3tCYf_eGV2kmZa7mYIN1fLOXcezK4rhKttubh6uj-LKfYIOzhLogvco5rG3wUP9/exec";
+      let allPermits = [];
+      let heatmap,
+        heatLayerInstance,
+        locationPickerMap,
+        locationMarker,
+        modalMap,
+        modalMarker;
+      let isAppInitialized = false;
+
+      const menuView = document.getElementById("menu-view");
+      const appView = document.getElementById("app-view");
+      const loadingIndicator = document.getElementById("loading-indicator");
+      const dashboardContainer = document.getElementById("dashboard-view");
+      const formContainer = document.getElementById("form-view");
+      const detailModal = document.getElementById("detail-modal");
+      const modalContent = document.getElementById("modal-content");
+
+      function showView(viewName) {
+        menuView.classList.add("hidden");
+        appView.classList.add("hidden");
+        if (viewName === "menu") menuView.classList.remove("hidden");
+        else if (viewName === "app") appView.classList.remove("hidden");
+      }
+
+      function showAppView(subView) {
+        [dashboardContainer, formContainer, loadingIndicator].forEach((el) =>
+          el.classList.add("hidden")
+        );
+        document.getElementById(subView).classList.remove("hidden");
+      }
+
+      async function initializeAndFetchData() {
+        showView("app");
+        showAppView("loading-indicator");
+        try {
+          const response = await fetch(SCRIPT_URL);
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+          const permits = await response.json();
+          if (!Array.isArray(permits))
+            throw new Error("Format data tidak valid.");
+
+          allPermits = permits;
+          dashboardContainer.innerHTML = dashboardHTML;
+          formContainer.innerHTML = formHTML;
+          showAppView("dashboard-view");
+
+          initializeHeatmap();
+          populateDepartmentFilter(allPermits);
+          addAppEventListeners();
+
+          setTimeout(() => {
+            heatmap.invalidateSize();
+            applyFilters();
+          }, 100);
+        } catch (error) {
+          console.error("Gagal mengambil data:", error);
+          loadingIndicator.textContent =
+            "Gagal memuat data. Periksa koneksi dan URL Apps Script.";
+        }
+      }
+
+      function populateDepartmentFilter(permits) {
+        const departmentFilter = document.getElementById("filter-department");
+        const departments = [...new Set(permits.map((p) => p.departement))];
+        departmentFilter.innerHTML = '<option value="">Semua</option>';
+        departments.sort().forEach((dept) => {
+          if (dept) {
+            const option = document.createElement("option");
+            option.value = dept;
+            option.textContent = dept;
+            departmentFilter.appendChild(option);
+          }
+        });
+      }
+
+      function initializeHeatmap() {
+        if (heatmap) return;
+        heatmap = L.map("heatmap-container");
+        L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+          {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          }
+        ).addTo(heatmap);
+      }
+
+      function updateVisualizations(permits) {
+        updateDashboardStats(permits);
+        updateHeatmap(permits);
+        renderTable(permits);
+      }
+
+      function updateHeatmap(permits) {
+        if (!heatmap) return;
+        const points = permits
+          .map((p) => {
+            try {
+              const parts = p.pin_location.split(",");
+              const lat = parseFloat(parts[0].trim());
+              const lng = parseFloat(parts[1].trim());
+              if (!isNaN(lat) && !isNaN(lng)) return [lat, lng, 0.5];
+              return null;
+            } catch {
+              return null;
+            }
+          })
+          .filter((p) => p !== null);
+
+        if (heatLayerInstance) heatLayerInstance.setLatLngs(points);
+        else if (points.length > 0)
+          heatLayerInstance = L.heatLayer(points, { radius: 25 }).addTo(
+            heatmap
+          );
+
+        if (points.length > 0) {
+          const bounds = L.latLngBounds(points);
+          heatmap.fitBounds(bounds.pad(0.1));
+        } else {
+          heatmap.setView([-6.2, 106.8], 10);
+        }
+      }
+
+      function updateDashboardStats(permits) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const activePermits = permits.filter((p) => {
+          const startDate = new Date(p.tanggal_mulai);
+          const endDate = new Date(p.tanggal_selesai);
+          return startDate <= today && endDate >= today;
+        });
+
+        const activeLocationsList = document.getElementById(
+          "active-locations-list"
+        );
+        activeLocationsList.innerHTML = "";
+        if (activePermits.length > 0) {
+          activePermits.forEach((p) => {
+            const locationItem = document.createElement("div");
+            locationItem.className =
+              "p-1 hover:bg-slate-100 rounded cursor-pointer";
+            locationItem.textContent = p.lokasi.substring(0, 30) + "...";
+            locationItem.dataset.docNumber = p.doc_number;
+            activeLocationsList.appendChild(locationItem);
+          });
+        } else {
+          activeLocationsList.innerHTML =
+            '<p class="text-slate-400">Tidak ada pekerjaan aktif.</p>';
+        }
+
+        document.getElementById("active-permits-stat").textContent =
+          activePermits.length;
+        document.getElementById("total-permits-stat").textContent =
+          permits.length;
+        document.getElementById("permit-types-stat").textContent = new Set(
+          permits.map((p) => p.jenisPekerjaan)
+        ).size;
+      }
+
+      function applyFilters() {
+        const startDate = document.getElementById("filter-start-date").value;
+        const endDate = document.getElementById("filter-end-date").value;
+        const department = document.getElementById("filter-department").value;
+        const searchTerm = document
+          .getElementById("table-search")
+          .value.toLowerCase();
+
+        let filteredPermits = allPermits.filter((p) => {
+          const permitDate = new Date(p.tanggal_mulai);
+          const isAfterStart = !startDate || permitDate >= new Date(startDate);
+          const isBeforeEnd = !endDate || permitDate <= new Date(endDate);
+          const isInDepartment = !department || p.departement === department;
+          const matchesSearch =
+            !searchTerm ||
+            Object.values(p).some((val) =>
+              String(val).toLowerCase().includes(searchTerm)
+            );
+          return isAfterStart && isBeforeEnd && isInDepartment && matchesSearch;
+        });
+
+        updateVisualizations(filteredPermits);
+      }
+
+      function renderTable(permits) {
+        const tableBody = document.getElementById("permit-table-body");
+        tableBody.innerHTML = "";
+        if (permits.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4">Tidak ada data yang cocok.</td></tr>`;
+          return;
+        }
+        permits.forEach((p) => {
+          const row = document.createElement("tr");
+          row.className = "hover:bg-slate-50 cursor-pointer";
+          row.dataset.docNumber = p.doc_number;
+          row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${
+                      p.no
+                    }</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">${
+                      p.doc_number
+                    }</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${
+                      p.namaPengaju
+                    }</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${
+                      p.departement
+                    }</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${new Date(
+                      p.tanggal_mulai
+                    ).toLocaleDateString("id-ID")}</td>
+                `;
+          tableBody.appendChild(row);
+        });
+      }
+
+      let sortState = { column: "no", direction: "asc" };
+
+      function initializeLocationPicker() {
+        if (locationPickerMap) return;
+        locationPickerMap = L.map("location-picker-map").setView(
+          [-6.2, 106.8],
+          11
+        );
+        L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        ).addTo(locationPickerMap);
+
+        locationPickerMap.on("click", async (e) => {
+          const { lat, lng } = e.latlng;
+          document.getElementById("pin_location").value = JSON.stringify({
+            lat,
+            lng,
+          });
+
+          if (locationMarker) locationMarker.setLatLng(e.latlng);
+          else locationMarker = L.marker(e.latlng).addTo(locationPickerMap);
+
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+            );
+            const data = await response.json();
+            const name =
+              data.display_name ||
+              `Koordinat: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            document.getElementById(
+              "selected-location-name"
+            ).textContent = `Lokasi Terpilih: ${name}`;
+            document
+              .getElementById("selected-location-name")
+              .classList.remove("hidden");
+          } catch (err) {
+            console.error("Gagal mendapatkan nama lokasi", err);
+          }
+        });
+      }
+
+      function addAppEventListeners() {
+        document
+          .getElementById("new-permit-btn")
+          .addEventListener("click", () => {
+            document.getElementById("permit-form").reset();
+            document
+              .getElementById("selected-location-name")
+              .classList.add("hidden");
+            if (locationMarker) locationMarker.remove();
+            locationMarker = null;
+            showAppView("form-view");
+            if (!locationPickerMap) {
+              initializeLocationPicker();
+            } else {
+              setTimeout(() => locationPickerMap.invalidateSize(), 0);
+            }
+          });
+        document
+          .getElementById("cancel-form-btn")
+          .addEventListener("click", () => showAppView("dashboard-view"));
+
+        document
+          .getElementById("filter-start-date")
+          .addEventListener("change", applyFilters);
+        document
+          .getElementById("filter-end-date")
+          .addEventListener("change", applyFilters);
+        document
+          .getElementById("filter-department")
+          .addEventListener("change", applyFilters);
+        document
+          .getElementById("table-search")
+          .addEventListener("input", applyFilters);
+        document
+          .getElementById("reset-filters-btn")
+          .addEventListener("click", () => {
+            document.getElementById("filter-start-date").value = "";
+            document.getElementById("filter-end-date").value = "";
+            document.getElementById("filter-department").value = "";
+            document.getElementById("table-search").value = "";
+            applyFilters();
+          });
+
+        document.querySelectorAll(".sortable").forEach((header) => {
+          header.addEventListener("click", () => {
+            const column = header.dataset.sort;
+            const direction =
+              sortState.column === column && sortState.direction === "asc"
+                ? "desc"
+                : "asc";
+            allPermits.sort((a, b) => {
+              let valA = a[column];
+              let valB = b[column];
+              if (column === "no") {
+                valA = parseInt(valA, 10);
+                valB = parseInt(valB, 10);
+              }
+              if (valA < valB) return direction === "asc" ? -1 : 1;
+              if (valA > valB) return direction === "asc" ? 1 : -1;
+              return 0;
+            });
+            sortState = { column, direction };
+            document
+              .querySelectorAll(".sortable")
+              .forEach((h) => h.classList.remove("asc", "desc"));
+            header.classList.add(direction);
+            applyFilters();
+          });
+        });
+
+        document
+          .getElementById("add-person-btn")
+          .addEventListener("click", () => {
+            const container = document.getElementById(
+              "involved-people-container"
+            );
+            const count = container.children.length + 1;
+            const div = document.createElement("div");
+            div.className = "flex items-center space-x-2";
+            div.innerHTML = `<input type="text" placeholder="Nama Orang #${count}" class="w-full p-2 border border-slate-300 rounded-md involved-person" required /><button type="button" class="p-2 text-red-500 hover:bg-red-100 rounded-full remove-person-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>`;
+            container.appendChild(div);
+          });
+
+        document
+          .getElementById("involved-people-container")
+          .addEventListener("click", (e) => {
+            if (e.target.closest(".remove-person-btn"))
+              e.target.closest(".flex").remove();
+          });
+
+        document
+          .getElementById("permit-form")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const pinLocation = document.getElementById("pin_location").value;
+            if (!pinLocation) {
+              alert("Silakan pilih lokasi di peta.");
+              return;
+            }
+            if (
+              new Date(document.getElementById("tanggal_selesai").value) <
+              new Date(document.getElementById("tanggal_mulai").value)
+            ) {
+              alert("Tanggal selesai tidak boleh sebelum tanggal mulai.");
+              return;
+            }
+
+            const permitData = {
+              namaPengaju: document.getElementById("namaPengaju").value,
+              jabatanPic: document.getElementById("jabatanPic").value,
+              perusahaan: document.getElementById("perusahaan").value,
+              departemen: document.getElementById("departement").value,
+              jenisPekerjaan: document.getElementById("jenisPekerjaan").value,
+              tanggalMulai: document.getElementById("tanggal_mulai").value,
+              tanggalSelesai: document.getElementById("tanggal_selesai").value,
+              deskripsi_ptw: document.getElementById("deskripsi_ptw").value,
+              no_wa: document.getElementById("no_wa").value,
+              orangTerlibat: [...document.querySelectorAll(".involved-person")]
+                .map((input) => input.value)
+                .filter(Boolean),
+              pin_location: pinLocation,
+              lokasi: document
+                .getElementById("selected-location-name")
+                .textContent.replace("Lokasi Terpilih: ", ""),
+            };
+
+            const submitBtn = document.getElementById("submit-btn");
+            const submitText = document.getElementById("submit-text");
+            const submitSpinner = document.getElementById("submit-spinner");
+            submitText.classList.add("hidden");
+            submitSpinner.classList.remove("hidden");
+            submitBtn.disabled = true;
+
+            try {
+              const response = await fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify(permitData),
+              });
+              const result = await response.json();
+              if (result.result !== "success")
+                throw new Error(result.message || "Unknown error");
+
+              alert(
+                `Izin kerja berhasil diajukan dengan No. Dokumen: ${result.docNumber}`
+              );
+              await initializeAndFetchData();
+            } catch (err) {
+              console.error("Gagal mengirim izin:", err);
+              alert(
+                "Gagal mengirim izin. Silakan periksa koneksi Anda dan coba lagi."
+              );
+            } finally {
+              submitText.classList.remove("hidden");
+              submitSpinner.classList.add("hidden");
+              submitBtn.disabled = false;
+            }
+          });
+
+        document
+          .getElementById("permit-table-body")
+          .addEventListener("click", (e) => {
+            const row = e.target.closest("tr");
+            if (row && row.dataset.docNumber) {
+              const docNumber = row.dataset.docNumber;
+              const permit = allPermits.find((p) => p.doc_number === docNumber);
+              if (permit) {
+                showDetailModal(permit);
+                flyToLocation(permit);
+              }
+            }
+          });
+
+        document
+          .getElementById("dashboard-view")
+          .addEventListener("click", (e) => {
+            const locationItem = e.target.closest(
+              "#active-locations-list > div"
+            );
+            if (locationItem && locationItem.dataset.docNumber) {
+              const docNumber = locationItem.dataset.docNumber;
+
+              document
+                .querySelectorAll("#permit-table-body tr")
+                .forEach((row) => row.classList.remove("highlight-row"));
+              const tableRow = document.querySelector(
+                `#permit-table-body tr[data-doc-number="${docNumber}"]`
+              );
+              if (tableRow) {
+                tableRow.classList.add("highlight-row");
+                tableRow.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }
+
+              const permit = allPermits.find((p) => p.doc_number === docNumber);
+              flyToLocation(permit);
+            }
+          });
+      }
+
+      function flyToLocation(permit) {
+        if (permit && heatmap) {
+          try {
+            const parts = permit.pin_location.split(",");
+            const lat = parseFloat(parts[0].trim());
+            const lng = parseFloat(parts[1].trim());
+            if (!isNaN(lat) && !isNaN(lng)) {
+              heatmap.flyTo([lat, lng], 15);
+            }
+          } catch {}
+        }
+      }
+
+      function showDetailModal(permit) {
+        modalContent.innerHTML = `
+                <div id="modal-map" class="mb-4"></div>
+                <p><strong>No. Dokumen:</strong><span class="ml-2 text-slate-600">${
+                  permit.doc_number
+                }</span></p>
+                <p><strong>Nama PIC:</strong><span class="ml-2 text-slate-600">${
+                  permit.namaPengaju
+                }</span></p>
+                <p><strong>Jabatan:</strong><span class="ml-2 text-slate-600">${
+                  permit.jabatanPic
+                }</span></p>
+                <p><strong>Perusahaan:</strong><span class="ml-2 text-slate-600">${
+                  permit.perusahaan
+                }</span></p>
+                <p><strong>Departemen:</strong><span class="ml-2 text-slate-600">${
+                  permit.departement
+                }</span></p>
+                <p><strong>Jenis Pekerjaan:</strong><span class="ml-2 text-slate-600">${
+                  permit.jenisPekerjaan
+                }</span></p>
+                <p><strong>Periode:</strong><span class="ml-2 text-slate-600">${new Date(
+                  permit.tanggal_mulai
+                ).toLocaleDateString("id-ID")} - ${new Date(
+          permit.tanggal_selesai
+        ).toLocaleDateString("id-ID")}</span></p>
+                <p><strong>No. WhatsApp:</strong><span class="ml-2 text-slate-600">${
+                  permit.no_wa
+                }</span></p>
+                <p><strong>Deskripsi:</strong></p>
+                <p class="pl-2 border-l-2 border-slate-300 text-slate-600">${
+                  permit.deskripsi_ptw
+                }</p>
+                <p><strong>Lokasi:</strong><span class="ml-2 text-slate-600">${
+                  permit.lokasi
+                }</span></p>
+                <p><strong>Orang Terlibat:</strong><span class="ml-2 text-slate-600">${
+                  permit.orangTerlibat
+                }</span></p>
+            `;
+        detailModal.classList.remove("hidden");
+
+        try {
+          const parts = permit.pin_location.split(",");
+          const lat = parseFloat(parts[0].trim());
+          const lng = parseFloat(parts[1].trim());
+          if (!isNaN(lat) && !isNaN(lng)) {
+            if (modalMap) {
+              modalMap.setView([lat, lng], 15);
+            } else {
+              modalMap = L.map("modal-map").setView([lat, lng], 15);
+              L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              ).addTo(modalMap);
+            }
+            if (modalMarker) {
+              modalMarker.setLatLng([lat, lng]);
+            } else {
+              modalMarker = L.marker([lat, lng]).addTo(modalMap);
+            }
+            setTimeout(() => modalMap.invalidateSize(), 10);
+          }
+        } catch (e) {
+          document.getElementById(
+            "modal-map"
+          ).innerHTML = `<p class="text-center text-red-500">Gagal memuat peta lokasi.</p>`;
+        }
+      }
+
+      document
+        .getElementById("close-modal-btn")
+        .addEventListener("click", () => {
+          detailModal.classList.add("hidden");
+          if (modalMap) {
+            modalMap.remove();
+            modalMap = null;
+          }
+        });
+      detailModal.addEventListener("click", (e) => {
+        if (e.target === detailModal) {
+          detailModal.classList.add("hidden");
+          if (modalMap) {
+            modalMap.remove();
+            modalMap = null;
+          }
+        }
+      });
+
+      document
+        .getElementById("open-ptw-app-btn")
+        .addEventListener("click", () => {
+          if (!isAppInitialized) {
+            initializeAndFetchData();
+            isAppInitialized = true;
+          } else {
+            showView("app");
+            showAppView("dashboard-view");
+          }
+        });
+
+      document
+        .getElementById("back-to-menu-btn")
+        .addEventListener("click", () => showView("menu"));
+
+      function registerServiceWorker() {
+        if ("serviceWorker" in navigator) {
+          const swContent = `const CACHE_NAME = 'ptw-cache-v10'; self.addEventListener('install', e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.add('/')))); self.addEventListener('fetch', e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+          navigator.serviceWorker
+            .register(
+              URL.createObjectURL(
+                new Blob([swContent], { type: "application/javascript" })
+              )
+            )
+            .then((reg) =>
+              console.log("ServiceWorker registration successful", reg)
+            )
+            .catch((err) =>
+              console.log("ServiceWorker registration failed", err)
+            );
+        }
+      }
+
+      function main() {
+        registerServiceWorker();
+        showView("menu");
+      }
+
+      document.addEventListener("DOMContentLoaded", main);
+    </script>
+  </body>
+</html>

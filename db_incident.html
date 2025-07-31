@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dasbor Laporan Kecelakaan Interaktif - PT. Ganda Alam Makmur</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+    <!-- Pustaka untuk Peta Interaktif (Leaflet) -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f9fafb; /* Gray 50 */
+      }
+      .card {
+        background-color: white;
+        border-radius: 1rem; /* 16px */
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05),
+          0 1px 2px -1px rgb(0 0 0 / 0.05);
+        border: 1px solid #e5e7eb;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+      }
+      .card-title {
+        font-size: 1rem; /* 16px */
+        font-weight: 600;
+        color: #1f2937; /* Gray 800 */
+        display: flex;
+        align-items: center;
+      }
+      .card-title svg {
+        margin-right: 0.5rem;
+      }
+      .chart-container {
+        position: relative;
+        flex-grow: 1;
+        width: 100%;
+        min-height: 350px;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+        min-height: 400px; /* Taller height for map */
+        border-radius: 0.75rem;
+      }
+      .incident-item {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      .incident-item:hover {
+        background-color: #f3f4f6;
+      }
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(17, 24, 39, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000; /* Ensure modal is on top of map */
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+      }
+      .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+      .modal-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        width: 90%;
+        max-width: 600px; /* Wider modal */
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+      }
+      .modal-overlay.active .modal-content {
+        transform: scale(1);
+      }
+      canvas:hover {
+        cursor: pointer;
+      }
+      /* Gaya untuk Tooltip */
+      .tooltip-container {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+      }
+      .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 10;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px; /* Use half of the width to center */
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.75rem;
+        font-weight: 400;
+      }
+      .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+      }
+      .tooltip-container:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+      .cost-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        background-color: #f3f4f6;
+        margin-bottom: 0.75rem;
+      }
+      .cost-card.total {
+        background-color: #ef4444;
+        color: white;
+      }
+    </style>
+  </head>
+  <body class="p-4 md:p-6 lg:p-8">
+    <!-- Header -->
+    <header
+      class="flex flex-col md:flex-row justify-between items-center mb-6 pb-4"
+    >
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">
+          Dasbor Analisis Insiden
+        </h1>
+        <p id="filterStatus" class="text-sm text-gray-500">
+          Menampilkan semua data insiden
+        </p>
+      </div>
+      <div class="flex items-center space-x-4 mt-4 md:mt-0">
+        <button
+          id="resetFilterBtn"
+          class="hidden bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+        >
+          Reset Filter
+        </button>
+        <select
+          id="yearFilter"
+          class="w-full md:w-auto p-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700 cursor-pointer text-sm"
+        >
+          <option value="all">Semua Tahun</option>
+        </select>
+      </div>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Kolom Kiri -->
+      <aside class="lg:col-span-3 space-y-6">
+        <div class="card">
+          <h2 class="card-title mb-4">Rincian Biaya</h2>
+          <div id="cost-details">
+            <div class="cost-card">
+              <div>
+                <p class="text-sm text-gray-500">Biaya Pengobatan</p>
+                <p id="biayaPengobatan" class="text-lg font-bold text-gray-800">
+                  Rp0
+                </p>
+              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-8 w-8 text-green-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div class="cost-card">
+              <div>
+                <p class="text-sm text-gray-500">Biaya Perbaikan Unit</p>
+                <p id="biayaPerbaikan" class="text-lg font-bold text-gray-800">
+                  Rp0
+                </p>
+              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-8 w-8 text-blue-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </div>
+            <div class="cost-card">
+              <div>
+                <p class="text-sm text-gray-500">Biaya Tidak Langsung</p>
+                <p
+                  id="biayaTidakLangsung"
+                  class="text-lg font-bold text-gray-800"
+                >
+                  Rp0
+                </p>
+              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-8 w-8 text-yellow-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <div class="cost-card total mt-4">
+              <div>
+                <p class="text-sm">Total Biaya</p>
+                <p id="totalBiaya" class="text-xl font-bold">Rp0</p>
+              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="relative mb-4">
+            <input
+              type="text"
+              id="incidentSearch"
+              placeholder="Cari insiden..."
+              class="w-full p-2 pl-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+            />
+            <svg
+              class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
+            </svg>
+          </div>
+          <h2 class="card-title mb-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 text-gray-500"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Daftar Insiden
+          </h2>
+          <div
+            id="incidentList"
+            class="space-y-2 text-sm text-gray-600 overflow-y-auto pr-2"
+            style="max-height: 800px"
+          >
+            <p class="text-gray-500">Memuat data...</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="lg:col-span-9 space-y-6">
+        <!-- Kartu KPI -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="card text-center justify-center">
+            <div class="flex justify-center items-center text-sm text-gray-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-indigo-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span>Total Insiden</span>
+              <div class="tooltip-container ml-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="tooltip-text"
+                  >Jumlah total semua insiden yang tercatat dalam periode yang
+                  dipilih.</span
+                >
+              </div>
+            </div>
+            <p
+              id="totalInsiden"
+              class="text-4xl font-extrabold text-indigo-600 mt-2"
+            >
+              -
+            </p>
+          </div>
+          <div class="card text-center justify-center">
+            <div class="flex justify-center items-center text-sm text-gray-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-red-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+              <span>Property Damage</span>
+              <div class="tooltip-container ml-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="tooltip-text"
+                  >Insiden yang mengakibatkan kerusakan pada aset atau properti
+                  perusahaan.</span
+                >
+              </div>
+            </div>
+            <p
+              id="propertyDamageCount"
+              class="text-4xl font-extrabold text-red-500 mt-2"
+            >
+              -
+            </p>
+          </div>
+          <div class="card text-center justify-center">
+            <div class="flex justify-center items-center text-sm text-gray-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-amber-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
+                />
+              </svg>
+              <span>Cedera</span>
+              <div class="tooltip-container ml-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="tooltip-text"
+                  >Jumlah insiden yang mengakibatkan cedera pada karyawan.</span
+                >
+              </div>
+            </div>
+            <p
+              id="cederaCount"
+              class="text-4xl font-extrabold text-amber-500 mt-2"
+            >
+              -
+            </p>
+          </div>
+          <div class="card text-center justify-center">
+            <div class="flex justify-center items-center text-sm text-gray-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-green-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>Near Miss</span>
+              <div class="tooltip-container ml-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="tooltip-text"
+                  >Kejadian tak terduga yang tidak menyebabkan cedera atau
+                  kerusakan, tetapi berpotensi.</span
+                >
+              </div>
+            </div>
+            <p
+              id="nearMissCount"
+              class="text-4xl font-extrabold text-green-500 mt-2"
+            >
+              -
+            </p>
+          </div>
+        </div>
+
+        <!-- Grafik Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="card lg:col-span-2">
+            <h2 class="card-title mb-4">
+              Peta Sebaran Insiden
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="tooltip-text"
+                  >Peta panas yang menunjukkan konsentrasi lokasi insiden. Area
+                  yang lebih merah berarti lebih banyak insiden.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container bg-gray-200">
+              <div id="map"></div>
+            </div>
+          </div>
+          <div class="card lg:col-span-2">
+            <h2 class="card-title mb-4">
+              Tren Insiden Bulanan
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Grafik garis yang menunjukkan jumlah total insiden per
+                  bulan.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="kejadianChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Insiden Berdasarkan Jabatan
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Jumlah insiden yang dikelompokkan berdasarkan jabatan
+                  karyawan yang terlibat.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="jabatanChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Insiden per Perusahaan
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Distribusi persentase insiden di antara berbagai perusahaan
+                  atau kontraktor.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="perusahaanChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Penyebab Langsung
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Penyebab langsung adalah tindakan atau kondisi tidak aman
+                  yang secara langsung menyebabkan insiden.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="faktorPenyebabLangsungChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Penyebab Dasar
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Penyebab dasar adalah faktor sistemik atau akar masalah yang
+                  mengarah pada penyebab langsung.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="penyebabDasarChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Unit Terlibat
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Jenis unit atau kendaraan yang paling sering terlibat dalam
+                  insiden.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="unitTerlibatChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Masa Kerja
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Distribusi insiden berdasarkan lama masa kerja
+                  karyawan.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="masaKerjaChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Tipe Cedera
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Jenis cedera yang paling sering terjadi akibat insiden.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="tipeCederaChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Waktu Kejadian (Shift)
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Distribusi insiden berdasarkan waktu kerja: Pagi, Siang, atau
+                  Malam.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="waktuKejadianChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Bagian Cidera
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Bagian tubuh yang paling sering mengalami cidera.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="bagianCideraChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Usia Korban
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Distribusi usia karyawan yang terlibat dalam insiden.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container"><canvas id="usiaChart"></canvas></div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Status Karyawan
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Jumlah insiden berdasarkan status kepegawaian.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="statusKaryawanChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title mb-4">
+              Tempat Tinggal
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  /></svg
+                ><span class="tooltip-text"
+                  >Proporsi insiden berdasarkan tempat tinggal karyawan.</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="tempatTinggalChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="incidentModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="flex justify-between items-start">
+          <h3 id="modalTitle" class="text-lg font-bold text-gray-800 mb-4"></h3>
+          <button
+            id="closeModal"
+            class="text-gray-400 hover:text-gray-700 text-3xl leading-none"
+          >
+            &times;
+          </button>
+        </div>
+        <div id="modalBody" class="text-sm text-gray-600 space-y-2"></div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const APPS_SCRIPT_URL =
+          "https://script.google.com/macros/s/AKfycbx6nOMgkSb_oQsW1q5-VX-owtGGL8DK9DcCIZLQidGrZyVSiVxln761JGohBPttthM/exec";
+
+        let allData = [];
+        let activeFilters = {};
+        const chartInstances = {};
+        let map; // Variabel global untuk peta
+        let heatLayer; // Variabel global untuk layer heatmap
+
+        Chart.register(ChartDataLabels);
+
+        const setupDefaults = () => {
+          Chart.defaults.responsive = true;
+          Chart.defaults.maintainAspectRatio = false;
+          Chart.defaults.animation = { duration: 500, easing: "easeOutQuart" };
+          Chart.defaults.plugins.legend.position = "bottom";
+          Chart.defaults.plugins.legend.labels.usePointStyle = true;
+          Chart.defaults.plugins.legend.labels.boxWidth = 8;
+          Chart.defaults.plugins.tooltip.backgroundColor = "#111827";
+          Chart.defaults.plugins.tooltip.titleColor = "#f9fafb";
+          Chart.defaults.plugins.tooltip.bodyColor = "#e5e7eb";
+          Chart.defaults.plugins.tooltip.padding = 12;
+          Chart.defaults.plugins.tooltip.cornerRadius = 8;
+        };
+
+        const setupEventListeners = () => {
+          document
+            .getElementById("yearFilter")
+            .addEventListener("change", () => applyFiltersAndUpdate());
+          document
+            .getElementById("resetFilterBtn")
+            .addEventListener("click", resetFilters);
+          document
+            .getElementById("incidentSearch")
+            .addEventListener("input", (e) => {
+              activeFilters.searchTerm = e.target.value.toLowerCase();
+              applyFiltersAndUpdate();
+            });
+        };
+
+        const showModal = (incidentId) => {
+          const incident = allData.find(
+            (item) => String(item["ID"]) === String(incidentId)
+          );
+          if (incident) {
+            document.getElementById("modalTitle").textContent =
+              incident["JudulInsiden"];
+            document.getElementById("modalBody").innerHTML = `
+                        <p><strong>Tanggal & Jam:</strong> ${
+                          incident["TanggalKejadian"] || "N/A"
+                        } Pukul ${incident["JamMulaiKecelakaan"] || "N/A"}</p>
+                        <p><strong>Kategori Kecelakaan:</strong> ${
+                          incident["KategoriKecelakaan"] || "N/A"
+                        }</p>
+                        <p><strong>Kategori Cedera:</strong> ${
+                          incident["KategoriCedera"] || "N/A"
+                        }</p>
+                        <hr class="my-2">
+                        <p><strong>Penyebab Langsung:</strong> ${
+                          incident["PenyebabLangsung"] || "N/A"
+                        }</p>
+                        <p><strong>Penyebab Dasar:</strong> ${
+                          incident["PenyebabDasar"] || "N/A"
+                        }</p>
+                        <hr class="my-2">
+                        <p><strong>Karyawan:</strong> ${
+                          incident["Jabatan"] || "N/A"
+                        } (${incident["StatusKaryawan"] || "N/A"})</p>
+                        <p><strong>Usia & Masa Kerja:</strong> ${
+                          incident["Usia"] || "N/A"
+                        } / ${incident["MasaKerja"] || "N/A"}</p>
+                        <p><strong>Tempat Tinggal:</strong> ${
+                          incident["TempatTinggal"] || "N/A"
+                        }</p>
+                        <hr class="my-2">
+                        <p><strong>Lokasi:</strong> ${
+                          incident["LokasiRincian"] || "N/A"
+                        }</p>
+                        <p><strong>Unit Terlibat:</strong> ${
+                          incident["UnitTerlibat"] || "N/A"
+                        }</p>
+                        <p><strong>Sanksi:</strong> ${
+                          incident["Sanksi"] || "N/A"
+                        }</p>
+                        `;
+            document.getElementById("incidentModal").classList.add("active");
+          }
+        };
+
+        const closeModal = () =>
+          document.getElementById("incidentModal").classList.remove("active");
+        document
+          .getElementById("closeModal")
+          .addEventListener("click", closeModal);
+        document
+          .getElementById("incidentModal")
+          .addEventListener("click", (e) => {
+            if (e.target === document.getElementById("incidentModal"))
+              closeModal();
+          });
+
+        const populateYearFilter = (data) => {
+          const yearFilter = document.getElementById("yearFilter");
+          const years = [
+            ...new Set(data.map((item) => item["Tahun"]).filter(Boolean)),
+          ].sort((a, b) => b - a);
+          years.forEach((year) => {
+            const option = document.createElement("option");
+            option.value = year;
+            option.textContent = `Tahun: ${year}`;
+            yearFilter.appendChild(option);
+          });
+        };
+
+        const fetchData = async () => {
+          try {
+            const response = await fetch(APPS_SCRIPT_URL);
+            if (!response.ok)
+              throw new Error(`HTTP error! status: ${response.status}`);
+            const jsonData = await response.json();
+            if (!Array.isArray(jsonData))
+              throw new Error("Format data tidak valid.");
+            allData = jsonData;
+            populateYearFilter(allData);
+            applyFiltersAndUpdate();
+          } catch (error) {
+            console.error("Gagal mengambil data:", error);
+            document.querySelector(
+              "main"
+            ).innerHTML = `<div class="col-span-12 text-center text-red-500 p-8 bg-white rounded-lg"><h3>Gagal Memuat Data</h3><p>${error.message}</p></div>`;
+          }
+        };
+
+        const parseDate = (dateStr) => {
+          if (!dateStr || typeof dateStr.toString !== "function") return null;
+          const str = dateStr.toString();
+          if (str.includes("/")) {
+            const parts = str.split("/");
+            if (parts.length === 3) {
+              const date = new Date(parts[2], parts[1] - 1, parts[0]);
+              return isNaN(date) ? null : date;
+            }
+          }
+          const date = new Date(str);
+          return isNaN(date) ? null : date;
+        };
+
+        const applyFiltersAndUpdate = () => {
+          let filteredData = [...allData];
+          const year = document.getElementById("yearFilter").value;
+
+          if (year !== "all") {
+            filteredData = filteredData.filter(
+              (item) => String(item["Tahun"]) === year
+            );
+          }
+
+          Object.keys(activeFilters).forEach((key) => {
+            if (key === "searchTerm") return;
+            const filterValue = activeFilters[key];
+            filteredData = filteredData.filter(
+              (item) => String(item[key]) === String(filterValue)
+            );
+          });
+
+          if (activeFilters.searchTerm) {
+            filteredData = filteredData.filter((item) =>
+              (item["JudulInsiden"] || "")
+                .toLowerCase()
+                .includes(activeFilters.searchTerm)
+            );
+          }
+
+          updateDashboardUI(filteredData);
+        };
+
+        const setChartFilter = (key, value) => {
+          activeFilters[key] = value;
+          applyFiltersAndUpdate();
+        };
+
+        const resetFilters = () => {
+          activeFilters = {};
+          document.getElementById("incidentSearch").value = "";
+          document.getElementById("yearFilter").value = "all";
+          applyFiltersAndUpdate();
+        };
+
+        const updateFilterStatusUI = () => {
+          const statusEl = document.getElementById("filterStatus");
+          const resetBtn = document.getElementById("resetFilterBtn");
+          const filters = Object.keys(activeFilters).filter(
+            (k) => k !== "searchTerm" && activeFilters[k]
+          );
+
+          if (filters.length > 0) {
+            const filterText = filters
+              .map((key) => `${key}: "${activeFilters[key]}"`)
+              .join(", ");
+            statusEl.textContent = `Filter aktif: ${filterText}`;
+            statusEl.classList.add("font-semibold", "text-indigo-700");
+            resetBtn.classList.remove("hidden");
+          } else {
+            statusEl.textContent = "Menampilkan semua data insiden";
+            statusEl.classList.remove("font-semibold", "text-indigo-700");
+            resetBtn.classList.add("hidden");
+          }
+        };
+
+        const renderIncidentList = (data) => {
+          const incidentListEl = document.getElementById("incidentList");
+          incidentListEl.innerHTML = "";
+          if (data.length > 0) {
+            data
+              .sort(
+                (a, b) =>
+                  (parseDate(b["TanggalKejadian"]) || 0) -
+                  (parseDate(a["TanggalKejadian"]) || 0)
+              )
+              .forEach((item) => {
+                const div = document.createElement("div");
+                div.className =
+                  "p-3 rounded-lg border border-gray-100 incident-item";
+                div.innerHTML = `<p class="font-semibold text-gray-700 pointer-events-none">${item["JudulInsiden"]}</p><p class="text-xs text-gray-400 pointer-events-none">${item["TanggalKejadian"]}</p>`;
+                div.addEventListener("click", () => showModal(item["ID"]));
+                incidentListEl.appendChild(div);
+              });
+          } else {
+            incidentListEl.innerHTML =
+              '<p class="text-gray-500">Tidak ada insiden yang cocok.</p>';
+          }
+        };
+
+        const createChart = (id, type, data, options, filterKey = null) => {
+          if (chartInstances[id]) chartInstances[id].destroy();
+          const canvas = document.getElementById(id);
+          if (!canvas) return;
+          const container = canvas.parentElement;
+
+          const existingMessage = container.querySelector(".no-data-message");
+          if (existingMessage) {
+            existingMessage.remove();
+          }
+          canvas.style.display = "block";
+
+          if (
+            !data ||
+            !data.labels ||
+            data.labels.length === 0 ||
+            data.datasets.every((ds) => ds.data.every((d) => d === 0))
+          ) {
+            canvas.style.display = "none";
+            const messageDiv = document.createElement("div");
+            messageDiv.className =
+              "no-data-message flex items-center justify-center h-full text-gray-500";
+            messageDiv.textContent = "Tidak ada data untuk ditampilkan.";
+            container.appendChild(messageDiv);
+            return;
+          }
+
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return;
+
+          if (filterKey) {
+            options.onClick = (e, elements) => {
+              if (elements && elements.length > 0) {
+                const chartInstance = elements[0].chart;
+                const elementIndex = elements[0].index;
+                if (
+                  chartInstance &&
+                  chartInstance.data &&
+                  chartInstance.data.labels &&
+                  chartInstance.data.labels[elementIndex]
+                ) {
+                  const label = chartInstance.data.labels[elementIndex];
+                  setChartFilter(filterKey, label);
+                }
+              }
+            };
+          }
+          chartInstances[id] = new Chart(ctx, { type, data, options });
+        };
+
+        const updateInteractiveMap = (data) => {
+          const mapContainer = document.getElementById("map");
+          if (!mapContainer) return;
+
+          if (!map) {
+            map = L.map("map");
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            }).addTo(map);
+          }
+
+          requestAnimationFrame(() => map.invalidateSize());
+
+          if (heatLayer) {
+            map.removeLayer(heatLayer);
+          }
+
+          const heatPoints = data
+            .map((item) => [
+              parseFloat(item.Latitude),
+              parseFloat(item.Longitude),
+              1,
+            ])
+            .filter((point) => !isNaN(point[0]) && !isNaN(point[1]));
+
+          if (heatPoints.length > 0) {
+            const bounds = L.latLngBounds(heatPoints.map((p) => [p[0], p[1]]));
+            map.fitBounds(bounds, { padding: [50, 50] });
+
+            heatLayer = L.heatLayer(heatPoints, {
+              radius: 25,
+              blur: 15,
+              maxZoom: 18,
+            }).addTo(map);
+          } else {
+            map.setView([-2.5, 118.0], 5); // Default view if no points
+          }
+        };
+
+        const updateDashboardUI = (data) => {
+          const main = document.querySelector("main");
+          main.style.transition = "opacity 0.3s ease";
+          main.style.opacity = 0.5;
+
+          setTimeout(() => {
+            renderIncidentList(data);
+            updateFilterStatusUI();
+            updateInteractiveMap(data);
+
+            const formatCurrency = (value) => {
+              const num = parseFloat(String(value).replace(/[^0-9.-]+/g, ""));
+              if (isNaN(num)) return "Rp0";
+              return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 0,
+              }).format(num);
+            };
+
+            const totalBiayaPengobatan = data.reduce(
+              (sum, item) =>
+                sum +
+                (parseFloat(
+                  String(item.BiayaPengobatan).replace(/[^0-9.-]+/g, "")
+                ) || 0),
+              0
+            );
+            const totalBiayaPerbaikan = data.reduce(
+              (sum, item) =>
+                sum +
+                (parseFloat(
+                  String(item.BiayaPerbaikan).replace(/[^0-9.-]+/g, "")
+                ) || 0),
+              0
+            );
+            const totalBiayaTidakLangsung = data.reduce(
+              (sum, item) =>
+                sum +
+                (parseFloat(
+                  String(item.BiayaTidakLangsung).replace(/[^0-9.-]+/g, "")
+                ) || 0),
+              0
+            );
+            const totalBiaya =
+              totalBiayaPengobatan +
+              totalBiayaPerbaikan +
+              totalBiayaTidakLangsung;
+
+            document.getElementById("biayaPengobatan").textContent =
+              formatCurrency(totalBiayaPengobatan);
+            document.getElementById("biayaPerbaikan").textContent =
+              formatCurrency(totalBiayaPerbaikan);
+            document.getElementById("biayaTidakLangsung").textContent =
+              formatCurrency(totalBiayaTidakLangsung);
+            document.getElementById("totalBiaya").textContent =
+              formatCurrency(totalBiaya);
+
+            document.getElementById("totalInsiden").textContent = data.length;
+            document.getElementById("propertyDamageCount").textContent =
+              data.filter(
+                (d) =>
+                  (d["KategoriKecelakaan"] || "").toLowerCase() ===
+                  "property damage"
+              ).length;
+            document.getElementById("cederaCount").textContent = data.filter(
+              (d) =>
+                d["KategoriCedera"] &&
+                String(d["KategoriCedera"]).trim() !== "" &&
+                String(d["KategoriCedera"]) !== "-"
+            ).length;
+            document.getElementById("nearMissCount").textContent = data.filter(
+              (d) =>
+                (d["KategoriKecelakaan"] || "").toLowerCase() === "near miss"
+            ).length;
+
+            const processData = (key) => {
+              const counts = data.reduce((acc, item) => {
+                const value = item[key] || "N/A";
+                if (
+                  value !== "N/A" &&
+                  String(value).trim() !== "" &&
+                  String(value).trim() !== "-"
+                ) {
+                  acc[value] = (acc[value] || 0) + 1;
+                }
+                return acc;
+              }, {});
+              const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+              const labels = sorted.map((item) => item[0]);
+              const dataPoints = sorted.map((item) => item[1]);
+              return {
+                labels,
+                datasets: [{ data: dataPoints, backgroundColor: colors1 }],
+              };
+            };
+
+            const barOptions = (indexAxis = "x", title = "") => ({
+              indexAxis,
+              scales: {
+                [indexAxis === "x" ? "y" : "x"]: { beginAtZero: true },
+              },
+              plugins: {
+                legend: { display: false },
+                title: { display: !!title, text: title },
+              },
+            });
+            const doughnutOptions = (title = "") => ({
+              cutout: "60%",
+              plugins: {
+                legend: { display: true },
+                title: { display: !!title, text: title },
+                datalabels: {
+                  formatter: (value, ctx) => {
+                    let sum = ctx.chart.data.datasets[0].data.reduce(
+                      (a, b) => a + b,
+                      0
+                    );
+                    return sum > 0
+                      ? ((value * 100) / sum).toFixed(0) + "%"
+                      : "0%";
+                  },
+                  color: "#fff",
+                  font: { weight: "bold" },
+                },
+              },
+            });
+            const colors1 = [
+              "#4f46e5",
+              "#6366f1",
+              "#818cf8",
+              "#a5b4fc",
+              "#c7d2fe",
+              "#e0e7ff",
+              "#eef2ff",
+            ];
+            const colors2 = [
+              "#0f766e",
+              "#14b8a6",
+              "#5eead4",
+              "#99f6e4",
+              "#ccfbf1",
+              "#a7f3d0",
+              "#6ee7b7",
+            ];
+
+            const trendData = Array(12)
+              .fill(0)
+              .map((_, monthIndex) => {
+                return data.filter((item) => {
+                  const date = parseDate(item["TanggalKejadian"]);
+                  return date && date.getMonth() === monthIndex;
+                }).length;
+              });
+            const lineOptions = {
+              scales: {
+                y: { beginAtZero: true },
+                x: {},
+              },
+              plugins: { legend: { display: false } },
+            };
+            createChart(
+              "kejadianChart",
+              "line",
+              {
+                labels: [
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "Mei",
+                  "Jun",
+                  "Jul",
+                  "Ags",
+                  "Sep",
+                  "Okt",
+                  "Nov",
+                  "Des",
+                ],
+                datasets: [
+                  {
+                    label: "Jumlah Insiden",
+                    data: trendData,
+                    borderColor: "#22c55e",
+                    tension: 0.4,
+                    fill: true,
+                  },
+                ],
+              },
+              lineOptions
+            );
+
+            createChart(
+              "jabatanChart",
+              "bar",
+              processData("Jabatan"),
+              barOptions("y"),
+              "Jabatan"
+            );
+            createChart(
+              "perusahaanChart",
+              "doughnut",
+              {
+                labels: processData("Perusahaan").labels,
+                datasets: [
+                  {
+                    data: processData("Perusahaan").datasets[0].data,
+                    backgroundColor: colors1,
+                  },
+                ],
+              },
+              doughnutOptions(),
+              "Perusahaan"
+            );
+            createChart(
+              "faktorPenyebabLangsungChart",
+              "doughnut",
+              {
+                labels: processData("PenyebabLangsung").labels,
+                datasets: [
+                  {
+                    data: processData("PenyebabLangsung").datasets[0].data,
+                    backgroundColor: colors2,
+                  },
+                ],
+              },
+              doughnutOptions(),
+              "PenyebabLangsung"
+            );
+            createChart(
+              "penyebabDasarChart",
+              "doughnut",
+              {
+                labels: processData("PenyebabDasar").labels,
+                datasets: [
+                  {
+                    data: processData("PenyebabDasar").datasets[0].data,
+                    backgroundColor: colors1,
+                  },
+                ],
+              },
+              doughnutOptions(),
+              "PenyebabDasar"
+            );
+
+            createChart(
+              "unitTerlibatChart",
+              "bar",
+              processData("UnitTerlibat"),
+              barOptions("x"),
+              "UnitTerlibat"
+            );
+            createChart(
+              "masaKerjaChart",
+              "bar",
+              processData("MasaKerja"),
+              barOptions("y"),
+              "MasaKerja"
+            );
+            createChart(
+              "tipeCederaChart",
+              "bar",
+              processData("KategoriCedera"),
+              barOptions("x"),
+              "KategoriCedera"
+            );
+
+            // --- PERBAIKAN DI SINI ---
+            // Mengubah sumber data dari "JenisKontakInsiden" menjadi "BagianCidera"
+            // agar sesuai dengan judul bagan "Bagian Cidera".
+            createChart(
+              "bagianCideraChart",
+              "bar",
+              processData("BagianCidera"), // Diubah dari "JenisKontakInsiden"
+              barOptions("y"),
+              "BagianCidera" // Diubah dari "JenisKontakInsiden"
+            );
+
+            createChart(
+              "usiaChart",
+              "bar",
+              processData("Usia"),
+              barOptions("x"),
+              "Usia"
+            );
+            createChart(
+              "statusKaryawanChart",
+              "bar",
+              processData("StatusKaryawan"),
+              barOptions("y"),
+              "StatusKaryawan"
+            );
+            createChart(
+              "tempatTinggalChart",
+              "doughnut",
+              {
+                labels: processData("TempatTinggal").labels,
+                datasets: [
+                  {
+                    data: processData("TempatTinggal").datasets[0].data,
+                    backgroundColor: ["#16a34a", "#facc15"],
+                  },
+                ],
+              },
+              doughnutOptions(),
+              "TempatTinggal"
+            );
+
+            const shiftData = data.reduce(
+              (acc, item) => {
+                const timeStr = item["JamMulaiKecelakaan"];
+                if (timeStr) {
+                  const hour = parseInt(timeStr, 10);
+                  if (!isNaN(hour)) {
+                    if (hour >= 7 && hour < 16) {
+                      acc["Pagi (07-16)"]++;
+                    } else if (hour >= 16 && hour < 24) {
+                      acc["Siang (16-24)"]++;
+                    } else {
+                      acc["Malam (00-07)"]++;
+                    }
+                  }
+                }
+                return acc;
+              },
+              { "Pagi (07-16)": 0, "Siang (16-24)": 0, "Malam (00-07)": 0 }
+            );
+
+            createChart(
+              "waktuKejadianChart",
+              "doughnut",
+              {
+                labels: Object.keys(shiftData),
+                datasets: [
+                  {
+                    label: "Insiden per Shift",
+                    data: Object.values(shiftData),
+                    backgroundColor: ["#f59e0b", "#1d4ed8", "#4b5563"],
+                  },
+                ],
+              },
+              doughnutOptions("Insiden per Shift")
+            );
+
+            main.style.opacity = 1;
+          }, 300);
+        };
+
+        setupDefaults();
+        setupEventListeners();
+        fetchData();
+      });
+    </script>
+  </body>
+</html>

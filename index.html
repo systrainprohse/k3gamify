@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Judul akan diubah oleh JavaScript -->
     <title>GAMITAS - Aplikasi Keselamatan Terpadu</title>
 
     <link rel="manifest" href="" />
@@ -344,6 +345,48 @@
         margin-top: 16px;
       }
 
+      /* === LANGUAGE SWITCHER (NEW) === */
+      .language-switcher {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+      }
+      .language-switcher-login {
+        margin-bottom: 24px;
+      }
+      .lang-btn {
+        background-color: transparent;
+        border: 2px solid transparent;
+        border-radius: 50%;
+        padding: 0;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        opacity: 0.6;
+      }
+      .lang-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+      .lang-btn.active {
+        border-color: var(--primary-color);
+        opacity: 1;
+        transform: scale(1.1);
+        box-shadow: 0 0 8px rgba(211, 47, 47, 0.5);
+      }
+      .lang-btn img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .language-switcher-header .lang-btn {
+        width: 28px;
+        height: 28px;
+      }
+
       /* === UTILITIES & PAGE TRANSITIONS === */
       .page {
         display: none;
@@ -370,12 +413,12 @@
       .app-header.hidden {
         top: -100px;
       }
-      .header-logo-container {
+      .header-left-section {
         display: flex;
         align-items: center;
         gap: 10px;
       }
-      .header-logo-container img {
+      .header-left-section img {
         height: 30px;
       }
       .app-header .logo {
@@ -383,6 +426,12 @@
         font-size: 22px;
         color: var(--gamitas-green);
       }
+      .header-right-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
       .profile-dropdown {
         position: relative;
       }
@@ -1054,19 +1103,40 @@
           >
             <path d="M14.1 27.2l7.1 7.2 16.7-16.8" />
           </svg>
-          <span class="verified-text">Verified</span>
+          <span class="verified-text" data-translate="splash_verified"
+            >Verified</span
+          >
         </div>
       </div>
       <div id="login-screen" style="display: none">
         <div class="form-container">
+          <div class="language-switcher language-switcher-login">
+            <button class="lang-btn" data-lang="id" onclick="setLanguage('id')">
+              <img
+                src="https://flagcdn.com/w40/id.png"
+                alt="Bendera Indonesia"
+              />
+            </button>
+            <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">
+              <img src="https://flagcdn.com/w40/gb.png" alt="Bendera Inggris" />
+            </button>
+            <button class="lang-btn" data-lang="ko" onclick="setLanguage('ko')">
+              <img
+                src="https://flagcdn.com/w40/kr.png"
+                alt="Bendera Korea Selatan"
+              />
+            </button>
+          </div>
           <img
             src="assets/logo.png"
             alt="Logo Perusahaan"
             class="company-logo"
           />
           <div class="logo">GAMITAS</div>
-          <h2>Selamat Datang</h2>
-          <p>Pilih tipe login untuk melanjutkan</p>
+          <h2 data-translate="login_welcome">Selamat Datang</h2>
+          <p data-translate="login_select_type">
+            Pilih tipe login untuk melanjutkan
+          </p>
           <div class="login-choices">
             <div class="login-choice-btn" onclick="login('Karyawan GAM')">
               <img
@@ -1074,8 +1144,12 @@
                 alt="Ikon Karyawan GAM"
               />
               <div class="btn-text">
-                <h4>Login sebagai Karyawan GAM</h4>
-                <p>Akses fitur untuk internal perusahaan</p>
+                <h4 data-translate="login_as_gam">
+                  Login sebagai Karyawan GAM
+                </h4>
+                <p data-translate="login_as_gam_desc">
+                  Akses fitur untuk internal perusahaan
+                </p>
               </div>
             </div>
             <div class="login-choice-btn" onclick="login('Mitra Kerja')">
@@ -1084,8 +1158,12 @@
                 alt="Ikon Mitra"
               />
               <div class="btn-text">
-                <h4>Login sebagai Mitra Kerja</h4>
-                <p>Akses fitur untuk vendor dan kontraktor</p>
+                <h4 data-translate="login_as_partner">
+                  Login sebagai Mitra Kerja
+                </h4>
+                <p data-translate="login_as_partner_desc">
+                  Akses fitur untuk vendor dan kontraktor
+                </p>
               </div>
             </div>
             <a href="training_center.html" class="login-choice-btn">
@@ -1097,8 +1175,10 @@
                 />
               </div>
               <div class="btn-text">
-                <h4>Tes SIMPER</h4>
-                <p>Akses untuk mengikuti tes SIMPER</p>
+                <h4 data-translate="login_simper_test">Tes SIMPER</h4>
+                <p data-translate="login_simper_test_desc">
+                  Akses untuk mengikuti tes SIMPER
+                </p>
               </div>
             </a>
             <a
@@ -1111,14 +1191,21 @@
                 alt="Ikon Pengajuan"
               />
               <div class="btn-text">
-                <h4>PENGAJUAN</h4>
-                <p>PERMIT TO WORK, SURAT IJIN MASUK SITE dll</p>
+                <h4 data-translate="login_submission">PENGAJUAN</h4>
+                <p data-translate="login_submission_desc">
+                  PERMIT TO WORK, SURAT IJIN MASUK SITE dll
+                </p>
               </div>
             </a>
           </div>
           <p class="register-link">
-            Belum punya akun?
-            <a href="#" onclick="showRegisterForm()">Daftar sekarang</a>
+            <span data-translate="login_no_account">Belum punya akun?</span>
+            <a
+              href="#"
+              onclick="showRegisterForm()"
+              data-translate="login_register_now"
+              >Daftar sekarang</a
+            >
           </p>
         </div>
       </div>
@@ -1131,22 +1218,30 @@
             class="company-logo"
           />
           <div class="logo">GAMITAS</div>
-          <h2>Buat Akun Baru</h2>
+          <h2 data-translate="register_create_account">Buat Akun Baru</h2>
           <form class="register-form" onsubmit="handleRegister(event)">
             <div class="form-group">
-              <label for="reg-nama">Nama Lengkap</label>
+              <label for="reg-nama" data-translate="register_fullname"
+                >Nama Lengkap</label
+              >
               <input type="text" id="reg-nama" required />
             </div>
             <div class="form-group">
-              <label for="reg-nik">NIK KTP</label>
+              <label for="reg-nik" data-translate="register_id_card"
+                >NIK KTP</label
+              >
               <input type="text" id="reg-nik" required />
             </div>
             <div class="form-group">
-              <label for="reg-email">Email</label>
+              <label for="reg-email" data-translate="register_email"
+                >Email</label
+              >
               <input type="email" id="reg-email" required />
             </div>
             <div class="form-group">
-              <label for="reg-wa">No. WhatsApp</label>
+              <label for="reg-wa" data-translate="register_whatsapp"
+                >No. WhatsApp</label
+              >
               <input
                 type="tel"
                 id="reg-wa"
@@ -1156,64 +1251,110 @@
               />
             </div>
             <div class="form-group">
-              <label for="reg-perusahaan">Perusahaan</label>
+              <label for="reg-perusahaan" data-translate="register_company"
+                >Perusahaan</label
+              >
               <input type="text" id="reg-perusahaan" required />
             </div>
-            <button type="submit">Daftar Sekarang</button>
+            <button type="submit" data-translate="register_now_btn">
+              Daftar Sekarang
+            </button>
           </form>
           <p class="register-link">
-            Sudah punya akun? <a href="#" onclick="showLoginForm()">Login</a>
+            <span data-translate="register_have_account"
+              >Sudah punya akun?</span
+            >
+            <a
+              href="#"
+              onclick="showLoginForm()"
+              data-translate="register_login"
+              >Login</a
+            >
           </p>
         </div>
       </div>
 
       <div id="app-container" style="display: none">
         <header class="app-header">
-          <div class="header-logo-container">
+          <div class="header-left-section">
             <img src="assets/logo.png" alt="Logo" />
             <div class="logo">GAMITAS</div>
           </div>
-          <div class="profile-dropdown">
-            <button class="profile-btn">
-              <span id="header-user-name" style="font-weight: 600"></span>
-              <div class="profile-avatar" id="profile-initial">?</div>
-            </button>
-            <div class="profile-dropdown-content">
-              <a href="#">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                Profil
-              </a>
-              <a href="#" onclick="logout()">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-                Keluar
-              </a>
+          <div class="header-right-section">
+            <div class="language-switcher language-switcher-header">
+              <button
+                class="lang-btn"
+                data-lang="id"
+                onclick="setLanguage('id')"
+              >
+                <img
+                  src="https://flagcdn.com/w40/id.png"
+                  alt="Bendera Indonesia"
+                />
+              </button>
+              <button
+                class="lang-btn"
+                data-lang="en"
+                onclick="setLanguage('en')"
+              >
+                <img
+                  src="https://flagcdn.com/w40/gb.png"
+                  alt="Bendera Inggris"
+                />
+              </button>
+              <button
+                class="lang-btn"
+                data-lang="ko"
+                onclick="setLanguage('ko')"
+              >
+                <img
+                  src="https://flagcdn.com/w40/kr.png"
+                  alt="Bendera Korea Selatan"
+                />
+              </button>
+            </div>
+            <div class="profile-dropdown">
+              <button class="profile-btn">
+                <span id="header-user-name" style="font-weight: 600"></span>
+                <div class="profile-avatar" id="profile-initial">?</div>
+              </button>
+              <div class="profile-dropdown-content">
+                <a href="#">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <span data-translate="menu_profile">Profil</span>
+                </a>
+                <a href="#" onclick="logout()">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  <span data-translate="menu_logout">Keluar</span>
+                </a>
+              </div>
             </div>
           </div>
         </header>
@@ -1228,9 +1369,11 @@
             </section>
 
             <section class="main-tabs">
-              <div class="tab active">Dashboard</div>
-              <div class="tab">Insight</div>
-              <div class="tab">Laporan</div>
+              <div class="tab active" data-translate="tabs_dashboard">
+                Dashboard
+              </div>
+              <div class="tab" data-translate="tabs_insight">Insight</div>
+              <div class="tab" data-translate="tabs_report">Laporan</div>
             </section>
 
             <main>
@@ -1246,8 +1389,10 @@
                     ></video>
                   </div>
                   <div class="carousel-slide">
-                    <p class="card-title">Pesan Keselamatan</p>
-                    <p class="card-content">
+                    <p class="card-title" data-translate="carousel_safety_msg">
+                      Pesan Keselamatan
+                    </p>
+                    <p class="card-content" data-translate="carousel_safety_1">
                       Selalu periksa peralatan Anda sebelum memulai pekerjaan.
                     </p>
                   </div>
@@ -1261,14 +1406,18 @@
                     ></video>
                   </div>
                   <div class="carousel-slide">
-                    <p class="card-title">Zona Berbahaya</p>
-                    <p class="card-content">
+                    <p class="card-title" data-translate="carousel_danger_zone">
+                      Zona Berbahaya
+                    </p>
+                    <p class="card-content" data-translate="carousel_safety_2">
                       Waspada area peledakan. Dilarang masuk tanpa izin.
                     </p>
                   </div>
                   <div class="carousel-slide">
-                    <p class="card-title">Area Berbahaya</p>
-                    <p class="card-content">
+                    <p class="card-title" data-translate="carousel_danger_area">
+                      Area Berbahaya
+                    </p>
+                    <p class="card-content" data-translate="carousel_safety_3">
                       Gunakan pelindung telinga di sekitar area genset.
                     </p>
                   </div>
@@ -1313,7 +1462,7 @@
 
               <!-- Fitur Pilihan -->
               <div class="section-title">
-                <h2>Fitur Pilihan</h2>
+                <h2 data-translate="home_featured">Fitur Pilihan</h2>
               </div>
               <div class="feature-grid">
                 <a
@@ -1327,7 +1476,7 @@
                       alt="Induksi Icon"
                     />
                   </div>
-                  <p>Induksi</p>
+                  <p data-translate="feature_induction">Induksi</p>
                 </a>
                 <a
                   onclick="showPage('page-jadwal')"
@@ -1340,7 +1489,7 @@
                       alt="Jadwal Pelatihan Icon"
                     />
                   </div>
-                  <p>Jadwal</p>
+                  <p data-translate="feature_schedule">Jadwal</p>
                 </a>
                 <a
                   onclick="showPage('page-golden-rules')"
@@ -1353,7 +1502,7 @@
                       alt="Golden Rules Icon"
                     />
                   </div>
-                  <p>Golden Rules</p>
+                  <p data-translate="feature_golden_rules">Golden Rules</p>
                 </a>
                 <a
                   onclick="showPage('page-do-dont')"
@@ -1366,13 +1515,13 @@
                       alt="Do & Don't Icon"
                     />
                   </div>
-                  <p>Do & Don't</p>
+                  <p data-translate="feature_do_dont">Do & Don't</p>
                 </a>
               </div>
 
               <!-- Buku Saku -->
               <div class="section-title" style="margin-top: 24px">
-                <h2>Buku Saku</h2>
+                <h2 data-translate="home_handbook">Buku Saku</h2>
               </div>
               <div class="feature-grid">
                 <a
@@ -1386,7 +1535,7 @@
                       alt="Buku Saku Mekanik Icon"
                     />
                   </div>
-                  <p>BS Mekanik</p>
+                  <p data-translate="handbook_mechanic">BS Mekanik</p>
                 </a>
                 <a
                   href="buku_saku_detail/hd_785.html"
@@ -1399,7 +1548,7 @@
                       alt="Buku Saku Operator Icon"
                     />
                   </div>
-                  <p>BS Operator</p>
+                  <p data-translate="handbook_operator">BS Operator</p>
                 </a>
                 <a
                   onclick="showPage('page-buku-hse')"
@@ -1412,13 +1561,13 @@
                       alt="Buku Saku HSE Icon"
                     />
                   </div>
-                  <p>BS HSE</p>
+                  <p data-translate="handbook_hse">BS HSE</p>
                 </a>
               </div>
 
               <!-- Menu Lain -->
               <div class="section-title" style="margin-top: 24px">
-                <h2>Menu Lain</h2>
+                <h2 data-translate="home_other_menus">Menu Lain</h2>
               </div>
               <div class="feature-grid">
                 <a
@@ -1432,7 +1581,7 @@
                       alt="Filosofi Icon"
                     />
                   </div>
-                  <p>Filosofi</p>
+                  <p data-translate="feature_philosophy">Filosofi</p>
                 </a>
                 <a
                   id="menu-kartu-digital"
@@ -1446,7 +1595,7 @@
                       alt="Kartu Digital Icon"
                     />
                   </div>
-                  <p>Kartu Digital</p>
+                  <p data-translate="feature_digital_card">Kartu Digital</p>
                 </a>
                 <a
                   onclick="showPage('page-kompetensi')"
@@ -1459,7 +1608,7 @@
                       alt="Kompetensi Icon"
                     />
                   </div>
-                  <p>Kompetensi</p>
+                  <p data-translate="feature_competency">Kompetensi</p>
                 </a>
                 <a
                   onclick="showPage('page-emergency')"
@@ -1472,7 +1621,7 @@
                       alt="Nomor Darurat Icon"
                     />
                   </div>
-                  <p>Nomor Darurat</p>
+                  <p data-translate="feature_emergency_num">Nomor Darurat</p>
                 </a>
               </div>
             </main>
@@ -1480,18 +1629,34 @@
 
           <div id="page-kompetensi" class="page">
             <main class="page-content">
-              <h1 class="page-title">Kompetensi Saya</h1>
+              <h1 class="page-title" data-translate="competency_title">
+                Kompetensi Saya
+              </h1>
               <div class="search-container">
                 <input
                   type="text"
                   id="search-kompetensi"
+                  data-translate-placeholder="competency_search_placeholder"
                   placeholder="🔍 Cari nama Anda di sini..."
                 />
-                <button onclick="searchData()">Cari</button>
-                <button class="reset-btn" onclick="resetSearch()">Reset</button>
+                <button
+                  onclick="searchData()"
+                  data-translate="competency_search_btn"
+                >
+                  Cari
+                </button>
+                <button
+                  class="reset-btn"
+                  onclick="resetSearch()"
+                  data-translate="competency_reset_btn"
+                >
+                  Reset
+                </button>
               </div>
               <div id="loading" class="loading-text" style="display: none">
-                🔄 Memuat data...
+                <span data-translate="competency_loading"
+                  >🔄 Memuat data...</span
+                >
               </div>
               <div id="results"></div>
             </main>
@@ -1499,7 +1664,9 @@
 
           <div id="page-kartudigital" class="page">
             <main class="page-content">
-              <h1 class="page-title">Kartu Digital</h1>
+              <h1 class="page-title" data-translate="digital_card_title">
+                Kartu Digital
+              </h1>
               <div class="kompetent-card">
                 <div class="card-inner">
                   <section class="card-header">
@@ -1510,48 +1677,71 @@
                     <h2>10 SUPERVISORY BEHAVIOR PROFILE</h2>
                     <ul class="behavior-list">
                       <li>
-                        <span class="badge">1</span>Memberikan Arahan yang Jelas
+                        <span class="badge">1</span
+                        ><span data-translate="card_behavior_1"
+                          >Memberikan Arahan yang Jelas</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">2</span>Membuat Perencanaan Kerja
-                        yang Aman
+                        <span class="badge">2</span
+                        ><span data-translate="card_behavior_2"
+                          >Membuat Perencanaan Kerja yang Aman</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">3</span>Mendelegasikan Tugas Sesuai
-                        Kompetensi K3
+                        <span class="badge">3</span
+                        ><span data-translate="card_behavior_3"
+                          >Mendelegasikan Tugas Sesuai Kompetensi K3</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">4</span>Monitoring &amp; Follow-Up
-                        Kegiatan K3
+                        <span class="badge">4</span
+                        ><span data-translate="card_behavior_4"
+                          >Monitoring &amp; Follow-Up Kegiatan K3</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">5</span>Memberikan Dukungan &amp;
-                        Fasilitas K3
+                        <span class="badge">5</span
+                        ><span data-translate="card_behavior_5"
+                          >Memberikan Dukungan &amp; Fasilitas K3</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">6</span>Membangun Komunikasi Positif
-                        Mengenai Safety
+                        <span class="badge">6</span
+                        ><span data-translate="card_behavior_6"
+                          >Membangun Komunikasi Positif Mengenai Safety</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">7</span>Mengembangkan Kompetensi K3
-                        Tim
+                        <span class="badge">7</span
+                        ><span data-translate="card_behavior_7"
+                          >Mengembangkan Kompetensi K3 Tim</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">8</span>Memberikan Apresiasi
-                        Terhadap Perilaku Aman
+                        <span class="badge">8</span
+                        ><span data-translate="card_behavior_8"
+                          >Memberikan Apresiasi Terhadap Perilaku Aman</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">9</span>Mengelola Konflik dan Risiko
-                        Sosial
+                        <span class="badge">9</span
+                        ><span data-translate="card_behavior_9"
+                          >Mengelola Konflik dan Risiko Sosial</span
+                        >
                       </li>
                       <li>
-                        <span class="badge">10</span>Menjadi Teladan dalam
-                        Budaya K3
+                        <span class="badge">10</span
+                        ><span data-translate="card_behavior_10"
+                          >Menjadi Teladan dalam Budaya K3</span
+                        >
                       </li>
                     </ul>
                   </section>
                   <section class="card-footer">
-                    <p>K3 adalah Jalan Ninjaku Menuju Keselamatan</p>
+                    <p data-translate="card_footer">
+                      K3 adalah Jalan Ninjaku Menuju Keselamatan
+                    </p>
                   </section>
                 </div>
               </div>
@@ -1560,13 +1750,16 @@
 
           <div id="page-jadwal" class="page">
             <main class="page-content">
-              <h1 class="page-title">Jadwal Pelatihan</h1>
+              <h1 class="page-title" data-translate="schedule_title">
+                Jadwal Pelatihan
+              </h1>
               <div style="text-align: center; margin-bottom: 24px">
                 <a
                   href="https://forms.gle/xHLQU5SoMQwNN76P7"
                   target="_blank"
                   class="action-btn primary"
                   style="font-size: 16px; padding: 14px 28px"
+                  data-translate="schedule_register_btn"
                   >Pendaftaran Training</a
                 >
               </div>
@@ -1576,11 +1769,15 @@
                   <span class="close">&times;</span>
                   <h3 id="modalTitle"></h3>
                   <p>
-                    <strong>Tanggal Mulai:</strong>
+                    <strong data-translate="schedule_modal_start"
+                      >Tanggal Mulai:</strong
+                    >
                     <span id="modalStart"></span>
                   </p>
                   <p>
-                    <strong>Tanggal Selesai:</strong>
+                    <strong data-translate="schedule_modal_end"
+                      >Tanggal Selesai:</strong
+                    >
                     <span id="modalEnd"></span>
                   </p>
                 </div>
@@ -1590,20 +1787,23 @@
 
           <div id="page-induksi" class="page">
             <main class="page-content">
-              <h1 class="page-title">Induksi Keselamatan</h1>
+              <h1 class="page-title" data-translate="induction_title">
+                Induksi Keselamatan
+              </h1>
               <div style="text-align: center; padding: 20px">
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/2950/2950450.png"
                   alt="Induksi Icon"
                   style="width: 100px; height: 100px; margin-bottom: 24px"
                 />
-                <h3>Siap untuk Memulai?</h3>
+                <h3 data-translate="induction_ready">Siap untuk Memulai?</h3>
                 <p
                   style="
                     color: var(--text-color-light);
                     line-height: 1.6;
                     margin-bottom: 32px;
                   "
+                  data-translate="induction_instruction"
                 >
                   Silakan lakukan pendaftaran terlebih dahulu sebelum memulai
                   proses induksi keselamatan.
@@ -1612,6 +1812,7 @@
                   href="https://forms.gle/1ohdiHosEgawo7Ja8"
                   target="_blank"
                   class="action-btn secondary"
+                  data-translate="induction_register_btn"
                 >
                   Pendaftaran Induksi
                 </a>
@@ -1619,6 +1820,7 @@
                   href="kode_akses.html"
                   target="_self"
                   class="action-btn primary"
+                  data-translate="induction_start_btn"
                 >
                   Mulai Induksi
                 </a>
@@ -1628,7 +1830,9 @@
 
           <div id="page-emergency" class="page">
             <main class="page-content">
-              <h1 class="page-title">Kontak Darurat</h1>
+              <h1 class="page-title" data-translate="emergency_title">
+                Kontak Darurat
+              </h1>
               <div
                 class="instruction-box"
                 style="
@@ -1655,7 +1859,7 @@
                   <line x1="12" x2="12" y1="9" y2="13" />
                   <line x1="12" x2="12.01" y1="17" y2="17" />
                 </svg>
-                <span
+                <span data-translate="emergency_instruction"
                   >Gunakan nomor ini hanya untuk keadaan darurat yang mengancam
                   jiwa atau properti.</span
                 >
@@ -1687,7 +1891,12 @@
                     <p>0821-1667-7991</p>
                   </div>
                   <div class="action-buttons">
-                    <a href="tel:082116677991" class="call-btn">Panggil</a>
+                    <a
+                      href="tel:082116677991"
+                      class="call-btn"
+                      data-translate="emergency_call_btn"
+                      >Panggil</a
+                    >
                     <a
                       href="https://wa.me/6282116677991?text=emergency%20emergency%20emergency"
                       target="_blank"
@@ -1721,11 +1930,16 @@
                     </svg>
                   </div>
                   <div class="contact-info">
-                    <h3>Klinik</h3>
+                    <h3 data-translate="emergency_clinic">Klinik</h3>
                     <p>0813-1661-5353</p>
                   </div>
                   <div class="action-buttons">
-                    <a href="tel:081316615353" class="call-btn">Panggil</a>
+                    <a
+                      href="tel:081316615353"
+                      class="call-btn"
+                      data-translate="emergency_call_btn_2"
+                      >Panggil</a
+                    >
                     <a
                       href="https://wa.me/6281316615353?text=butuh%20medis"
                       target="_blank"
@@ -1759,7 +1973,9 @@
                     </svg>
                   </div>
                   <div class="contact-info">
-                    <h3>Channel Radio HSE / ERT</h3>
+                    <h3 data-translate="emergency_radio">
+                      Channel Radio HSE / ERT
+                    </h3>
                     <p>165.475</p>
                   </div>
                 </div>
@@ -1774,7 +1990,12 @@
                   opacity: 0;
                 "
               >
-                <h3 style="margin-bottom: 16px">Prosedur Pelaporan Darurat</h3>
+                <h3
+                  style="margin-bottom: 16px"
+                  data-translate="emergency_procedure"
+                >
+                  Prosedur Pelaporan Darurat
+                </h3>
                 <img
                   src="assets/cara_lapor_ert.png"
                   alt="Cara Lapor ERT"
@@ -1788,39 +2009,53 @@
             </main>
           </div>
 
+          <!-- PLACEHOLDER PAGES -->
           <div id="page-buku-operator" class="page">
             <main class="page-content">
-              <h1 class="page-title">Buku Saku Operator</h1>
-              <p>Konten akan segera hadir...</p>
+              <h1 class="page-title" data-translate="page_op_handbook">
+                Buku Saku Operator
+              </h1>
+              <p data-translate="page_soon">Konten akan segera hadir...</p>
             </main>
           </div>
           <div id="page-buku-mekanik" class="page">
             <main class="page-content">
-              <h1 class="page-title">Buku Saku Mekanik</h1>
-              <p>Konten akan segera hadir...</p>
+              <h1 class="page-title" data-translate="page_mech_handbook">
+                Buku Saku Mekanik
+              </h1>
+              <p data-translate="page_soon_2">Konten akan segera hadir...</p>
             </main>
           </div>
           <div id="page-buku-hse" class="page">
             <main class="page-content">
-              <h1 class="page-title">Buku Saku HSE GAM</h1>
-              <p>Konten akan segera hadir...</p>
+              <h1 class="page-title" data-translate="page_hse_handbook">
+                Buku Saku HSE GAM
+              </h1>
+              <p data-translate="page_soon_3">Konten akan segera hadir...</p>
             </main>
           </div>
           <div id="page-golden-rules" class="page">
             <main class="page-content">
-              <h1 class="page-title">Golden Rules</h1>
-              <p>Konten akan segera hadir...</p>
+              <h1 class="page-title" data-translate="page_golden_rules">
+                Golden Rules
+              </h1>
+              <p data-translate="page_soon_4">Konten akan segera hadir...</p>
             </main>
           </div>
           <div id="page-do-dont" class="page">
             <main class="page-content">
-              <h1 class="page-title">Do & Don't</h1>
-              <p>Konten akan segera hadir...</p>
+              <h1 class="page-title" data-translate="page_do_dont">
+                Do & Don't
+              </h1>
+              <p data-translate="page_soon_5">Konten akan segera hadir...</p>
             </main>
           </div>
+
           <div id="page-filosofi" class="page">
             <main class="page-content">
-              <h1 class="page-title">Filosofi & Visi Misi</h1>
+              <h1 class="page-title" data-translate="philosophy_title">
+                Filosofi & Visi Misi
+              </h1>
               <div class="filosofi-tabs">
                 <button
                   class="filosofi-tab-btn active"
@@ -1831,6 +2066,7 @@
                 <button
                   class="filosofi-tab-btn"
                   onclick="showFilosofiTab('tc', this)"
+                  data-translate="philosophy_tab_tc"
                 >
                   Training Center
                 </button>
@@ -2013,7 +2249,7 @@
                 >
                   <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                   <polyline points="9 22 9 12 15 12 15 22" /></svg
-                ><span>Home</span></a
+                ><span data-translate="nav_home">Home</span></a
               >
             </li>
             <li id="nav-jadwal">
@@ -2033,7 +2269,7 @@
                   <path d="M16 2v4" />
                   <rect width="18" height="18" x="3" y="4" rx="2" />
                   <path d="M3 10h18" /></svg
-                ><span>Jadwal</span></a
+                ><span data-translate="nav_schedule">Jadwal</span></a
               >
             </li>
             <li id="nav-induksi">
@@ -2052,7 +2288,7 @@
                   <path
                     d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
                   /></svg
-                ><span>Induksi</span></a
+                ><span data-translate="nav_induction">Induksi</span></a
               >
             </li>
             <li id="nav-emergency">
@@ -2073,7 +2309,7 @@
                   />
                   <line x1="12" x2="12" y1="9" y2="13" />
                   <line x1="12" x2="12.01" y1="17" y2="17" /></svg
-                ><span>Darurat</span></a
+                ><span data-translate="nav_emergency">Darurat</span></a
               >
             </li>
             <li id="nav-logout">
@@ -2092,7 +2328,7 @@
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                   <polyline points="16 17 21 12 16 7" />
                   <line x1="21" y1="12" x2="9" y2="12" /></svg
-                ><span>Keluar</span></a
+                ><span data-translate="nav_logout">Keluar</span></a
               >
             </li>
           </ul>
@@ -2103,6 +2339,392 @@
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
 
     <script>
+      // --- START: LANGUAGE FEATURE ---
+      const translations = {
+        id: {
+          app_title: "GAMITAS - Aplikasi Keselamatan Terpadu",
+          splash_verified: "Terverifikasi",
+          login_welcome: "Selamat Datang",
+          login_select_type: "Pilih tipe login untuk melanjutkan",
+          login_as_gam: "Login sebagai Karyawan GAM",
+          login_as_gam_desc: "Akses fitur untuk internal perusahaan",
+          login_as_partner: "Login sebagai Mitra Kerja",
+          login_as_partner_desc: "Akses fitur untuk vendor dan kontraktor",
+          login_simper_test: "Tes SIMPER",
+          login_simper_test_desc: "Akses untuk mengikuti tes SIMPER",
+          login_submission: "PENGAJUAN",
+          login_submission_desc: "PERMIT TO WORK, SURAT IJIN MASUK SITE dll",
+          login_no_account: "Belum punya akun?",
+          login_register_now: "Daftar sekarang",
+          register_create_account: "Buat Akun Baru",
+          register_fullname: "Nama Lengkap",
+          register_id_card: "NIK KTP",
+          register_email: "Email",
+          register_whatsapp: "No. WhatsApp",
+          register_company: "Perusahaan",
+          register_now_btn: "Daftar Sekarang",
+          register_have_account: "Sudah punya akun?",
+          register_login: "Login",
+          menu_profile: "Profil",
+          menu_logout: "Keluar",
+          greeting_morning: "Selamat Pagi",
+          greeting_afternoon: "Selamat Siang",
+          greeting_evening: "Selamat Sore",
+          greeting_night: "Selamat Malam",
+          tabs_dashboard: "Dashboard",
+          tabs_insight: "Insight",
+          tabs_report: "Laporan",
+          carousel_safety_msg: "Pesan Keselamatan",
+          carousel_danger_zone: "Zona Berbahaya",
+          carousel_danger_area: "Area Berbahaya",
+          carousel_safety_1:
+            "Selalu periksa peralatan Anda sebelum memulai pekerjaan.",
+          carousel_safety_2:
+            "Waspada area peledakan. Dilarang masuk tanpa izin.",
+          carousel_safety_3:
+            "Gunakan pelindung telinga di sekitar area genset.",
+          home_featured: "Fitur Pilihan",
+          feature_induction: "Induksi",
+          feature_schedule: "Jadwal",
+          feature_golden_rules: "Golden Rules",
+          feature_do_dont: "Do & Don't",
+          home_handbook: "Buku Saku",
+          handbook_mechanic: "BS Mekanik",
+          handbook_operator: "BS Operator",
+          handbook_hse: "BS HSE",
+          home_other_menus: "Menu Lain",
+          feature_philosophy: "Filosofi",
+          feature_digital_card: "Kartu Digital",
+          feature_competency: "Kompetensi",
+          feature_emergency_num: "Nomor Darurat",
+          nav_home: "Home",
+          nav_schedule: "Jadwal",
+          nav_induction: "Induksi",
+          nav_emergency: "Darurat",
+          nav_logout: "Keluar",
+          competency_title: "Kompetensi Saya",
+          competency_search_placeholder: "🔍 Cari nama Anda di sini...",
+          competency_search_btn: "Cari",
+          competency_reset_btn: "Reset",
+          competency_loading: "🔄 Memuat data...",
+          competency_results_title: "Status Kompetensi",
+          competency_recommendation_title: "Rekomendasi Kompetensi Jabatan",
+          competency_no_data: "Tidak ada data kompetensi yang ditemukan.",
+          competency_no_recommendation:
+            "Tidak ada rekomendasi kompetensi yang cocok.",
+          digital_card_title: "Kartu Digital",
+          card_behavior_1: "Memberikan Arahan yang Jelas",
+          card_behavior_2: "Membuat Perencanaan Kerja yang Aman",
+          card_behavior_3: "Mendelegasikan Tugas Sesuai Kompetensi K3",
+          card_behavior_4: "Monitoring & Follow-Up Kegiatan K3",
+          card_behavior_5: "Memberikan Dukungan & Fasilitas K3",
+          card_behavior_6: "Membangun Komunikasi Positif Mengenai Safety",
+          card_behavior_7: "Mengembangkan Kompetensi K3 Tim",
+          card_behavior_8: "Memberikan Apresiasi Terhadap Perilaku Aman",
+          card_behavior_9: "Mengelola Konflik dan Risiko Sosial",
+          card_behavior_10: "Menjadi Teladan dalam Budaya K3",
+          card_footer: "K3 adalah Jalan Ninjaku Menuju Keselamatan",
+          schedule_title: "Jadwal Pelatihan",
+          schedule_register_btn: "Pendaftaran Training",
+          schedule_modal_start: "Tanggal Mulai:",
+          schedule_modal_end: "Tanggal Selesai:",
+          induction_title: "Induksi Keselamatan",
+          induction_ready: "Siap untuk Memulai?",
+          induction_instruction:
+            "Silakan lakukan pendaftaran terlebih dahulu sebelum memulai proses induksi keselamatan.",
+          induction_register_btn: "Pendaftaran Induksi",
+          induction_start_btn: "Mulai Induksi",
+          emergency_title: "Kontak Darurat",
+          emergency_instruction:
+            "Gunakan nomor ini hanya untuk keadaan darurat yang mengancam jiwa atau properti.",
+          emergency_call_btn: "Panggil",
+          emergency_call_btn_2: "Panggil",
+          emergency_clinic: "Klinik",
+          emergency_radio: "Channel Radio HSE / ERT",
+          emergency_procedure: "Prosedur Pelaporan Darurat",
+          page_op_handbook: "Buku Saku Operator",
+          page_mech_handbook: "Buku Saku Mekanik",
+          page_hse_handbook: "Buku Saku HSE GAM",
+          page_golden_rules: "Golden Rules",
+          page_do_dont: "Do & Don't",
+          page_soon: "Konten akan segera hadir...",
+          page_soon_2: "Konten akan segera hadir...",
+          page_soon_3: "Konten akan segera hadir...",
+          page_soon_4: "Konten akan segera hadir...",
+          page_soon_5: "Konten akan segera hadir...",
+          philosophy_title: "Filosofi & Visi Misi",
+          philosophy_tab_tc: "Training Center",
+        },
+        en: {
+          app_title: "GAMITAS - Integrated Safety Application",
+          splash_verified: "Verified",
+          login_welcome: "Welcome",
+          login_select_type: "Select login type to continue",
+          login_as_gam: "Login as GAM Employee",
+          login_as_gam_desc: "Access features for company internals",
+          login_as_partner: "Login as Work Partner",
+          login_as_partner_desc: "Access features for vendors and contractors",
+          login_simper_test: "SIMPER Test",
+          login_simper_test_desc: "Access to take the SIMPER test",
+          login_submission: "SUBMISSION",
+          login_submission_desc: "PERMIT TO WORK, SITE ENTRY PERMIT etc.",
+          login_no_account: "Don't have an account?",
+          login_register_now: "Register now",
+          register_create_account: "Create New Account",
+          register_fullname: "Full Name",
+          register_id_card: "ID Card Number",
+          register_email: "Email",
+          register_whatsapp: "WhatsApp Number",
+          register_company: "Company",
+          register_now_btn: "Register Now",
+          register_have_account: "Already have an account?",
+          register_login: "Login",
+          menu_profile: "Profile",
+          menu_logout: "Logout",
+          greeting_morning: "Good Morning",
+          greeting_afternoon: "Good Afternoon",
+          greeting_evening: "Good Evening",
+          greeting_night: "Good Night",
+          tabs_dashboard: "Dashboard",
+          tabs_insight: "Insight",
+          tabs_report: "Report",
+          carousel_safety_msg: "Safety Message",
+          carousel_danger_zone: "Danger Zone",
+          carousel_danger_area: "Hazardous Area",
+          carousel_safety_1:
+            "Always check your equipment before starting work.",
+          carousel_safety_2:
+            "Beware of blasting area. No entry without permission.",
+          carousel_safety_3: "Use ear protection around the generator area.",
+          home_featured: "Featured Features",
+          feature_induction: "Induction",
+          feature_schedule: "Schedule",
+          feature_golden_rules: "Golden Rules",
+          feature_do_dont: "Do & Don't",
+          home_handbook: "Handbook",
+          handbook_mechanic: "Mechanic HB",
+          handbook_operator: "Operator HB",
+          handbook_hse: "HSE HB",
+          home_other_menus: "Other Menus",
+          feature_philosophy: "Philosophy",
+          feature_digital_card: "Digital Card",
+          feature_competency: "Competency",
+          feature_emergency_num: "Emergency No.",
+          nav_home: "Home",
+          nav_schedule: "Schedule",
+          nav_induction: "Induction",
+          nav_emergency: "Emergency",
+          nav_logout: "Logout",
+          competency_title: "My Competency",
+          competency_search_placeholder: "🔍 Search your name here...",
+          competency_search_btn: "Search",
+          competency_reset_btn: "Reset",
+          competency_loading: "🔄 Loading data...",
+          competency_results_title: "Competency Status",
+          competency_recommendation_title: "Job Competency Recommendation",
+          competency_no_data: "No competency data found.",
+          competency_no_recommendation:
+            "No suitable competency recommendations found.",
+          digital_card_title: "Digital Card",
+          card_behavior_1: "Provide Clear Directions",
+          card_behavior_2: "Create a Safe Work Plan",
+          card_behavior_3: "Delegate Tasks According to OHS Competency",
+          card_behavior_4: "Monitor & Follow-Up OHS Activities",
+          card_behavior_5: "Provide OHS Support & Facilities",
+          card_behavior_6: "Build Positive Communication About Safety",
+          card_behavior_7: "Develop Team's OHS Competency",
+          card_behavior_8: "Appreciate Safe Behavior",
+          card_behavior_9: "Manage Conflict and Social Risks",
+          card_behavior_10: "Be a Role Model in OHS Culture",
+          card_footer: "Safety is my Ninja Way to Salvation",
+          schedule_title: "Training Schedule",
+          schedule_register_btn: "Training Registration",
+          schedule_modal_start: "Start Date:",
+          schedule_modal_end: "End Date:",
+          induction_title: "Safety Induction",
+          induction_ready: "Ready to Start?",
+          induction_instruction:
+            "Please register first before starting the safety induction process.",
+          induction_register_btn: "Induction Registration",
+          induction_start_btn: "Start Induction",
+          emergency_title: "Emergency Contacts",
+          emergency_instruction:
+            "Use these numbers only for life-threatening or property-threatening emergencies.",
+          emergency_call_btn: "Call",
+          emergency_call_btn_2: "Call",
+          emergency_clinic: "Clinic",
+          emergency_radio: "HSE / ERT Radio Channel",
+          emergency_procedure: "Emergency Reporting Procedure",
+          page_op_handbook: "Operator Handbook",
+          page_mech_handbook: "Mechanic Handbook",
+          page_hse_handbook: "HSE GAM Handbook",
+          page_golden_rules: "Golden Rules",
+          page_do_dont: "Do & Don't",
+          page_soon: "Content is coming soon...",
+          page_soon_2: "Content is coming soon...",
+          page_soon_3: "Content is coming soon...",
+          page_soon_4: "Content is coming soon...",
+          page_soon_5: "Content is coming soon...",
+          philosophy_title: "Philosophy & Vision Mission",
+          philosophy_tab_tc: "Training Center",
+        },
+        ko: {
+          app_title: "GAMITAS - 통합 안전 애플리케이션",
+          splash_verified: "확인됨",
+          login_welcome: "환영합니다",
+          login_select_type: "계속하려면 로그인 유형을 선택하세요",
+          login_as_gam: "GAM 직원으로 로그인",
+          login_as_gam_desc: "회사 내부용 기능에 액세스",
+          login_as_partner: "업무 파트너로 로그인",
+          login_as_partner_desc: "공급업체 및 계약업체용 기능에 액세스",
+          login_simper_test: "SIMPER 테스트",
+          login_simper_test_desc: "SIMPER 테스트 응시용 액세스",
+          login_submission: "제출",
+          login_submission_desc: "작업 허가서, 현장 출입 허가서 등",
+          login_no_account: "계정이 없으신가요?",
+          login_register_now: "지금 등록",
+          register_create_account: "새 계정 만들기",
+          register_fullname: "성명",
+          register_id_card: "신분증 번호",
+          register_email: "이메일",
+          register_whatsapp: "WhatsApp 번호",
+          register_company: "회사",
+          register_now_btn: "지금 등록",
+          register_have_account: "이미 계정이 있으신가요?",
+          register_login: "로그인",
+          menu_profile: "프로필",
+          menu_logout: "로그아웃",
+          greeting_morning: "좋은 아침입니다",
+          greeting_afternoon: "좋은 오후입니다",
+          greeting_evening: "좋은 저녁입니다",
+          greeting_night: "좋은 밤입니다",
+          tabs_dashboard: "대시보드",
+          tabs_insight: "인사이트",
+          tabs_report: "보고서",
+          carousel_safety_msg: "안전 메시지",
+          carousel_danger_zone: "위험 구역",
+          carousel_danger_area: "위험 지역",
+          carousel_safety_1: "작업 시작 전 항상 장비를 확인하십시오.",
+          carousel_safety_2: "발파 지역 주의. 허가 없이 출입 금지.",
+          carousel_safety_3: "발전기 주변에서는 귀마개를 사용하십시오.",
+          home_featured: "주요 기능",
+          feature_induction: "안전 교육",
+          feature_schedule: "일정",
+          feature_golden_rules: "골든룰",
+          feature_do_dont: "해야 할 일과 하지 말아야 할 일",
+          home_handbook: "핸드북",
+          handbook_mechanic: "정비사 핸드북",
+          handbook_operator: "운전자 핸드북",
+          handbook_hse: "HSE 핸드북",
+          home_other_menus: "기타 메뉴",
+          feature_philosophy: "철학",
+          feature_digital_card: "디지털 카드",
+          feature_competency: "역량",
+          feature_emergency_num: "비상 연락처",
+          nav_home: "홈",
+          nav_schedule: "일정",
+          nav_induction: "안전 교육",
+          nav_emergency: "비상",
+          nav_logout: "로그아웃",
+          competency_title: "나의 역량",
+          competency_search_placeholder: "🔍 여기에 이름을 검색하세요...",
+          competency_search_btn: "검색",
+          competency_reset_btn: "초기화",
+          competency_loading: "🔄 데이터 로딩 중...",
+          competency_results_title: "역량 상태",
+          competency_recommendation_title: "직무 역량 추천",
+          competency_no_data: "역량 데이터를 찾을 수 없습니다.",
+          competency_no_recommendation: "적합한 역량 추천을 찾을 수 없습니다.",
+          digital_card_title: "디지털 카드",
+          card_behavior_1: "명확한 지시 제공",
+          card_behavior_2: "안전한 작업 계획 수립",
+          card_behavior_3: "안전보건 역량에 따른 업무 위임",
+          card_behavior_4: "안전보건 활동 모니터링 및 후속 조치",
+          card_behavior_5: "안전보건 지원 및 시설 제공",
+          card_behavior_6: "안전에 대한 긍정적 소통 구축",
+          card_behavior_7: "팀의 안전보건 역량 개발",
+          card_behavior_8: "안전 행동에 대한 인정",
+          card_behavior_9: "갈등 및 사회적 위험 관리",
+          card_behavior_10: "안전보건 문화의 모범 되기",
+          card_footer: "안전은 구원으로 가는 나의 닌자의 길",
+          schedule_title: "교육 일정",
+          schedule_register_btn: "교육 등록",
+          schedule_modal_start: "시작 날짜:",
+          schedule_modal_end: "종료 날짜:",
+          induction_title: "안전 교육",
+          induction_ready: "시작할 준비가 되셨나요?",
+          induction_instruction:
+            "안전 교육 절차를 시작하기 전에 먼저 등록하십시오.",
+          induction_register_btn: "안전 교육 등록",
+          induction_start_btn: "안전 교육 시작",
+          emergency_title: "비상 연락처",
+          emergency_instruction:
+            "생명이나 재산에 위협이 되는 비상 상황에만 이 번호를 사용하십시오.",
+          emergency_call_btn: "전화 걸기",
+          emergency_call_btn_2: "전화 걸기",
+          emergency_clinic: "클리닉",
+          emergency_radio: "HSE / ERT 라디오 채널",
+          emergency_procedure: "비상 보고 절차",
+          page_op_handbook: "운전자 핸드북",
+          page_mech_handbook: "정비사 핸드북",
+          page_hse_handbook: "HSE GAM 핸드북",
+          page_golden_rules: "골든룰",
+          page_do_dont: "해야 할 일과 하지 말아야 할 일",
+          page_soon: "콘텐츠가 곧 제공될 예정입니다...",
+          page_soon_2: "콘텐츠가 곧 제공될 예정입니다...",
+          page_soon_3: "콘텐츠가 곧 제공될 예정입니다...",
+          page_soon_4: "콘텐츠가 곧 제공될 예정입니다...",
+          page_soon_5: "콘텐츠가 곧 제공될 예정입니다...",
+          philosophy_title: "철학 및 비전/미션",
+          philosophy_tab_tc: "트레이닝 센터",
+        },
+      };
+
+      function setLanguage(lang) {
+        if (!translations[lang]) return;
+
+        localStorage.setItem("language", lang);
+        document.documentElement.lang = lang;
+
+        // --- NEW: Handle active state for flag buttons ---
+        document.querySelectorAll(".lang-btn").forEach((btn) => {
+          if (btn.getAttribute("data-lang") === lang) {
+            btn.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+        // --- END NEW ---
+
+        document.querySelectorAll("[data-translate]").forEach((el) => {
+          const key = el.getAttribute("data-translate");
+          if (translations[lang][key]) {
+            el.textContent = translations[lang][key];
+          }
+        });
+
+        document
+          .querySelectorAll("[data-translate-placeholder]")
+          .forEach((el) => {
+            const key = el.getAttribute("data-translate-placeholder");
+            if (translations[lang][key]) {
+              el.placeholder = translations[lang][key];
+            }
+          });
+
+        // Update document title
+        if (translations[lang]["app_title"]) {
+          document.title = translations[lang]["app_title"];
+        }
+
+        // Update dynamic content if needed, e.g., greetings
+        const storedUserType = localStorage.getItem("userType");
+        if (storedUserType) {
+          updateUserUI(storedUserType);
+        }
+      }
+      // --- END: LANGUAGE FEATURE ---
+
       // --- PWA Setup ---
       function setupPWA() {
         const manifest = {
@@ -2145,13 +2767,14 @@
       let lastScrollTop = 0;
       let carouselInterval;
 
-      // --- Time-based Greeting ---
-      function getTimeBasedGreeting() {
+      // --- Time-based Greeting (MODIFIED for translation) ---
+      function getTimeBasedGreeting(lang) {
         const hour = new Date().getHours();
-        if (hour < 12) return "Selamat Pagi";
-        if (hour < 15) return "Selamat Siang";
-        if (hour < 18) return "Selamat Sore";
-        return "Selamat Malam";
+        const langPack = translations[lang] || translations["id"];
+        if (hour < 12) return langPack.greeting_morning;
+        if (hour < 15) return langPack.greeting_afternoon;
+        if (hour < 18) return langPack.greeting_evening;
+        return langPack.greeting_night;
       }
 
       // --- Carousel Logic ---
@@ -2306,10 +2929,26 @@
         }, 500);
       }
 
+      // --- MODIFIED for translation ---
       function updateUserUI(userType) {
-        document.getElementById("user-greeting").textContent = `${userType}!`;
+        const currentLang = localStorage.getItem("language") || "id";
+
+        let translatedUserType = userType;
+        if (currentLang === "en") {
+          translatedUserType = userType
+            .replace("Karyawan GAM", "GAM Employee")
+            .replace("Mitra Kerja", "Work Partner");
+        } else if (currentLang === "ko") {
+          translatedUserType = userType
+            .replace("Karyawan GAM", "GAM 직원")
+            .replace("Mitra Kerja", "업무 파트너");
+        }
+
+        document.getElementById(
+          "user-greeting"
+        ).textContent = `${translatedUserType}!`;
         document.getElementById("time-greeting").textContent =
-          getTimeBasedGreeting() + ",";
+          getTimeBasedGreeting(currentLang) + ",";
         document.getElementById("header-user-name").textContent =
           userType.split(" ")[0];
         document.getElementById("profile-initial").textContent =
@@ -2324,7 +2963,12 @@
       }
 
       function logout() {
-        localStorage.removeItem("userType");
+        // Do not remove language preference
+        const currentLang = localStorage.getItem("language");
+        localStorage.clear();
+        if (currentLang) {
+          localStorage.setItem("language", currentLang);
+        }
         window.location.reload();
       }
 
@@ -2340,13 +2984,19 @@
 
       function handleRegister(event) {
         event.preventDefault();
-        alert("Pendaftaran berhasil! Silakan login.");
+        alert("Pendaftaran berhasil! Silakan login."); // This could also be translated
         showLoginForm();
       }
 
-      // --- App Initialization ---
+      // --- App Initialization (MODIFIED for language)---
       window.addEventListener("DOMContentLoaded", () => {
         setupPWA();
+
+        // --- START: Language Initialization ---
+        const savedLang = localStorage.getItem("language") || "id";
+        setLanguage(savedLang);
+        // --- END: Language Initialization ---
+
         const splashScreen = document.getElementById("splash-screen");
         const loginScreen = document.getElementById("login-screen");
         const appContainer = document.getElementById("app-container");
@@ -2493,7 +3143,7 @@
       }
 
       // --- Kompetensi Page Logic (with Google Sheets API) ---
-      const apiKey = "AIzaSyA7Wbhd7KYAMKt10vKVnJY81qDWTCs9MPw";
+      const apiKey = "AIzaSyA7Wbhd7KYAMKt10vKVnJY81qDWTCs9MPw"; // WARNING: API KEY IS EXPOSED
       const spreadsheetId_kompetensi =
         "1IUZpjUEHsZe-4k4V6w1JqDNSH9zw9gKpceogu6cqx3Q";
       const sheet1Range = "BASE MANPOWER!E:I";
@@ -2546,11 +3196,19 @@
             );
             const recommendationData = data3.values || [];
 
-            displayKompetensiResults(competencyResults, "Status Kompetensi");
+            const currentLang = localStorage.getItem("language") || "id";
+            const langPack = translations[currentLang];
+
+            displayKompetensiResults(
+              competencyResults,
+              langPack.competency_results_title
+            );
             displayCompetencyRecommendations(
               manpowerResults,
               recommendationData,
-              competencyResults.length
+              competencyResults.length,
+              langPack.competency_recommendation_title,
+              langPack.competency_no_recommendation
             );
 
             document.getElementById("loading").style.display = "none";
@@ -2563,6 +3221,8 @@
       }
 
       function displayKompetensiResults(results, sectionTitle) {
+        const currentLang = localStorage.getItem("language") || "id";
+        const langPack = translations[currentLang];
         const resultsDiv = document.getElementById("results");
         const section = document.createElement("section");
         section.className = "result-section";
@@ -2575,7 +3235,7 @@
 
         if (!results || results.length === 0) {
           const noDataMessage = document.createElement("p");
-          noDataMessage.textContent = `Tidak ada data kompetensi yang ditemukan.`;
+          noDataMessage.textContent = langPack.competency_no_data;
           section.appendChild(noDataMessage);
         } else {
           results.forEach((row, index) => {
@@ -2610,13 +3270,15 @@
       function displayCompetencyRecommendations(
         manpowerResults,
         recommendationData,
-        competencyCount = 0
+        competencyCount = 0,
+        sectionTitle,
+        noDataText
       ) {
         const resultsDiv = document.getElementById("results");
         const section = document.createElement("section");
         section.className = "result-section";
         const title = document.createElement("h2");
-        title.innerText = "Rekomendasi Kompetensi Jabatan";
+        title.innerText = sectionTitle;
         section.appendChild(title);
 
         const listContainer = document.createElement("div");
@@ -2648,8 +3310,7 @@
 
         if (matches.length === 0) {
           const noDataMessage = document.createElement("p");
-          noDataMessage.textContent =
-            "Tidak ada rekomendasi kompetensi yang cocok.";
+          noDataMessage.textContent = noDataText;
           section.appendChild(noDataMessage);
         } else {
           matches.forEach((item, index) => {

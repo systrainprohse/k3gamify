@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Library untuk membuat PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Tally Embed Script -->
+    <script async src="https://tally.so/widgets/embed.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -34,7 +36,7 @@
         transition: max-height 0.5s ease-out;
       }
       .step-content.open {
-        max-height: 3500px; /* Increased max-height for forms */
+        max-height: 4500px; /* Increased max-height for forms & images */
         transition: max-height 1.5s ease-in;
       }
       @keyframes spin {
@@ -337,56 +339,10 @@
                   </div>
                 </div>
                 <div class="flex items-start space-x-6">
-                  <div class="flex flex-col items-center">
-                    <div
-                      class="flex items-center justify-center w-12 h-12 bg-yellow-500 text-white rounded-full text-xl font-bold shadow-md"
-                    >
-                      4
-                    </div>
-                    <div class="w-1 h-24 bg-yellow-200 mt-2"></div>
-                  </div>
-                  <div class="flex-1 pt-1">
-                    <div class="flex items-center mb-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-7 w-7 text-yellow-500 mr-3"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                        />
-                      </svg>
-                      <h2 class="text-xl font-bold text-gray-800">
-                        TTD & Checklist
-                      </h2>
-                    </div>
-                    <p class="text-sm text-gray-600 mt-2">
-                      Langkah akhir administrasi jika Anda lulus Post-Test.
-                    </p>
-                    <ul
-                      class="list-disc list-inside mt-4 space-y-2 text-gray-700 text-sm"
-                    >
-                      <li>
-                        Isi formulir SPDK dan Checklist Induksi yang
-                        ditampilkan.
-                      </li>
-                      <li>
-                        Centang kedua kotak konfirmasi untuk mengaktifkan tombol
-                        selanjutnya.
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-6">
                   <div
                     class="flex items-center justify-center w-12 h-12 bg-red-500 text-white rounded-full text-xl font-bold shadow-md"
                   >
-                    5
+                    4
                   </div>
                   <div class="flex-1 pt-1 ml-6">
                     <div class="flex items-center mb-2">
@@ -879,77 +835,83 @@
           </div>
         </div>
 
-        <!-- Langkah 7: TTD & Checklist -->
+        <!-- Langkah 7: Tanda Tangan -->
         <div
           id="step-7"
           class="step-card bg-white p-6 rounded-xl shadow-md locked"
         >
           <div class="step-header flex justify-between items-center">
             <h2 class="text-lg font-bold text-gray-700">
-              Langkah 7: TTD & Checklist
+              Langkah 7: Tanda Tangan
             </h2>
             <span id="step-7-status" class="text-sm font-semibold text-red-500"
               >Terkunci</span
             >
           </div>
-          <div id="step-7-content" class="step-content pt-4 space-y-8">
-            <!-- SPDK Form -->
-            <div>
+          <div id="step-7-content" class="step-content pt-4 space-y-4">
+            <!-- SPDK Preview Section -->
+            <div id="spdk-preview-section">
               <h3 class="text-lg font-semibold text-gray-800 mb-2">
-                1. Surat Pernyataan dan Kesanggupan (SPDK)
+                1. Pratinjau Dokumen
               </h3>
               <p class="text-gray-600 mb-4">
-                Silakan isi dan tandatangani formulir SPDK di bawah ini.
+                Harap baca dan pahami dokumen di bawah ini sebelum memberikan
+                tanda tangan.
               </p>
-              <iframe
-                id="spdk-frame"
-                src=""
-                class="tally-embed"
-                title="Formulir SPDK"
-              ></iframe>
+              <div
+                class="border rounded-lg p-4 space-y-4 bg-gray-50 max-h-96 overflow-y-auto"
+              >
+                <!-- GANTI DENGAN URL GAMBAR ANDA -->
+                <img
+                  src="assets\spdk_001"
+                  alt="SPDK Halaman 1"
+                  class="w-full h-auto border"
+                />
+                <img
+                  src="assets\spdk_002.png"
+                  alt="SPDK Halaman 2"
+                  class="w-full h-auto border"
+                />
+                <img
+                  src="assets\checklist_induksi.png"
+                  alt="Checklist Induksi"
+                  class="w-full h-auto border"
+                />
+              </div>
               <label class="mt-4 flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  id="spdk-checkbox"
+                  id="spdk-agreement-checkbox"
                   class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span class="ml-3 text-gray-700 font-medium"
-                  >Saya telah menandatangani SPDK.</span
+                  >Saya telah membaca dan menyetujui dokumen di atas.</span
                 >
               </label>
             </div>
-            <!-- Checklist Induksi Form -->
-            <div>
+
+            <!-- Tanda Tangan Section (Initially Hidden) -->
+            <div id="signature-section" class="hidden mt-8">
               <h3 class="text-lg font-semibold text-gray-800 mb-2">
-                2. Checklist Induksi
+                2. Tanda Tangan
               </h3>
               <p class="text-gray-600 mb-4">
-                Lengkapi formulir checklist induksi berikut.
+                Silakan lengkapi formulir dan berikan tanda tangan Anda. Tombol
+                di bawah akan aktif setelah Anda menekan "Submit" pada formulir.
               </p>
               <iframe
-                id="checklist-frame"
-                src=""
+                id="signature-frame"
                 class="tally-embed"
-                title="Formulir Checklist Induksi"
+                title="Formulir Tanda Tangan"
               ></iframe>
-              <label class="mt-4 flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  id="checklist-checkbox"
-                  class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"
-                />
-                <span class="ml-3 text-gray-700 font-medium"
-                  >Saya telah mengisi Checklist Induksi.</span
-                >
-              </label>
+              <button
+                id="continue-to-certificate-btn"
+                class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                disabled
+              >
+                Lanjutkan ke Sertifikat
+              </button>
             </div>
-            <button
-              id="finish-checklist-btn"
-              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
-              disabled
-            >
-              Selesai & Terbitkan Kartu
-            </button>
           </div>
         </div>
       </div>
@@ -1291,11 +1253,8 @@
       // --- KONFIGURASI WAJIB ---
       const WEB_APP_URL =
         "https://script.google.com/macros/s/AKfycbyEzbJT_-0i3_4mx4fDAo4R0MFWPYNHrAGTguaYkZorQ8tfoZYi0hukvFqSeC2ayg/exec";
-      const TALLY_SPDK_URL =
-        "https://tally.so/embed/wz5W7M?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
-      const TALLY_CHECKLIST_URL =
-        "https://tally.so/embed/3XPO4L?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
-      const PASSING_SCORE = 75; // Nilai Kelulusan Minimal (contoh: 75)
+      const TALLY_SIGNATURE_URL = "https://tally.so/embed/wMp27Y";
+      const PASSING_SCORE = 70; // Nilai Kelulusan Minimal (contoh: 75)
       const ADMIN_PASSWORD = "gamhse2024"; // Password untuk mode admin
       // -------------------------
 
@@ -1319,11 +1278,14 @@
         startSpecificQuizBtn: document.getElementById(
           "start-specific-quiz-btn"
         ),
-        finishChecklistBtn: document.getElementById("finish-checklist-btn"),
-        spdkCheckbox: document.getElementById("spdk-checkbox"),
-        checklistCheckbox: document.getElementById("checklist-checkbox"),
-        spdkFrame: document.getElementById("spdk-frame"),
-        checklistFrame: document.getElementById("checklist-frame"),
+        spdkAgreementCheckbox: document.getElementById(
+          "spdk-agreement-checkbox"
+        ),
+        signatureSection: document.getElementById("signature-section"),
+        continueToCertificateBtn: document.getElementById(
+          "continue-to-certificate-btn"
+        ),
+        signatureFrame: document.getElementById("signature-frame"),
         loader: {
           container: document.getElementById("fullscreen-loader"),
           text: document.getElementById("loader-text"),
@@ -1582,10 +1544,15 @@
           handleStartQuiz(e, "specific")
         );
 
-        dom.spdkCheckbox.addEventListener("change", checkStep7Completion);
-        dom.checklistCheckbox.addEventListener("change", checkStep7Completion);
-        dom.finishChecklistBtn.addEventListener("click", () =>
-          showCertificateScreen(true)
+        dom.spdkAgreementCheckbox.addEventListener("change", (e) => {
+          dom.signatureSection.classList.toggle("hidden", !e.target.checked);
+          if (e.target.checked) {
+            loadTallyForms();
+          }
+        });
+
+        dom.continueToCertificateBtn.addEventListener("click", () =>
+          showCertificateScreen()
         );
 
         const perusahaanSelect = document.getElementById("perusahaan-select");
@@ -1669,14 +1636,21 @@
             dom.quiz.navListContainer.classList.add("hidden");
           }
         });
-      }
 
-      function checkStep7Completion() {
-        if (dom.spdkCheckbox.checked && dom.checklistCheckbox.checked) {
-          dom.finishChecklistBtn.disabled = false;
-        } else {
-          dom.finishChecklistBtn.disabled = true;
-        }
+        // Listen for Tally form submission
+        window.addEventListener("message", (event) => {
+          if (event.origin === "https://tally.so") {
+            try {
+              const data = JSON.parse(event.data);
+              if (data && data.event === "Tally.formSubmitted") {
+                dom.continueToCertificateBtn.disabled = false;
+                showAlert("Formulir berhasil disubmit. Silakan lanjutkan.");
+              }
+            } catch (e) {
+              // Do nothing if data is not valid JSON
+            }
+          }
+        });
       }
 
       async function getIpAddress() {
@@ -1999,7 +1973,7 @@
         currentMaterials.forEach((material, index) => {
           const li = document.createElement("li");
           li.innerHTML = `
-                <button data-index="${index}" class="nav-item w-full text-left p-3 rounded-md text-sm text-gray-700 hover:bg-gray-200 transition">
+                <button data-index="${index}" class="nav-item block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">
                     ${index + 1}. ${material.materi_judul}
                 </button>
             `;
@@ -2023,11 +1997,11 @@
           .querySelectorAll(".nav-item")
           .forEach((item, index) => {
             item.classList.toggle(
-              "bg-indigo-100",
+              "bg-indigo-50",
               index === currentMaterialIndex
             );
             item.classList.toggle(
-              "text-indigo-800",
+              "text-indigo-700",
               index === currentMaterialIndex
             );
             item.classList.toggle(
@@ -2406,7 +2380,7 @@
                       <button id="continue-anyway-btn" class="mt-4 text-sm text-gray-500 hover:underline">Tetap Lanjutkan dengan persetujuan pengawas</button>
                       `;
         } else {
-          showCertificateScreen();
+          advanceStep(7);
           return;
         }
 
@@ -2442,7 +2416,7 @@
         }
       }
 
-      function showCertificateScreen(isFromTally = false) {
+      function showCertificateScreen() {
         dom.appContainer.classList.add("hidden");
         dom.completionScreen.classList.remove("hidden");
 
@@ -2704,7 +2678,7 @@
 
       function loadTallyForms() {
         // Cek apakah src sudah mengandung URL Tally untuk mencegah reload yang tidak perlu
-        if (dom.spdkFrame.src.includes("tally.so")) {
+        if (dom.signatureFrame.dataset.tallySrc) {
           return;
         }
 
@@ -2717,8 +2691,9 @@
           // Untuk admin, kita bisa isi dengan data dummy
           if (state.isAdminMode) {
             const queryParams = `?nik=ADMIN&nama=ADMIN&perusahaan=ADMIN&jabatan=ADMIN`;
-            dom.spdkFrame.src = TALLY_SPDK_URL + queryParams;
-            dom.checklistFrame.src = TALLY_CHECKLIST_URL + queryParams;
+            dom.signatureFrame.dataset.tallySrc =
+              TALLY_SIGNATURE_URL + queryParams;
+            if (typeof Tally !== "undefined") Tally.loadEmbeds();
           }
           return;
         }
@@ -2729,8 +2704,8 @@
           perusahaan
         )}&jabatan=${encodeURIComponent(jabatan || "")}`;
 
-        dom.spdkFrame.src = TALLY_SPDK_URL + queryParams;
-        dom.checklistFrame.src = TALLY_CHECKLIST_URL + queryParams;
+        dom.signatureFrame.dataset.tallySrc = TALLY_SIGNATURE_URL + queryParams;
+        if (typeof Tally !== "undefined") Tally.loadEmbeds();
       }
 
       function loadCachedUserInfo() {

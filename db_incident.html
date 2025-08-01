@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-
-    <!-- Pustaka untuk Peta Interaktif (Leaflet) -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -22,6 +20,8 @@
       crossorigin=""
     ></script>
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
@@ -30,46 +30,53 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #f9fafb; /* Gray 50 */
+        background-color: #f4f7f9; /* Lighter background */
+        color: #333;
       }
       .card {
         background-color: white;
-        border-radius: 1rem; /* 16px */
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05),
-          0 1px 2px -1px rgb(0 0 0 / 0.05);
-        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        border: 1px solid #e2e8f0;
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
       }
       .card-title {
-        font-size: 1rem; /* 16px */
-        font-weight: 600;
-        color: #1f2937; /* Gray 800 */
+        font-size: 1.125rem; /* 18px */
+        font-weight: 700;
+        color: #1a202c; /* Darker title */
         display: flex;
         align-items: center;
+        margin-bottom: 1rem;
       }
       .card-title svg {
         margin-right: 0.5rem;
+        color: #4a5568;
       }
       .chart-container {
         position: relative;
         flex-grow: 1;
         width: 100%;
         min-height: 350px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       #map {
         width: 100%;
         height: 100%;
-        min-height: 400px; /* Taller height for map */
+        min-height: 400px;
         border-radius: 0.75rem;
       }
       .incident-item {
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: all 0.2s ease;
       }
       .incident-item:hover {
-        background-color: #f3f4f6;
+        background-color: #e2e8f0;
+        transform: translateY(-2px);
       }
       .modal-overlay {
         position: fixed;
@@ -77,11 +84,11 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(17, 24, 39, 0.6);
+        background-color: rgba(17, 24, 39, 0.7);
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000; /* Ensure modal is on top of map */
+        z-index: 1000;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.3s ease;
@@ -95,17 +102,21 @@
         padding: 2rem;
         border-radius: 0.75rem;
         width: 90%;
-        max-width: 600px; /* Wider modal */
+        max-width: 700px;
+        max-height: 90vh;
+        overflow-y: auto;
         transform: scale(0.95);
         transition: transform 0.3s ease;
       }
       .modal-overlay.active .modal-content {
         transform: scale(1);
       }
+      .modal-content-lg {
+        max-width: 1200px;
+      }
       canvas:hover {
         cursor: pointer;
       }
-      /* Gaya untuk Tooltip */
       .tooltip-container {
         position: relative;
         display: inline-block;
@@ -113,7 +124,7 @@
       }
       .tooltip-text {
         visibility: hidden;
-        width: 200px;
+        width: 250px;
         background-color: #333;
         color: #fff;
         text-align: center;
@@ -123,10 +134,10 @@
         z-index: 10;
         bottom: 125%;
         left: 50%;
-        margin-left: -100px; /* Use half of the width to center */
+        margin-left: -125px;
         opacity: 0;
         transition: opacity 0.3s;
-        font-size: 0.75rem;
+        font-size: 0.875rem;
         font-weight: 400;
       }
       .tooltip-text::after {
@@ -153,45 +164,135 @@
         margin-bottom: 0.75rem;
       }
       .cost-card.total {
-        background-color: #ef4444;
+        background-color: #1f2937;
         color: white;
+      }
+      .sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background-color: #f4f7f9;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .chart-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10;
+      }
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 4px solid #4f46e5;
+        width: 40px;
+        height: 40px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+      }
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Animasi Baru untuk KPI Cards */
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.03);
+        }
+      }
+
+      .kpi-card-animated {
+        animation: pulse 4s infinite ease-in-out;
+      }
+
+      .kpi-card-animated:nth-child(2) {
+        animation-delay: 0.5s;
+      }
+      .kpi-card-animated:nth-child(3) {
+        animation-delay: 1s;
+      }
+      .kpi-card-animated:nth-child(4) {
+        animation-delay: 1.5s;
       }
     </style>
   </head>
   <body class="p-4 md:p-6 lg:p-8">
-    <!-- Header -->
-    <header
-      class="flex flex-col md:flex-row justify-between items-center mb-6 pb-4"
-    >
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800">
-          Dasbor Analisis Insiden
-        </h1>
-        <p id="filterStatus" class="text-sm text-gray-500">
-          Menampilkan semua data insiden
-        </p>
-      </div>
-      <div class="flex items-center space-x-4 mt-4 md:mt-0">
-        <button
-          id="resetFilterBtn"
-          class="hidden bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+    <header class="sticky-header">
+      <div
+        class="flex flex-col md:flex-row justify-between items-center mb-6 pb-4 border-b border-gray-200"
+      >
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">
+            Dasbor Analisis Insiden
+          </h1>
+          <p id="filterStatus" class="text-sm text-gray-500">
+            Menampilkan semua data insiden
+          </p>
+        </div>
+        <div
+          class="flex flex-col md:flex-row items-end md:items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 md:mt-0 w-full md:w-auto"
         >
-          Reset Filter
-        </button>
-        <select
-          id="yearFilter"
-          class="w-full md:w-auto p-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700 cursor-pointer text-sm"
-        >
-          <option value="all">Semua Tahun</option>
-        </select>
+          <div class="flex space-x-2 w-full md:w-auto">
+            <select
+              id="yearFilter"
+              class="w-full p-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700 cursor-pointer text-sm"
+            >
+              <option value="">Pilih Tahun</option>
+            </select>
+          </div>
+          <div class="flex space-x-2 w-full md:w-auto">
+            <button
+              id="resetFilterBtn"
+              class="hidden bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors w-1/2 md:w-auto"
+            >
+              Reset Filter
+            </button>
+            <button
+              id="exportDataBtn"
+              class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors w-1/2 md:w-auto"
+            >
+              Unduh Data (CSV)
+            </button>
+            <button
+              id="exportPdfBtn"
+              class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors w-1/2 md:w-auto"
+            >
+              Unduh Laporan (PDF)
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
-    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Kolom Kiri -->
+    <main id="dashboardMain" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div
+        id="loading"
+        class="col-span-12 flex justify-center items-center p-8 bg-white rounded-lg hidden"
+      >
+        <div class="loader"></div>
+        <p class="ml-4 text-gray-600">Memuat data...</p>
+      </div>
       <aside class="lg:col-span-3 space-y-6">
         <div class="card">
-          <h2 class="card-title mb-4">Rincian Biaya</h2>
+          <h2 class="card-title">Rincian Biaya</h2>
           <div id="cost-details">
             <div class="cost-card">
               <div>
@@ -274,7 +375,7 @@
               </div>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-8 w-8"
+                class="h-8 w-8 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -290,6 +391,43 @@
           </div>
         </div>
         <div class="card">
+          <h2 class="card-title mb-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Daftar Insiden
+          </h2>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2 mb-4"
+          >
+            <select
+              id="jabatanFilter"
+              class="w-full p-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700 cursor-pointer text-sm"
+            >
+              <option value="">Semua Jabatan</option>
+            </select>
+            <select
+              id="perusahaanFilter"
+              class="w-full p-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700 cursor-pointer text-sm"
+            >
+              <option value="">Semua Perusahaan</option>
+            </select>
+            <select
+              id="kategoriKecelakaanFilter"
+              class="w-full p-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700 cursor-pointer text-sm"
+            >
+              <option value="">Semua Kategori</option>
+            </select>
+          </div>
           <div class="relative mb-4">
             <input
               type="text"
@@ -312,21 +450,12 @@
               />
             </svg>
           </div>
-          <h2 class="card-title mb-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 text-gray-500"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            Daftar Insiden
-          </h2>
+          <button
+            id="showAllDataBtn"
+            class="w-full bg-slate-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-600 transition-colors mb-4"
+          >
+            Lihat Semua Data
+          </button>
           <div
             id="incidentList"
             class="space-y-2 text-sm text-gray-600 overflow-y-auto pr-2"
@@ -337,11 +466,9 @@
         </div>
       </aside>
 
-      <!-- Main Content -->
       <div class="lg:col-span-9 space-y-6">
-        <!-- Kartu KPI -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="card text-center justify-center">
+          <div class="card text-center justify-center kpi-card-animated">
             <div class="flex justify-center items-center text-sm text-gray-500">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -386,7 +513,7 @@
               -
             </p>
           </div>
-          <div class="card text-center justify-center">
+          <div class="card text-center justify-center kpi-card-animated">
             <div class="flex justify-center items-center text-sm text-gray-500">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -431,7 +558,7 @@
               -
             </p>
           </div>
-          <div class="card text-center justify-center">
+          <div class="card text-center justify-center kpi-card-animated">
             <div class="flex justify-center items-center text-sm text-gray-500">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -475,7 +602,7 @@
               -
             </p>
           </div>
-          <div class="card text-center justify-center">
+          <div class="card text-center justify-center kpi-card-animated">
             <div class="flex justify-center items-center text-sm text-gray-500">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -522,10 +649,28 @@
           </div>
         </div>
 
-        <!-- Grafik Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="card lg:col-span-2">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.414 10H10v5.414a2 2 0 002.828 0l4.243-4.243a2 2 0 000-2.828z"
+                />
+              </svg>
               Peta Sebaran Insiden
               <div class="tooltip-container ml-2">
                 <svg
@@ -552,8 +697,22 @@
               <div id="map"></div>
             </div>
           </div>
-          <div class="card lg:col-span-2">
-            <h2 class="card-title mb-4">
+          <div class="card">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M7 12l3-3 3 3 4-4M18 10V6M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v3m-2 4V7a2 2 0 012-2h-4m-2 16h4a2 2 0 002-2v-3"
+                />
+              </svg>
               Tren Insiden Bulanan
               <div class="tooltip-container ml-2">
                 <svg
@@ -577,10 +736,43 @@
             </h2>
             <div class="chart-container">
               <canvas id="kejadianChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('kejadianChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20v-2m0 2h2m-4.502-1a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM9 10a2 2 0 11-4 0 2 2 0 014 0zM7 13h5.5v3h-2.5"
+                />
+              </svg>
               Insiden Berdasarkan Jabatan
               <div class="tooltip-container ml-2">
                 <svg
@@ -595,19 +787,54 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Jumlah insiden yang dikelompokkan berdasarkan jabatan
-                  karyawan yang terlibat.</span
+                  karyawan yang terlibat. Klik pada batang untuk
+                  memfilter.</span
                 >
               </div>
             </h2>
             <div class="chart-container">
               <canvas id="jabatanChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('jabatanChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
               Insiden per Perusahaan
               <div class="tooltip-container ml-2">
                 <svg
@@ -622,8 +849,9 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Distribusi persentase insiden di antara berbagai perusahaan
                   atau kontraktor.</span
                 >
@@ -631,10 +859,43 @@
             </h2>
             <div class="chart-container">
               <canvas id="perusahaanChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('perusahaanChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
               Penyebab Langsung
               <div class="tooltip-container ml-2">
                 <svg
@@ -649,8 +910,9 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Penyebab langsung adalah tindakan atau kondisi tidak aman
                   yang secara langsung menyebabkan insiden.</span
                 >
@@ -658,10 +920,43 @@
             </h2>
             <div class="chart-container">
               <canvas id="faktorPenyebabLangsungChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('faktorPenyebabLangsungChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 6.253v13m0-13C10.832 5.405 9.49 5 8 5c-4 0-4 6-4 6v2a6 6 0 006 6h2c4 0 4-5 4-5m0-10C13.168 5.405 14.51 5 16 5c4 0 4 6 4 6v2a6 6 0 01-6 6h-2c-4 0-4-5-4-5"
+                />
+              </svg>
               Penyebab Dasar
               <div class="tooltip-container ml-2">
                 <svg
@@ -676,8 +971,9 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Penyebab dasar adalah faktor sistemik atau akar masalah yang
                   mengarah pada penyebab langsung.</span
                 >
@@ -685,10 +981,43 @@
             </h2>
             <div class="chart-container">
               <canvas id="penyebabDasarChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('penyebabDasarChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
               Unit Terlibat
               <div class="tooltip-container ml-2">
                 <svg
@@ -703,8 +1032,9 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Jenis unit atau kendaraan yang paling sering terlibat dalam
                   insiden.</span
                 >
@@ -712,10 +1042,43 @@
             </h2>
             <div class="chart-container">
               <canvas id="unitTerlibatChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('unitTerlibatChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
               Masa Kerja
               <div class="tooltip-container ml-2">
                 <svg
@@ -730,8 +1093,9 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Distribusi insiden berdasarkan lama masa kerja
                   karyawan.</span
                 >
@@ -739,10 +1103,43 @@
             </h2>
             <div class="chart-container">
               <canvas id="masaKerjaChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('masaKerjaChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
               Tipe Cedera
               <div class="tooltip-container ml-2">
                 <svg
@@ -757,45 +1154,52 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Jenis cedera yang paling sering terjadi akibat insiden.</span
                 >
               </div>
             </h2>
             <div class="chart-container">
               <canvas id="tipeCederaChart"></canvas>
-            </div>
-          </div>
-          <div class="card">
-            <h2 class="card-title mb-4">
-              Waktu Kejadian (Shift)
-              <div class="tooltip-container ml-2">
+              <button
+                class="chart-actions"
+                onclick="downloadChart('tipeCederaChart')"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 text-gray-400"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  stroke-width="2"
                 >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
-                  >Distribusi insiden berdasarkan waktu kerja: Pagi, Siang, atau
-                  Malam.</span
-                >
-              </div>
-            </h2>
-            <div class="chart-container">
-              <canvas id="waktuKejadianChart"></canvas>
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.428 15.428a2 2 0 00-2.856 0L10 20.572M19.428 15.428a2 2 0 010 2.856L15.172 21a2 2 0 01-2.828 0m-8.156-5.856a2 2 0 00-2.856 0L2 20.572m-2-5.856a2 2 0 010 2.856L4.828 21a2 2 0 012.828 0M10 10V5.006h4V10m-3-1l3 3"
+                />
+              </svg>
               Bagian Cidera
               <div class="tooltip-container ml-2">
                 <svg
@@ -810,18 +1214,52 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Bagian tubuh yang paling sering mengalami cidera.</span
                 >
               </div>
             </h2>
             <div class="chart-container">
               <canvas id="bagianCideraChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('bagianCideraChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewbox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 14v6m-3-3h6M6 10h2m4-2h4M7 10h1m2-2h1m2 2h1m-1 2h-1m2 2h1m2 2h-1m-1 2h-1m-1-2h1m-1 2h1m-1-2h1"
+                />
+              </svg>
               Usia Korban
               <div class="tooltip-container ml-2">
                 <svg
@@ -836,16 +1274,52 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Distribusi usia karyawan yang terlibat dalam insiden.</span
                 >
               </div>
             </h2>
-            <div class="chart-container"><canvas id="usiaChart"></canvas></div>
+            <div class="chart-container">
+              <canvas id="usiaChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('usiaChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20v-2m0 2h2m-4.502-1a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM9 10a2 2 0 11-4 0 2 2 0 014 0zM7 13H5m2-2H5"
+                />
+              </svg>
               Status Karyawan
               <div class="tooltip-container ml-2">
                 <svg
@@ -860,18 +1334,52 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Jumlah insiden berdasarkan status kepegawaian.</span
                 >
               </div>
             </h2>
             <div class="chart-container">
               <canvas id="statusKaryawanChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('statusKaryawanChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="card">
-            <h2 class="card-title mb-4">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3"
+                />
+              </svg>
               Tempat Tinggal
               <div class="tooltip-container ml-2">
                 <svg
@@ -886,25 +1394,105 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  /></svg
-                ><span class="tooltip-text"
+                  />
+                </svg>
+                <span class="tooltip-text"
                   >Proporsi insiden berdasarkan tempat tinggal karyawan.</span
                 >
               </div>
             </h2>
             <div class="chart-container">
               <canvas id="tempatTinggalChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('tempatTinggalChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              Insiden per Shift
+              <div class="tooltip-container ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4c0-1.165.549-2.21 1.333-3.033M12 18.5v-2.5m0-10V3.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="tooltip-text"
+                  >Jumlah insiden yang terjadi pada setiap shift (Pagi, Siang,
+                  Malam).</span
+                >
+              </div>
+            </h2>
+            <div class="chart-container">
+              <canvas id="waktuKejadianChart"></canvas>
+              <button
+                class="chart-actions"
+                onclick="downloadChart('waktuKejadianChart')"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 hover:text-gray-600 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </main>
 
-    <!-- Modal -->
     <div id="incidentModal" class="modal-overlay">
       <div class="modal-content">
-        <div class="flex justify-between items-start">
-          <h3 id="modalTitle" class="text-lg font-bold text-gray-800 mb-4"></h3>
+        <div class="flex justify-between items-center mb-4">
+          <h3 id="modalTitle" class="text-xl font-bold text-gray-800"></h3>
           <button
             id="closeModal"
             class="text-gray-400 hover:text-gray-700 text-3xl leading-none"
@@ -912,27 +1500,81 @@
             &times;
           </button>
         </div>
-        <div id="modalBody" class="text-sm text-gray-600 space-y-2"></div>
+        <div id="modalBody" class="text-sm text-gray-600 space-y-4"></div>
+      </div>
+    </div>
+
+    <div id="dataTableModal" class="modal-overlay">
+      <div class="modal-content modal-content-lg">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-800">
+            Tabel Semua Data Insiden
+          </h3>
+          <button
+            id="closeTableModal"
+            class="text-gray-400 hover:text-gray-700 text-3xl leading-none"
+          >
+            &times;
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr id="tableHeader"></tr>
+            </thead>
+            <tbody
+              id="tableBody"
+              class="bg-white divide-y divide-gray-200"
+            ></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const APPS_SCRIPT_URL =
-          "https://script.google.com/macros/s/AKfycbx6nOMgkSb_oQsW1q5-VX-owtGGL8DK9DcCIZLQidGrZyVSiVxln761JGohBPttthM/exec";
+          "https://script.google.com/macros/s/AKfycbxXfuSqf-3WxS2XNIfuvL1wQSp2yd7XQoArhsTXk75-XAopsC0U9gXXtMXzTSsPdkaG/exec";
+        const CACHE_KEY = "incidentDataCache";
+        const CACHE_TTL = 3600000; // 1 hour in milliseconds
 
-        let allData = [];
-        let activeFilters = {};
-        const chartInstances = {};
-        let map; // Variabel global untuk peta
-        let heatLayer; // Variabel global untuk layer heatmap
+        const state = {
+          allData: [],
+          filteredData: [],
+          activeFilters: {},
+          chartInstances: {},
+          map: null,
+          heatLayer: null,
+          availableYears: [],
+          availableOptions: {
+            jabatan: [],
+            perusahaan: [],
+            kategoriKecelakaan: [],
+          },
+        };
 
         Chart.register(ChartDataLabels);
+
+        const primaryColors = [
+          "#4f46e5", // indigo-600
+          "#e53e3e", // red-600
+          "#f6ad55", // amber-500
+          "#48bb78", // green-500
+          "#38b2ac", // teal-500
+          "#4299e1", // blue-500
+          "#a0aec0", // gray-500
+          "#d53f8c", // pink-600
+          "#805ad5", // purple-600
+        ];
+        const shiftColors = ["#48bb78", "#4299e1", "#805ad5"];
 
         const setupDefaults = () => {
           Chart.defaults.responsive = true;
           Chart.defaults.maintainAspectRatio = false;
-          Chart.defaults.animation = { duration: 500, easing: "easeOutQuart" };
+          Chart.defaults.animation = {
+            duration: 1500,
+            easing: "easeOutBounce",
+          };
           Chart.defaults.plugins.legend.position = "bottom";
           Chart.defaults.plugins.legend.labels.usePointStyle = true;
           Chart.defaults.plugins.legend.labels.boxWidth = 8;
@@ -941,74 +1583,159 @@
           Chart.defaults.plugins.tooltip.bodyColor = "#e5e7eb";
           Chart.defaults.plugins.tooltip.padding = 12;
           Chart.defaults.plugins.tooltip.cornerRadius = 8;
+          Chart.defaults.font.family = "'Inter', sans-serif";
+          Chart.defaults.transitions = {
+            active: { animation: { duration: 100 } },
+            resize: { animation: { duration: 500 } },
+          };
         };
 
         const setupEventListeners = () => {
           document
             .getElementById("yearFilter")
-            .addEventListener("change", () => applyFiltersAndUpdate());
+            .addEventListener("change", applyFiltersAndUpdate);
+          document
+            .getElementById("jabatanFilter")
+            .addEventListener("change", applyFiltersAndUpdate);
+          document
+            .getElementById("perusahaanFilter")
+            .addEventListener("change", applyFiltersAndUpdate);
+          document
+            .getElementById("kategoriKecelakaanFilter")
+            .addEventListener("change", applyFiltersAndUpdate);
           document
             .getElementById("resetFilterBtn")
             .addEventListener("click", resetFilters);
           document
+            .getElementById("exportDataBtn")
+            .addEventListener("click", () => exportToCSV(state.filteredData));
+          document
+            .getElementById("exportPdfBtn")
+            .addEventListener("click", exportToPDF);
+          document
             .getElementById("incidentSearch")
             .addEventListener("input", (e) => {
-              activeFilters.searchTerm = e.target.value.toLowerCase();
+              state.activeFilters.searchTerm = e.target.value.toLowerCase();
               applyFiltersAndUpdate();
             });
+          document
+            .getElementById("showAllDataBtn")
+            .addEventListener("click", showDataTableModal);
         };
 
         const showModal = (incidentId) => {
-          const incident = allData.find(
-            (item) => String(item["ID"]) === String(incidentId)
+          const incident = state.allData.find(
+            (item) => String(item["id"]) === String(incidentId)
           );
           if (incident) {
             document.getElementById("modalTitle").textContent =
-              incident["JudulInsiden"];
+              incident["judulInsiden"];
             document.getElementById("modalBody").innerHTML = `
-                        <p><strong>Tanggal & Jam:</strong> ${
-                          incident["TanggalKejadian"] || "N/A"
-                        } Pukul ${incident["JamMulaiKecelakaan"] || "N/A"}</p>
-                        <p><strong>Kategori Kecelakaan:</strong> ${
-                          incident["KategoriKecelakaan"] || "N/A"
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-bold text-gray-700">Waktu & Lokasi</h4>
+                            <p><strong>Tanggal & Jam:</strong> ${
+                              incident["tanggalKejadian"] || "N/A"
+                            } Pukul ${
+              incident["jamMulaiKecelakaan"] || "N/A"
+            }</p>
+                            <p><strong>Lokasi:</strong> ${
+                              incident["lokasiRincian"] || "N/A"
+                            }</p>
+                            <p><strong>Unit Terlibat:</strong> ${
+                              incident["unitTerlibat"] || "N/A"
+                            }</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-700">Detail Insiden</h4>
+                            <p><strong>Kategori Kecelakaan:</strong> ${
+                              incident["kategoriKecelakaan"] || "N/A"
+                            }</p>
+                            <p><strong>Penyebab Langsung:</strong> ${
+                              incident["penyebabLangsung"] || "N/A"
+                            }</p>
+                            <p><strong>Penyebab Dasar:</strong> ${
+                              incident["penyebabDasar"] || "N/A"
+                            }</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-700">Rincian Korban</h4>
+                            <p><strong>Kategori Cedera:</strong> ${
+                              incident["kategoriCedera"] || "N/A"
+                            }</p>
+                            <p><strong>Tipe Cedera:</strong> ${
+                              incident["tipeCedera"] || "N/A"
+                            }</p>
+                            <p><strong>Bagian Cidera:</strong> ${
+                              incident["bagianCidera"] || "N/A"
+                            }</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-700">Karyawan</h4>
+                            <p><strong>Nama:</strong> ${
+                              incident["namaKaryawan"] || "N/A"
+                            }</p>
+                            <p><strong>Jabatan:</strong> ${
+                              incident["jabatan"] || "N/A"
+                            }</p>
+                            <p><strong>Status:</strong> ${
+                              incident["statusKaryawan"] || "N/A"
+                            }</p>
+                        </div>
+                    </div>
+                    <hr class="my-4">
+                    <div>
+                        <h4 class="font-bold text-gray-700">Kronologi Singkat</h4>
+                        <p>${
+                          incident["kronologiSingkat"] || "Tidak tersedia"
                         }</p>
-                        <p><strong>Kategori Cedera:</strong> ${
-                          incident["KategoriCedera"] || "N/A"
-                        }</p>
-                        <hr class="my-2">
-                        <p><strong>Penyebab Langsung:</strong> ${
-                          incident["PenyebabLangsung"] || "N/A"
-                        }</p>
-                        <p><strong>Penyebab Dasar:</strong> ${
-                          incident["PenyebabDasar"] || "N/A"
-                        }</p>
-                        <hr class="my-2">
-                        <p><strong>Karyawan:</strong> ${
-                          incident["Jabatan"] || "N/A"
-                        } (${incident["StatusKaryawan"] || "N/A"})</p>
-                        <p><strong>Usia & Masa Kerja:</strong> ${
-                          incident["Usia"] || "N/A"
-                        } / ${incident["MasaKerja"] || "N/A"}</p>
-                        <p><strong>Tempat Tinggal:</strong> ${
-                          incident["TempatTinggal"] || "N/A"
-                        }</p>
-                        <hr class="my-2">
-                        <p><strong>Lokasi:</strong> ${
-                          incident["LokasiRincian"] || "N/A"
-                        }</p>
-                        <p><strong>Unit Terlibat:</strong> ${
-                          incident["UnitTerlibat"] || "N/A"
-                        }</p>
-                        <p><strong>Sanksi:</strong> ${
-                          incident["Sanksi"] || "N/A"
-                        }</p>
-                        `;
+                    </div>
+                    `;
             document.getElementById("incidentModal").classList.add("active");
           }
         };
 
+        const showDataTableModal = () => {
+          const modal = document.getElementById("dataTableModal");
+          const tableBody = document.getElementById("tableBody");
+          const tableHeader = document.getElementById("tableHeader");
+          tableBody.innerHTML = "";
+          tableHeader.innerHTML = "";
+
+          if (state.filteredData.length > 0) {
+            const headers = Object.keys(state.filteredData[0]);
+            headers.forEach((headerText) => {
+              const th = document.createElement("th");
+              th.className =
+                "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider";
+              th.textContent = headerText;
+              tableHeader.appendChild(th);
+            });
+
+            state.filteredData.forEach((item) => {
+              const tr = document.createElement("tr");
+              tr.className = "hover:bg-gray-100";
+              headers.forEach((header) => {
+                const td = document.createElement("td");
+                td.className =
+                  "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+                td.textContent = item[header] || "-";
+                tr.appendChild(td);
+              });
+              tableBody.appendChild(tr);
+            });
+          } else {
+            tableBody.innerHTML =
+              '<tr><td colspan="99" class="text-center py-4">Tidak ada data insiden untuk ditampilkan.</td></tr>';
+          }
+          modal.classList.add("active");
+        };
+
         const closeModal = () =>
           document.getElementById("incidentModal").classList.remove("active");
+        const closeTableModal = () =>
+          document.getElementById("dataTableModal").classList.remove("active");
+
         document
           .getElementById("closeModal")
           .addEventListener("click", closeModal);
@@ -1018,21 +1745,29 @@
             if (e.target === document.getElementById("incidentModal"))
               closeModal();
           });
-
-        const populateYearFilter = (data) => {
-          const yearFilter = document.getElementById("yearFilter");
-          const years = [
-            ...new Set(data.map((item) => item["Tahun"]).filter(Boolean)),
-          ].sort((a, b) => b - a);
-          years.forEach((year) => {
-            const option = document.createElement("option");
-            option.value = year;
-            option.textContent = `Tahun: ${year}`;
-            yearFilter.appendChild(option);
+        document
+          .getElementById("closeTableModal")
+          .addEventListener("click", closeTableModal);
+        document
+          .getElementById("dataTableModal")
+          .addEventListener("click", (e) => {
+            if (e.target === document.getElementById("dataTableModal"))
+              closeTableModal();
           });
-        };
 
         const fetchData = async () => {
+          document.getElementById("loading").classList.remove("hidden");
+          const cachedData = localStorage.getItem(CACHE_KEY);
+          if (cachedData) {
+            const { data, timestamp } = JSON.parse(cachedData);
+            if (Date.now() - timestamp < CACHE_TTL) {
+              state.allData = data;
+              processDataOnLoad();
+              document.getElementById("loading").classList.add("hidden");
+              return;
+            }
+          }
+
           try {
             const response = await fetch(APPS_SCRIPT_URL);
             if (!response.ok)
@@ -1040,83 +1775,235 @@
             const jsonData = await response.json();
             if (!Array.isArray(jsonData))
               throw new Error("Format data tidak valid.");
-            allData = jsonData;
-            populateYearFilter(allData);
-            applyFiltersAndUpdate();
+            state.allData = jsonData;
+            localStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({ data: jsonData, timestamp: Date.now() })
+            );
+            processDataOnLoad();
           } catch (error) {
             console.error("Gagal mengambil data:", error);
             document.querySelector(
               "main"
             ).innerHTML = `<div class="col-span-12 text-center text-red-500 p-8 bg-white rounded-lg"><h3>Gagal Memuat Data</h3><p>${error.message}</p></div>`;
+          } finally {
+            document.getElementById("loading").classList.add("hidden");
           }
+        };
+
+        const processDataOnLoad = () => {
+          const years = new Set(
+            state.allData
+              .map((item) => parseDate(item["tanggalKejadian"])?.getFullYear())
+              .filter(Boolean)
+          );
+          state.availableYears = [...years].sort((a, b) => b - a);
+          populateYearFilter();
+
+          state.availableOptions.jabatan = [
+            ...new Set(
+              state.allData
+                .map((item) => item.jabatan)
+                .filter((val) => val && val.trim() !== "" && val.trim() !== "-")
+            ),
+          ].sort();
+          state.availableOptions.perusahaan = [
+            ...new Set(
+              state.allData
+                .map((item) => item.perusahaan)
+                .filter((val) => val && val.trim() !== "" && val.trim() !== "-")
+            ),
+          ].sort();
+          state.availableOptions.kategoriKecelakaan = [
+            ...new Set(
+              state.allData
+                .map((item) => item.kategoriKecelakaan)
+                .filter((val) => val && val.trim() !== "" && val.trim() !== "-")
+            ),
+          ].sort();
+
+          populateFilters();
+          applyFiltersAndUpdate();
+        };
+
+        const populateYearFilter = () => {
+          const yearFilter = document.getElementById("yearFilter");
+          yearFilter.innerHTML = '<option value="">Pilih Tahun</option>';
+          state.availableYears.forEach((year) => {
+            const option = document.createElement("option");
+            option.value = year;
+            option.textContent = year;
+            yearFilter.appendChild(option);
+          });
+          const currentYear = new Date().getFullYear().toString();
+          if (state.availableYears.includes(parseInt(currentYear))) {
+            yearFilter.value = currentYear;
+          } else {
+            if (state.availableYears.length > 0) {
+              yearFilter.value = state.availableYears[0];
+            }
+          }
+        };
+
+        const populateFilters = () => {
+          [
+            "jabatanFilter",
+            "perusahaanFilter",
+            "kategoriKecelakaanFilter",
+          ].forEach((id) => {
+            const filterEl = document.getElementById(id);
+            const key = id.replace("Filter", "");
+            filterEl.innerHTML = `<option value="">Semua ${key.replace(
+              "Kecelakaan",
+              " Kategori"
+            )}</option>`;
+
+            // Correct key mapping
+            let dataKey;
+            if (key === "kategoriKecelakaan") dataKey = "kategoriKecelakaan";
+            else if (key === "jabatan") dataKey = "jabatan";
+            else if (key === "perusahaan") dataKey = "perusahaan";
+
+            const options = state.availableOptions[dataKey];
+            if (options && Array.isArray(options)) {
+              options.forEach((optionText) => {
+                const option = document.createElement("option");
+                option.value = optionText;
+                option.textContent = optionText;
+                filterEl.appendChild(option);
+              });
+            }
+          });
         };
 
         const parseDate = (dateStr) => {
-          if (!dateStr || typeof dateStr.toString !== "function") return null;
-          const str = dateStr.toString();
-          if (str.includes("/")) {
-            const parts = str.split("/");
-            if (parts.length === 3) {
-              const date = new Date(parts[2], parts[1] - 1, parts[0]);
-              return isNaN(date) ? null : date;
-            }
+          if (!dateStr) return null;
+          let date;
+          const parts = dateStr.toString().split("/");
+          if (parts.length === 3) {
+            date = new Date(parts[2], parts[1] - 1, parts[0]);
+          } else {
+            date = new Date(dateStr);
           }
-          const date = new Date(str);
-          return isNaN(date) ? null : date;
+          if (isNaN(date.getTime())) {
+            console.warn(`Gagal mengurai tanggal: ${dateStr}`);
+            return null;
+          }
+          return date;
         };
 
         const applyFiltersAndUpdate = () => {
-          let filteredData = [...allData];
-          const year = document.getElementById("yearFilter").value;
+          let filteredData = [...state.allData];
+          state.activeFilters = {};
 
-          if (year !== "all") {
+          const selectedYear = document.getElementById("yearFilter").value;
+          if (selectedYear) {
+            state.activeFilters.year = selectedYear;
+            filteredData = filteredData.filter((item) => {
+              const itemDate = parseDate(item["tanggalKejadian"]);
+              return itemDate && itemDate.getFullYear() == selectedYear;
+            });
+          }
+
+          const selectedJabatan =
+            document.getElementById("jabatanFilter").value;
+          if (selectedJabatan) {
+            state.activeFilters.jabatan = selectedJabatan;
             filteredData = filteredData.filter(
-              (item) => String(item["Tahun"]) === year
+              (item) => String(item["jabatan"]) === String(selectedJabatan)
             );
           }
 
-          Object.keys(activeFilters).forEach((key) => {
-            if (key === "searchTerm") return;
-            const filterValue = activeFilters[key];
+          const selectedPerusahaan =
+            document.getElementById("perusahaanFilter").value;
+          if (selectedPerusahaan) {
+            state.activeFilters.perusahaan = selectedPerusahaan;
             filteredData = filteredData.filter(
-              (item) => String(item[key]) === String(filterValue)
+              (item) =>
+                String(item["perusahaan"]) === String(selectedPerusahaan)
             );
-          });
+          }
 
-          if (activeFilters.searchTerm) {
+          const selectedKategori = document.getElementById(
+            "kategoriKecelakaanFilter"
+          ).value;
+          if (selectedKategori) {
+            state.activeFilters.kategoriKecelakaan = selectedKategori;
+            filteredData = filteredData.filter(
+              (item) =>
+                String(item["kategoriKecelakaan"]) === String(selectedKategori)
+            );
+          }
+
+          const searchTerm = document.getElementById("incidentSearch").value;
+          if (searchTerm) {
+            state.activeFilters.searchTerm = searchTerm.toLowerCase();
             filteredData = filteredData.filter((item) =>
-              (item["JudulInsiden"] || "")
+              (item["judulInsiden"] || "")
                 .toLowerCase()
-                .includes(activeFilters.searchTerm)
+                .includes(state.activeFilters.searchTerm)
             );
           }
 
-          updateDashboardUI(filteredData);
+          state.filteredData = filteredData;
+          updateDashboardUI(state.filteredData);
         };
 
         const setChartFilter = (key, value) => {
-          activeFilters[key] = value;
+          state.activeFilters = {};
+
+          document.getElementById("yearFilter").value = "";
+          document.getElementById("jabatanFilter").value = "";
+          document.getElementById("perusahaanFilter").value = "";
+          document.getElementById("kategoriKecelakaanFilter").value = "";
+          document.getElementById("incidentSearch").value = "";
+
+          state.activeFilters[key] = value;
+          const filterElement = document.getElementById(
+            `${key.toLowerCase()}Filter`
+          );
+          if (filterElement) {
+            filterElement.value = value;
+          } else {
+            console.warn(`Filter element not found for key: ${key}`);
+          }
+
           applyFiltersAndUpdate();
         };
 
         const resetFilters = () => {
-          activeFilters = {};
+          state.activeFilters = {};
           document.getElementById("incidentSearch").value = "";
-          document.getElementById("yearFilter").value = "all";
+          document.getElementById("jabatanFilter").value = "";
+          document.getElementById("perusahaanFilter").value = "";
+          document.getElementById("kategoriKecelakaanFilter").value = "";
+          const yearFilter = document.getElementById("yearFilter");
+          const currentYear = new Date().getFullYear().toString();
+          if (state.availableYears.includes(parseInt(currentYear))) {
+            yearFilter.value = currentYear;
+          } else if (state.availableYears.length > 0) {
+            yearFilter.value = state.availableYears[0];
+          } else {
+            yearFilter.value = "";
+          }
           applyFiltersAndUpdate();
         };
 
         const updateFilterStatusUI = () => {
           const statusEl = document.getElementById("filterStatus");
           const resetBtn = document.getElementById("resetFilterBtn");
-          const filters = Object.keys(activeFilters).filter(
-            (k) => k !== "searchTerm" && activeFilters[k]
+          const filters = Object.keys(state.activeFilters).filter(
+            (k) => state.activeFilters[k]
           );
 
           if (filters.length > 0) {
             const filterText = filters
-              .map((key) => `${key}: "${activeFilters[key]}"`)
-              .join(", ");
+              .map((key) => {
+                if (key === "searchTerm")
+                  return `Pencarian: "${state.activeFilters[key]}"`;
+                return `${key}: "${state.activeFilters[key]}"`;
+              })
+              .join(" | ");
             statusEl.textContent = `Filter aktif: ${filterText}`;
             statusEl.classList.add("font-semibold", "text-indigo-700");
             resetBtn.classList.remove("hidden");
@@ -1134,15 +2021,15 @@
             data
               .sort(
                 (a, b) =>
-                  (parseDate(b["TanggalKejadian"]) || 0) -
-                  (parseDate(a["TanggalKejadian"]) || 0)
+                  (parseDate(b["tanggalKejadian"]) || 0) -
+                  (parseDate(a["tanggalKejadian"]) || 0)
               )
               .forEach((item) => {
                 const div = document.createElement("div");
                 div.className =
                   "p-3 rounded-lg border border-gray-100 incident-item";
-                div.innerHTML = `<p class="font-semibold text-gray-700 pointer-events-none">${item["JudulInsiden"]}</p><p class="text-xs text-gray-400 pointer-events-none">${item["TanggalKejadian"]}</p>`;
-                div.addEventListener("click", () => showModal(item["ID"]));
+                div.innerHTML = `<p class="font-semibold text-gray-700 pointer-events-none">${item["judulInsiden"]}</p><p class="text-xs text-gray-400 pointer-events-none">${item["tanggalKejadian"]}</p>`;
+                div.addEventListener("click", () => showModal(item["id"]));
                 incidentListEl.appendChild(div);
               });
           } else {
@@ -1152,7 +2039,7 @@
         };
 
         const createChart = (id, type, data, options, filterKey = null) => {
-          if (chartInstances[id]) chartInstances[id].destroy();
+          if (state.chartInstances[id]) state.chartInstances[id].destroy();
           const canvas = document.getElementById(id);
           if (!canvas) return;
           const container = canvas.parentElement;
@@ -1163,16 +2050,15 @@
           }
           canvas.style.display = "block";
 
-          if (
-            !data ||
-            !data.labels ||
-            data.labels.length === 0 ||
-            data.datasets.every((ds) => ds.data.every((d) => d === 0))
-          ) {
+          const hasData = data.datasets.some((ds) =>
+            ds.data.some((d) => d > 0)
+          );
+
+          if (!hasData) {
             canvas.style.display = "none";
             const messageDiv = document.createElement("div");
             messageDiv.className =
-              "no-data-message flex items-center justify-center h-full text-gray-500";
+              "no-data-message flex items-center justify-center h-full text-gray-500 absolute inset-0";
             messageDiv.textContent = "Tidak ada data untuk ditampilkan.";
             container.appendChild(messageDiv);
             return;
@@ -1186,407 +2072,487 @@
               if (elements && elements.length > 0) {
                 const chartInstance = elements[0].chart;
                 const elementIndex = elements[0].index;
-                if (
-                  chartInstance &&
-                  chartInstance.data &&
-                  chartInstance.data.labels &&
-                  chartInstance.data.labels[elementIndex]
-                ) {
-                  const label = chartInstance.data.labels[elementIndex];
-                  setChartFilter(filterKey, label);
-                }
+                const label = chartInstance.data.labels[elementIndex];
+                setChartFilter(filterKey, label);
               }
             };
           }
-          chartInstances[id] = new Chart(ctx, { type, data, options });
+          state.chartInstances[id] = new Chart(ctx, { type, data, options });
         };
 
         const updateInteractiveMap = (data) => {
           const mapContainer = document.getElementById("map");
           if (!mapContainer) return;
-
-          if (!map) {
-            map = L.map("map");
+          if (!state.map) {
+            state.map = L.map("map");
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
               attribution:
                 '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            }).addTo(map);
+            }).addTo(state.map);
           }
-
-          requestAnimationFrame(() => map.invalidateSize());
-
-          if (heatLayer) {
-            map.removeLayer(heatLayer);
+          requestAnimationFrame(() => state.map.invalidateSize());
+          if (state.heatLayer) {
+            state.map.removeLayer(state.heatLayer);
           }
-
           const heatPoints = data
             .map((item) => [
-              parseFloat(item.Latitude),
-              parseFloat(item.Longitude),
+              parseFloat(item.latitude),
+              parseFloat(item.longitude),
               1,
             ])
             .filter((point) => !isNaN(point[0]) && !isNaN(point[1]));
-
           if (heatPoints.length > 0) {
             const bounds = L.latLngBounds(heatPoints.map((p) => [p[0], p[1]]));
-            map.fitBounds(bounds, { padding: [50, 50] });
-
-            heatLayer = L.heatLayer(heatPoints, {
+            state.map.fitBounds(bounds, { padding: [50, 50] });
+            state.heatLayer = L.heatLayer(heatPoints, {
               radius: 25,
               blur: 15,
               maxZoom: 18,
-            }).addTo(map);
+            }).addTo(state.map);
           } else {
-            map.setView([-2.5, 118.0], 5); // Default view if no points
+            state.map.setView([-2.5, 118.0], 5);
           }
         };
 
         const updateDashboardUI = (data) => {
-          const main = document.querySelector("main");
-          main.style.transition = "opacity 0.3s ease";
-          main.style.opacity = 0.5;
+          renderIncidentList(data);
+          updateFilterStatusUI();
+          updateInteractiveMap(data);
 
-          setTimeout(() => {
-            renderIncidentList(data);
-            updateFilterStatusUI();
-            updateInteractiveMap(data);
+          const formatCurrency = (value) => {
+            const num = parseFloat(
+              String(value).replace(/[^0-9.-]+/g, "") || 0
+            );
+            if (isNaN(num)) return "Rp0";
+            return new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(num);
+          };
 
-            const formatCurrency = (value) => {
-              const num = parseFloat(String(value).replace(/[^0-9.-]+/g, ""));
-              if (isNaN(num)) return "Rp0";
-              return new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                minimumFractionDigits: 0,
-              }).format(num);
-            };
-
-            const totalBiayaPengobatan = data.reduce(
+          const calculateTotalCost = (key) =>
+            data.reduce(
               (sum, item) =>
                 sum +
                 (parseFloat(
-                  String(item.BiayaPengobatan).replace(/[^0-9.-]+/g, "")
+                  String(item[key] || "0").replace(/[^0-9.-]+/g, "")
                 ) || 0),
               0
             );
-            const totalBiayaPerbaikan = data.reduce(
-              (sum, item) =>
-                sum +
-                (parseFloat(
-                  String(item.BiayaPerbaikan).replace(/[^0-9.-]+/g, "")
-                ) || 0),
-              0
-            );
-            const totalBiayaTidakLangsung = data.reduce(
-              (sum, item) =>
-                sum +
-                (parseFloat(
-                  String(item.BiayaTidakLangsung).replace(/[^0-9.-]+/g, "")
-                ) || 0),
-              0
-            );
-            const totalBiaya =
-              totalBiayaPengobatan +
-              totalBiayaPerbaikan +
-              totalBiayaTidakLangsung;
 
-            document.getElementById("biayaPengobatan").textContent =
-              formatCurrency(totalBiayaPengobatan);
-            document.getElementById("biayaPerbaikan").textContent =
-              formatCurrency(totalBiayaPerbaikan);
-            document.getElementById("biayaTidakLangsung").textContent =
-              formatCurrency(totalBiayaTidakLangsung);
-            document.getElementById("totalBiaya").textContent =
-              formatCurrency(totalBiaya);
+          const totalBiayaPengobatan = calculateTotalCost("biayaPengobatan");
+          const totalBiayaPerbaikan = calculateTotalCost("biayaPerbaikan");
+          const totalBiayaTidakLangsung =
+            calculateTotalCost("biayaTidakLangsung");
+          const totalBiaya =
+            totalBiayaPengobatan +
+            totalBiayaPerbaikan +
+            totalBiayaTidakLangsung;
 
-            document.getElementById("totalInsiden").textContent = data.length;
-            document.getElementById("propertyDamageCount").textContent =
-              data.filter(
-                (d) =>
-                  (d["KategoriKecelakaan"] || "").toLowerCase() ===
-                  "property damage"
-              ).length;
-            document.getElementById("cederaCount").textContent = data.filter(
+          document.getElementById("biayaPengobatan").textContent =
+            formatCurrency(totalBiayaPengobatan);
+          document.getElementById("biayaPerbaikan").textContent =
+            formatCurrency(totalBiayaPerbaikan);
+          document.getElementById("biayaTidakLangsung").textContent =
+            formatCurrency(totalBiayaTidakLangsung);
+          document.getElementById("totalBiaya").textContent =
+            formatCurrency(totalBiaya);
+
+          document.getElementById("totalInsiden").textContent = data.length;
+          document.getElementById("propertyDamageCount").textContent =
+            data.filter(
               (d) =>
-                d["KategoriCedera"] &&
-                String(d["KategoriCedera"]).trim() !== "" &&
-                String(d["KategoriCedera"]) !== "-"
+                (d["kategoriKecelakaan"] || "").toLowerCase() ===
+                "property damage"
             ).length;
-            document.getElementById("nearMissCount").textContent = data.filter(
-              (d) =>
-                (d["KategoriKecelakaan"] || "").toLowerCase() === "near miss"
-            ).length;
+          document.getElementById("cederaCount").textContent = data.filter(
+            (d) =>
+              d["kategoriCedera"] &&
+              String(d["kategoriCedera"]).trim() !== "" &&
+              String(d["kategoriCedera"]) !== "-"
+          ).length;
+          document.getElementById("nearMissCount").textContent = data.filter(
+            (d) => (d["kategoriKecelakaan"] || "").toLowerCase() === "near miss"
+          ).length;
 
-            const processData = (key) => {
-              const counts = data.reduce((acc, item) => {
-                const value = item[key] || "N/A";
-                if (
-                  value !== "N/A" &&
-                  String(value).trim() !== "" &&
-                  String(value).trim() !== "-"
-                ) {
-                  acc[value] = (acc[value] || 0) + 1;
-                }
-                return acc;
-              }, {});
-              const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-              const labels = sorted.map((item) => item[0]);
-              const dataPoints = sorted.map((item) => item[1]);
-              return {
-                labels,
-                datasets: [{ data: dataPoints, backgroundColor: colors1 }],
-              };
+          const processData = (key, dataToProcess = data) => {
+            const counts = dataToProcess.reduce((acc, item) => {
+              const value = item[key] || "N/A";
+              if (
+                value !== "N/A" &&
+                String(value).trim() !== "" &&
+                String(value).trim() !== "-"
+              ) {
+                acc[value] = (acc[value] || 0) + 1;
+              }
+              return acc;
+            }, {});
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            const labels = sorted.map((item) => item[0]);
+            const dataPoints = sorted.map((item) => item[1]);
+            return {
+              labels,
+              datasets: [{ data: dataPoints, backgroundColor: primaryColors }],
             };
+          };
 
-            const barOptions = (indexAxis = "x", title = "") => ({
-              indexAxis,
-              scales: {
-                [indexAxis === "x" ? "y" : "x"]: { beginAtZero: true },
+          const interactiveHover = {
+            onHover: (event, elements) => {
+              event.native.target.style.cursor = elements[0]
+                ? "pointer"
+                : "default";
+            },
+          };
+
+          const barOptions = (indexAxis = "x", title = "") => ({
+            indexAxis,
+            scales: {
+              [indexAxis === "x" ? "y" : "x"]: {
+                beginAtZero: true,
+                grid: { display: true },
               },
-              plugins: {
-                legend: { display: false },
-                title: { display: !!title, text: title },
-              },
-            });
-            const doughnutOptions = (title = "") => ({
-              cutout: "60%",
-              plugins: {
-                legend: { display: true },
-                title: { display: !!title, text: title },
-                datalabels: {
-                  formatter: (value, ctx) => {
-                    let sum = ctx.chart.data.datasets[0].data.reduce(
-                      (a, b) => a + b,
-                      0
-                    );
-                    return sum > 0
-                      ? ((value * 100) / sum).toFixed(0) + "%"
-                      : "0%";
+            },
+            plugins: {
+              legend: { display: false },
+              title: { display: !!title, text: title },
+              tooltip: {
+                callbacks: {
+                  label: (context) => {
+                    let label = context.dataset.label || "";
+                    if (label) {
+                      label += ": ";
+                    }
+                    if (context.parsed.y !== null) {
+                      label += context.parsed.y;
+                    }
+                    return label;
                   },
-                  color: "#fff",
-                  font: { weight: "bold" },
                 },
               },
+            },
+            hover: {
+              mode: "nearest",
+              intersect: true,
+            },
+            onHover: interactiveHover.onHover,
+          });
+
+          const doughnutOptions = (title = "") => ({
+            cutout: "60%",
+            plugins: {
+              legend: { display: true },
+              title: { display: !!title, text: title },
+              datalabels: {
+                formatter: (value, ctx) => {
+                  let sum = ctx.chart.data.datasets[0].data.reduce(
+                    (a, b) => a + b,
+                    0
+                  );
+                  if (sum === 0) return "0%";
+                  return ((value * 100) / sum).toFixed(0) + "%";
+                },
+                color: "#fff",
+                font: { weight: "bold" },
+              },
+            },
+            onHover: interactiveHover.onHover,
+          });
+
+          const selectedYear = document.getElementById("yearFilter").value;
+          const previousYear = selectedYear
+            ? (parseInt(selectedYear) - 1).toString()
+            : null;
+          const trendDataCurrent = Array(12).fill(0);
+          const trendDataPrevious = Array(12).fill(0);
+
+          data.forEach((item) => {
+            const date = parseDate(item["tanggalKejadian"]);
+            if (date && date.getFullYear() == selectedYear) {
+              trendDataCurrent[date.getMonth()]++;
+            }
+          });
+          if (previousYear) {
+            state.allData.forEach((item) => {
+              const date = parseDate(item["tanggalKejadian"]);
+              if (date && date.getFullYear() == previousYear) {
+                trendDataPrevious[date.getMonth()]++;
+              }
             });
-            const colors1 = [
-              "#4f46e5",
-              "#6366f1",
-              "#818cf8",
-              "#a5b4fc",
-              "#c7d2fe",
-              "#e0e7ff",
-              "#eef2ff",
-            ];
-            const colors2 = [
-              "#0f766e",
-              "#14b8a6",
-              "#5eead4",
-              "#99f6e4",
-              "#ccfbf1",
-              "#a7f3d0",
-              "#6ee7b7",
-            ];
+          }
 
-            const trendData = Array(12)
-              .fill(0)
-              .map((_, monthIndex) => {
-                return data.filter((item) => {
-                  const date = parseDate(item["TanggalKejadian"]);
-                  return date && date.getMonth() === monthIndex;
-                }).length;
-              });
-            const lineOptions = {
-              scales: {
-                y: { beginAtZero: true },
-                x: {},
-              },
-              plugins: { legend: { display: false } },
-            };
-            createChart(
-              "kejadianChart",
-              "line",
-              {
-                labels: [
-                  "Jan",
-                  "Feb",
-                  "Mar",
-                  "Apr",
-                  "Mei",
-                  "Jun",
-                  "Jul",
-                  "Ags",
-                  "Sep",
-                  "Okt",
-                  "Nov",
-                  "Des",
-                ],
-                datasets: [
-                  {
-                    label: "Jumlah Insiden",
-                    data: trendData,
-                    borderColor: "#22c55e",
-                    tension: 0.4,
-                    fill: true,
-                  },
-                ],
-              },
-              lineOptions
-            );
+          const lineOptions = {
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+              legend: { display: true },
+            },
+            onHover: interactiveHover.onHover,
+          };
 
-            createChart(
-              "jabatanChart",
-              "bar",
-              processData("Jabatan"),
-              barOptions("y"),
-              "Jabatan"
-            );
-            createChart(
-              "perusahaanChart",
-              "doughnut",
-              {
-                labels: processData("Perusahaan").labels,
-                datasets: [
-                  {
-                    data: processData("Perusahaan").datasets[0].data,
-                    backgroundColor: colors1,
-                  },
-                ],
-              },
-              doughnutOptions(),
-              "Perusahaan"
-            );
-            createChart(
-              "faktorPenyebabLangsungChart",
-              "doughnut",
-              {
-                labels: processData("PenyebabLangsung").labels,
-                datasets: [
-                  {
-                    data: processData("PenyebabLangsung").datasets[0].data,
-                    backgroundColor: colors2,
-                  },
-                ],
-              },
-              doughnutOptions(),
-              "PenyebabLangsung"
-            );
-            createChart(
-              "penyebabDasarChart",
-              "doughnut",
-              {
-                labels: processData("PenyebabDasar").labels,
-                datasets: [
-                  {
-                    data: processData("PenyebabDasar").datasets[0].data,
-                    backgroundColor: colors1,
-                  },
-                ],
-              },
-              doughnutOptions(),
-              "PenyebabDasar"
-            );
+          createChart(
+            "kejadianChart",
+            "line",
+            {
+              labels: [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "Mei",
+                "Jun",
+                "Jul",
+                "Ags",
+                "Sep",
+                "Okt",
+                "Nov",
+                "Des",
+              ],
+              datasets: [
+                {
+                  label: selectedYear ? `Tahun ${selectedYear}` : "Semua Tahun",
+                  data: trendDataCurrent,
+                  borderColor: primaryColors[3],
+                  tension: 0.4,
+                  fill: false,
+                },
+                ...(previousYear
+                  ? [
+                      {
+                        label: `Tahun ${previousYear}`,
+                        data: trendDataPrevious,
+                        borderColor: primaryColors[0],
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        fill: false,
+                      },
+                    ]
+                  : []),
+              ],
+            },
+            lineOptions
+          );
 
-            createChart(
-              "unitTerlibatChart",
-              "bar",
-              processData("UnitTerlibat"),
-              barOptions("x"),
-              "UnitTerlibat"
-            );
-            createChart(
-              "masaKerjaChart",
-              "bar",
-              processData("MasaKerja"),
-              barOptions("y"),
-              "MasaKerja"
-            );
-            createChart(
-              "tipeCederaChart",
-              "bar",
-              processData("KategoriCedera"),
-              barOptions("x"),
-              "KategoriCedera"
-            );
+          createChart(
+            "jabatanChart",
+            "bar",
+            processData("jabatan"),
+            barOptions("y", "Klik untuk memfilter"),
+            "jabatan"
+          );
+          createChart(
+            "perusahaanChart",
+            "doughnut",
+            {
+              labels: processData("perusahaan").labels,
+              datasets: [
+                {
+                  data: processData("perusahaan").datasets[0].data,
+                  backgroundColor: primaryColors,
+                },
+              ],
+            },
+            doughnutOptions("Klik untuk memfilter"),
+            "perusahaan"
+          );
+          createChart(
+            "faktorPenyebabLangsungChart",
+            "doughnut",
+            {
+              labels: processData("penyebabLangsung").labels,
+              datasets: [
+                {
+                  data: processData("penyebabLangsung").datasets[0].data,
+                  backgroundColor: primaryColors,
+                },
+              ],
+            },
+            doughnutOptions(),
+            "penyebabLangsung"
+          );
+          createChart(
+            "penyebabDasarChart",
+            "doughnut",
+            {
+              labels: processData("penyebabDasar").labels,
+              datasets: [
+                {
+                  data: processData("penyebabDasar").datasets[0].data,
+                  backgroundColor: primaryColors,
+                },
+              ],
+            },
+            doughnutOptions(),
+            "penyebabDasar"
+          );
+          createChart(
+            "unitTerlibatChart",
+            "bar",
+            processData("unitTerlibat"),
+            barOptions("x"),
+            "unitTerlibat"
+          );
+          createChart(
+            "masaKerjaChart",
+            "bar",
+            processData("masaKerja"),
+            barOptions("y"),
+            "masaKerja"
+          );
+          createChart(
+            "tipeCederaChart",
+            "bar",
+            processData("tipeCedera"),
+            barOptions("x"),
+            "tipeCedera"
+          );
+          createChart(
+            "bagianCideraChart",
+            "bar",
+            processData("bagianCidera"),
+            barOptions("y"),
+            "bagianCidera"
+          );
+          createChart(
+            "usiaChart",
+            "bar",
+            processData("usia"),
+            barOptions("x"),
+            "usia"
+          );
+          createChart(
+            "statusKaryawanChart",
+            "bar",
+            processData("statusKaryawan"),
+            barOptions("y"),
+            "statusKaryawan"
+          );
+          createChart(
+            "tempatTinggalChart",
+            "doughnut",
+            {
+              labels: processData("tempatTinggal").labels,
+              datasets: [
+                {
+                  data: processData("tempatTinggal").datasets[0].data,
+                  backgroundColor: primaryColors,
+                },
+              ],
+            },
+            doughnutOptions(),
+            "tempatTinggal"
+          );
 
-            // --- PERBAIKAN DI SINI ---
-            // Mengubah sumber data dari "JenisKontakInsiden" menjadi "BagianCidera"
-            // agar sesuai dengan judul bagan "Bagian Cidera".
-            createChart(
-              "bagianCideraChart",
-              "bar",
-              processData("BagianCidera"), // Diubah dari "JenisKontakInsiden"
-              barOptions("y"),
-              "BagianCidera" // Diubah dari "JenisKontakInsiden"
-            );
-
-            createChart(
-              "usiaChart",
-              "bar",
-              processData("Usia"),
-              barOptions("x"),
-              "Usia"
-            );
-            createChart(
-              "statusKaryawanChart",
-              "bar",
-              processData("StatusKaryawan"),
-              barOptions("y"),
-              "StatusKaryawan"
-            );
-            createChart(
-              "tempatTinggalChart",
-              "doughnut",
-              {
-                labels: processData("TempatTinggal").labels,
-                datasets: [
-                  {
-                    data: processData("TempatTinggal").datasets[0].data,
-                    backgroundColor: ["#16a34a", "#facc15"],
-                  },
-                ],
-              },
-              doughnutOptions(),
-              "TempatTinggal"
-            );
-
-            const shiftData = data.reduce(
-              (acc, item) => {
-                const timeStr = item["JamMulaiKecelakaan"];
-                if (timeStr) {
-                  const hour = parseInt(timeStr, 10);
-                  if (!isNaN(hour)) {
-                    if (hour >= 7 && hour < 16) {
-                      acc["Pagi (07-16)"]++;
-                    } else if (hour >= 16 && hour < 24) {
-                      acc["Siang (16-24)"]++;
-                    } else {
-                      acc["Malam (00-07)"]++;
-                    }
+          const shiftData = data.reduce(
+            (acc, item) => {
+              const timeStr = item["jamMulaiKecelakaan"];
+              if (typeof timeStr === "string" && timeStr) {
+                const hour = parseInt(timeStr.split(":")[0], 10);
+                if (!isNaN(hour)) {
+                  if (hour >= 7 && hour < 16) {
+                    acc["Pagi (07-16)"]++;
+                  } else if (hour >= 16 && hour < 24) {
+                    acc["Siang (16-24)"]++;
+                  } else {
+                    acc["Malam (00-07)"]++;
                   }
                 }
-                return acc;
-              },
-              { "Pagi (07-16)": 0, "Siang (16-24)": 0, "Malam (00-07)": 0 }
-            );
+              }
+              return acc;
+            },
+            { "Pagi (07-16)": 0, "Siang (16-24)": 0, "Malam (00-07)": 0 }
+          );
 
-            createChart(
-              "waktuKejadianChart",
-              "doughnut",
-              {
-                labels: Object.keys(shiftData),
-                datasets: [
-                  {
-                    label: "Insiden per Shift",
-                    data: Object.values(shiftData),
-                    backgroundColor: ["#f59e0b", "#1d4ed8", "#4b5563"],
-                  },
-                ],
-              },
-              doughnutOptions("Insiden per Shift")
-            );
+          createChart(
+            "waktuKejadianChart",
+            "doughnut",
+            {
+              labels: Object.keys(shiftData),
+              datasets: [
+                {
+                  data: Object.values(shiftData),
+                  backgroundColor: shiftColors,
+                },
+              ],
+            },
+            doughnutOptions("Insiden per Shift")
+          );
+        };
 
-            main.style.opacity = 1;
-          }, 300);
+        window.downloadChart = (chartId) => {
+          const chartInstance = state.chartInstances[chartId];
+          if (chartInstance) {
+            const link = document.createElement("a");
+            link.href = chartInstance.toBase64Image();
+            link.download = `${chartId}_chart.png`;
+            link.click();
+          }
+        };
+
+        const exportToCSV = (data) => {
+          if (!data || data.length === 0) {
+            alert("Tidak ada data untuk diekspor.");
+            return;
+          }
+
+          const header = Object.keys(data[0]).join(";");
+          const rows = data.map((item) => Object.values(item).join(";"));
+          const csvContent = `${header}\n${rows.join("\n")}`;
+
+          const blob = new Blob([csvContent], {
+            type: "text/csv;charset=utf-8;",
+          });
+          const link = document.createElement("a");
+          const url = URL.createObjectURL(blob);
+          link.setAttribute("href", url);
+          link.setAttribute("download", "data_insiden.csv");
+          link.style.visibility = "hidden";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        };
+
+        const exportToPDF = () => {
+          const mainElement = document.getElementById("dashboardMain");
+          if (!mainElement) {
+            alert("Elemen dashboard tidak ditemukan!");
+            return;
+          }
+
+          const exportButton = document.getElementById("exportPdfBtn");
+          exportButton.textContent = "Membuat PDF...";
+          exportButton.disabled = true;
+
+          const chartActions = mainElement.querySelectorAll(".chart-actions");
+          chartActions.forEach((btn) => (btn.style.display = "none"));
+
+          html2canvas(mainElement, {
+            scale: 2,
+            useCORS: true,
+          }).then((canvas) => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF("p", "mm", "a4");
+            const imgData = canvas.toDataURL("image/jpeg", 0.9);
+            const imgWidth = 210;
+            const pageHeight = 297;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+              position = heightLeft - imgHeight;
+              pdf.addPage();
+              pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+              heightLeft -= pageHeight;
+            }
+
+            pdf.save("Laporan-Insiden.pdf");
+            exportButton.textContent = "Unduh Laporan (PDF)";
+            exportButton.disabled = false;
+            chartActions.forEach((btn) => (btn.style.display = "block"));
+          });
         };
 
         setupDefaults();

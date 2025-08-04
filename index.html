@@ -1089,6 +1089,22 @@
       .filosofi-section ul li strong {
         color: var(--text-color);
       }
+      /* Gaya baru untuk tombol "Lupa TTD" yang lebih kecil */
+      .forgot-ttd-link {
+        font-size: 13px; /* Ukuran font lebih kecil */
+        font-weight: 500;
+        color: var(--text-color-light);
+        text-decoration: none;
+        padding: 8px 16px;
+        border: 1px solid #eeeeee;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .forgot-ttd-link:hover {
+        background-color: #f0f0f0;
+        color: var(--text-color);
+      }
     </style>
   </head>
   <body>
@@ -1823,6 +1839,26 @@
                   data-translate="induction_start_btn"
                 >
                   Mulai Induksi
+                </a>
+
+                <p
+                  style="
+                    color: var(--text-color-light);
+                    line-height: 1.6;
+                    margin-bottom: 32px;
+                  "
+                >
+                  Jika Lupa Melakukan / Belum Melakukan TTD Checklist & SPDK
+                  SIlakhak Klik Tombol Di bawah ini.
+                </p>
+                <!-- Tombol "Lupa TTD" yang sudah diubah ukurannya -->
+                <a
+                  href="lupa_ttd.html"
+                  target="_self"
+                  class="forgot-ttd-link"
+                  data-translate="ttd_start_btn"
+                >
+                  Lupa TTD SPDK & Checklist
                 </a>
               </div>
             </main>

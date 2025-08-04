@@ -462,9 +462,9 @@
                     >PERINGATAN KERAHASIAAN
                   </h4>
                   <p class="text-yellow-700 text-sm mt-2">
-                    Dilarang keras menbil tangkapan layar (screenshot) soal
+                    Dilarang keras mengambil tangkapan layar (screenshot) soal
                     maupun jawaban. Jika terbukti melakukan pelanggaran, akan
-                    diberikan sanksi SP1 dari tim PT .
+                    diberikan sanksi SP1 dari tim PT GAM.
                   </p>
                 </div>
               </div>
@@ -580,14 +580,8 @@
                   class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 >
                   <option value="" disabled selected>Pilih Perusahaan</option>
-<<<<<<< HEAD
                   <option value="PT. GAM">PT. GANDA ALAM MAKMUR</option>
                   <option value="PT. MGE">PT. MEGE GLOBAL ENERGY</option>
-=======
-                  <option value="PT. GAM">PT. GAM </option>
-                  <option value="PT. MGE">PT. MGE </option>
-                  <option value="PT. KRI">PT. KRI</option>
->>>>>>> 659d3fe0a36b01810b3ee686cf2ce7aa7e8df20a
                   <option value="PT. SUM">PT. SUM</option>
                   <option value="PT. KAI">PT. KAI</option>
                   <option value="PT. GPE">PT. GPE</option>
@@ -720,10 +714,10 @@
               <option value="" disabled selected>Pilih Tipe Induksi</option>
               <option value="induksi_visitor">Induksi Visitor</option>
               <option value="karyawan_baru">
-                Karyawan Baru Mitra / PT. GAM
+                Karyawan Baru Mitra / PT.GAM
               </option>
               <option value="pasca_cuti_mitra">Pasca Cuti Mitra</option>
-              <option value="pasca_cuti_">Pasca Cuti PT. GAM</option>
+              <option value="pasca_cuti_gam">Pasca Cuti PT.GAM</option>
               <option value="temporary">Temporary</option>
               <option value="magang">Magang</option>
             </select>
@@ -883,7 +877,7 @@
               <div
                 class="border rounded-lg p-4 space-y-4 bg-gray-50 max-h-96 overflow-y-auto"
               >
-                <!-- GANTI DENGAN URL BAR ANDA -->
+                <!-- GANTI DENGAN URL GAMBAR ANDA -->
                 <img
                   src="assets\spdk_001.png"
                   alt="SPDK Halaman 1"
@@ -1276,7 +1270,7 @@
         "https://script.google.com/macros/s/AKfycbyEzbJT_-0i3_4mx4fDAo4R0MFWPYNHrAGTguaYkZorQ8tfoZYi0hukvFqSeC2ayg/exec";
       const TALLY_SIGNATURE_URL = "https://tally.so/embed/mOMxPA";
       const PASSING_SCORE = 70; // Nilai Kelulusan Minimal (contoh: 75)
-      const ADMIN_PASSWORD = "hse2024"; // Password untuk mode admin
+      const ADMIN_PASSWORD = "gamhse2024"; // Password untuk mode admin
       // -------------------------
 
       // Inisialisasi jsPDF
@@ -1375,9 +1369,9 @@
 
       const inductionTypeMap = {
         induksi_visitor: "Induksi Visitor",
-        karyawan_baru: "Karyawan Baru Mitra / PT. GAM",
+        karyawan_baru: "Karyawan Baru Mitra / PT.GAM",
         pasca_cuti_mitra: "Pasca Cuti Mitra",
-        pasca_cuti_: "Pasca Cuti PT. GAM",
+        pasca_cuti_gam: "Pasca Cuti PT.GAM",
         temporary: "Temporary",
         magang: "Magang",
       };
@@ -1681,7 +1675,7 @@
           const data = await response.json();
           return data.ip;
         } catch (error) {
-          console.error("Gagal menbil IP address:", error);
+          console.error("Gagal mengambil IP address:", error);
           return "Tidak tersedia";
         }
       }
